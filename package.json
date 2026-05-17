@@ -22,6 +22,7 @@
     "@thirdweb-dev/react-native-adapter": "^1.5.5",
     "@walletconnect/react-native-compat": "^2.23.9",
     "amazon-cognito-identity-js": "^6.3.16",
+    "babel-preset-expo": "^55.0.21",
     "expo": "~54.0.33",
     "expo-application": "~7.0.8",
     "expo-build-properties": "~1.0.10",
@@ -36,6 +37,8 @@
     "expo-symbols": "~1.0.8",
     "expo-system-ui": "~6.0.9",
     "expo-web-browser": "~15.0.11",
+    "nativewind": "^4.2.4",
+    "prettier-plugin-tailwindcss": "^0.5.14",
     "react": "19.1.0",
     "react-dom": "19.1.0",
     "react-native": "0.81.5",
@@ -51,6 +54,7 @@
     "react-native-svg": "15.12.1",
     "react-native-web": "~0.21.0",
     "react-native-worklets": "0.5.1",
+    "tailwindcss": "^3.4.19",
     "thirdweb": "^5.120.0"
   },
   "devDependencies": {
