@@ -1,112 +1,113 @@
-import { Image } from "expo-image";
-import { Platform, StyleSheet } from "react-native";
-
-import { HelloWave } from "@/components/hello-wave";
-import ParallaxScrollView from "@/components/parallax-scroll-view";
-import { ThemedText } from "@/components/themed-text";
-import { ThemedView } from "@/components/themed-view";
+import { ThemedButton } from "@/components/ThemedButton";
+import { ThemedText } from "@/components/ThemedText";
+import { thirdwebClient } from "@/libs/thirdweb";
 import { Link } from "expo-router";
+import { useEffect, useState } from "react";
+import { ScrollView, StyleSheet, View, useColorScheme } from "react-native";
+import { sepolia } from "thirdweb/chains";
+import {
+  ConnectButton,
+  useActiveAccount,
+  useActiveWallet,
+  useConnect,
+  useDisconnect,
+} from "thirdweb/react";
+import { shortenAddress } from "thirdweb/utils";
+import { getUserEmail, inAppWallet } from "thirdweb/wallets/in-app";
+
+const wallets = [
+  inAppWallet({
+    auth: {
+      options: ["google"],
+      passkeyDomain: "thirdweb.com",
+    },
+    smartAccount: {
+      chain: sepolia,
+      sponsorGas: true,
+    },
+  }),
+];
 
 export default function HomeScreen() {
+  const theme = useColorScheme();
   return (
-    <ParallaxScrollView
-      headerBackgroundColor={{ light: "#A1CEDC", dark: "#1D3D47" }}
-      headerImage={
-        <Image
-          source={require("@/assets/images/partial-react-logo.png")}
-          style={styles.reactLogo}
-        />
-      }
-    >
-      <ThemedView style={styles.titleContainer}>
-        <ThemedText type="title">Welcome!</ThemedText>
-        <HelloWave />
-      </ThemedView>
-
-      <Link href={"/(drawer)/home"}>
-        <ThemedText> Go to drawer!</ThemedText>
+    <ScrollView contentContainerStyle={styles.container}>
+      <Link href="/(drawer)/home">
+        <ThemedText type="link">Go to home screen!</ThemedText>
       </Link>
+      <ConnectButton
+        client={thirdwebClient}
+        theme={theme || "dark"}
+        wallets={wallets}
+        chain={sepolia}
+      />
 
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 1: Try it</ThemedText>
-        <ThemedText>
-          Edit{" "}
-          <ThemedText type="defaultSemiBold">app/(tabs)/index.tsx</ThemedText>{" "}
-          to see changes. Press{" "}
-          <ThemedText type="defaultSemiBold">
-            {Platform.select({
-              ios: "cmd + d",
-              android: "cmd + m",
-              web: "F12",
-            })}
-          </ThemedText>{" "}
-          to open developer tools.
+      <View style={{ gap: 2 }}>
+        <ThemedText type="subtitle">{`useConnect()`}</ThemedText>
+        <ThemedText type="subtext">
+          Hooks to build your own UI. Example below connects to a smart Google
+          account or metamask EOA.
         </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <Link href="/modal">
-          <Link.Trigger>
-            <ThemedText type="subtitle">Step 2: Explore</ThemedText>
-          </Link.Trigger>
-          <Link.Preview />
-          <Link.Menu>
-            <Link.MenuAction
-              title="Action"
-              icon="cube"
-              onPress={() => alert("Action pressed")}
-            />
-            <Link.MenuAction
-              title="Share"
-              icon="square.and.arrow.up"
-              onPress={() => alert("Share pressed")}
-            />
-            <Link.Menu title="More" icon="ellipsis">
-              <Link.MenuAction
-                title="Delete"
-                icon="trash"
-                destructive
-                onPress={() => alert("Delete pressed")}
-              />
-            </Link.Menu>
-          </Link.Menu>
-        </Link>
-
-        <ThemedText>
-          {`Tap the Explore tab to learn more about what's included in this starter app.`}
-        </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 3: Get a fresh start</ThemedText>
-        <ThemedText>
-          {`When you're ready, run `}
-          <ThemedText type="defaultSemiBold">
-            npm run reset-project
-          </ThemedText>{" "}
-          to get a fresh <ThemedText type="defaultSemiBold">app</ThemedText>{" "}
-          directory. This will move the current{" "}
-          <ThemedText type="defaultSemiBold">app</ThemedText> to{" "}
-          <ThemedText type="defaultSemiBold">app-example</ThemedText>.
-        </ThemedText>
-      </ThemedView>
-    </ParallaxScrollView>
+      </View>
+      <CustomConnectUI />
+    </ScrollView>
   );
 }
 
+const CustomConnectUI = () => {
+  const wallet = useActiveWallet();
+  const account = useActiveAccount();
+  const [email, setEmail] = useState<string | undefined>();
+  const { disconnect } = useDisconnect();
+  useEffect(() => {
+    if (wallet && wallet.id === "inApp") {
+      getUserEmail({ client: thirdwebClient }).then(setEmail);
+    }
+  }, [wallet]);
+
+  return wallet && account ? (
+    <View>
+      <ThemedText>Connected as {shortenAddress(account.address)}</ThemedText>
+      {email && <ThemedText type="subtext">{email}</ThemedText>}
+      <View style={{ height: 16 }} />
+      <ThemedButton onPress={() => disconnect(wallet)} title="Disconnect" />
+    </View>
+  ) : (
+    <>
+      <ConnectWithGoogle />
+    </>
+  );
+};
+
+const ConnectWithGoogle = () => {
+  const { connect, isConnecting } = useConnect();
+  return (
+    <ThemedButton
+      title="Connect with Google"
+      loading={isConnecting}
+      loadingTitle="Connecting..."
+      onPress={() => {
+        connect(async () => {
+          const w = inAppWallet({
+            smartAccount: {
+              chain: sepolia,
+              sponsorGas: true,
+            },
+          });
+          await w.connect({
+            client: thirdwebClient,
+            strategy: "google",
+          });
+          return w;
+        });
+      }}
+    />
+  );
+};
+
 const styles = StyleSheet.create({
-  titleContainer: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 8,
-  },
-  stepContainer: {
-    gap: 8,
-    marginBottom: 8,
-  },
-  reactLogo: {
-    height: 178,
-    width: 290,
-    bottom: 0,
-    left: 0,
-    position: "absolute",
+  container: {
+    padding: 16,
+    gap: 16,
   },
 });

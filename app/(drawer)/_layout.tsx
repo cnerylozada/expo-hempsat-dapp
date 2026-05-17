@@ -10,6 +10,13 @@ export default function DrawerLayout() {
           title: "overview",
         }}
       />
+      <Drawer.Screen
+        name="login" // This is the name of the page and must match the url from root
+        options={{
+          drawerLabel: "Login",
+          title: "Login",
+        }}
+      />
     </Drawer>
   );
 }
