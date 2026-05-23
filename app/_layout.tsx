@@ -1,4 +1,5 @@
 import { useColorScheme } from "@/hooks/use-color-scheme";
+import { AuthProvider } from "@/providers/AuthProvider";
 import {
   DarkTheme,
   DefaultTheme,
@@ -15,10 +16,14 @@ export default function RootLayout() {
 
   return (
     <ThirdwebProvider>
-      <ThemeProvider value={colorScheme === "dark" ? DarkTheme : DefaultTheme}>
-        <StatusBar style="auto" />
-        <Slot />
-      </ThemeProvider>
+      <AuthProvider>
+        <ThemeProvider
+          value={colorScheme === "dark" ? DarkTheme : DefaultTheme}
+        >
+          <StatusBar style="auto" />
+          <Slot />
+        </ThemeProvider>
+      </AuthProvider>
     </ThirdwebProvider>
   );
 }

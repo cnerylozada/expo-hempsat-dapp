@@ -1,4 +1,4 @@
-import { createThirdwebClient, getContract } from "thirdweb";
+import { createThirdwebClient } from "thirdweb";
 
 const clientId = process.env.EXPO_PUBLIC_THIRDWEB_CLIENT_ID!;
 

@@ -1,9 +1,10 @@
+import { useAuth } from "@/providers/AuthProvider";
+import Ionicons from "@expo/vector-icons/Ionicons";
 import { Drawer } from "expo-router/drawer";
 import { View } from "react-native";
-import { useActiveAccount } from "thirdweb/react";
 
 export default function DrawerLayout() {
-  const activeAccount = useActiveAccount();
+  const { isAuthenticated } = useAuth();
 
   return (
     <Drawer
@@ -15,7 +16,10 @@ export default function DrawerLayout() {
         name="home" // This is the name of the page and must match the url from root
         options={{
           drawerLabel: "Home",
-          title: "overview",
+          title: "Home",
+          drawerIcon: ({ color, size }) => (
+            <Ionicons color={color} size={size} name="home" />
+          ),
         }}
       />
       <Drawer.Screen
@@ -23,7 +27,10 @@ export default function DrawerLayout() {
         options={{
           drawerLabel: "Login",
           title: "Login",
-          drawerItemStyle: { display: !!activeAccount ? "none" : "flex" },
+          drawerIcon: ({ color, size }) => (
+            <Ionicons color={color} size={size} name="log-in" />
+          ),
+          drawerItemStyle: { display: !!isAuthenticated ? "none" : "flex" },
         }}
       />
       <Drawer.Screen
@@ -31,7 +38,10 @@ export default function DrawerLayout() {
         options={{
           drawerLabel: "Dashboard",
           title: "Dashboard",
-          drawerItemStyle: { display: !activeAccount ? "none" : "flex" },
+          drawerIcon: ({ color, size }) => (
+            <Ionicons color={color} size={size} name="briefcase" />
+          ),
+          drawerItemStyle: { display: !isAuthenticated ? "none" : "flex" },
         }}
       />
     </Drawer>

@@ -1,48 +1,23 @@
 import { ThemedButton } from "@/components/ThemedButton";
 import { ThemedText } from "@/components/ThemedText";
 import { thirdwebClient } from "@/libs/thirdweb";
+import { useAuth } from "@/providers/AuthProvider";
 import { router } from "expo-router";
 import { useEffect, useState } from "react";
 import { ScrollView, View } from "react-native";
-import { sepolia } from "thirdweb/chains";
 import {
   useActiveAccount,
   useActiveWallet,
-  useConnect,
   useDisconnect,
 } from "thirdweb/react";
 import { shortenAddress } from "thirdweb/utils";
-import { getUserEmail, inAppWallet } from "thirdweb/wallets/in-app";
-
-const ConnectWithGoogle = () => {
-  const { connect, isConnecting } = useConnect();
-  return (
-    <ThemedButton
-      title="Connect with Google"
-      loading={isConnecting}
-      loadingTitle="Connecting..."
-      onPress={() => {
-        connect(async () => {
-          const w = inAppWallet({
-            smartAccount: {
-              chain: sepolia,
-              sponsorGas: true,
-            },
-          });
-          await w.connect({
-            client: thirdwebClient,
-            strategy: "google",
-          });
-          return w;
-        });
-      }}
-    />
-  );
-};
+import { getUserEmail } from "thirdweb/wallets/in-app";
 
 const CustomConnectUI = () => {
   const wallet = useActiveWallet();
   const account = useActiveAccount();
+
+  const { signOut } = useAuth();
   const [email, setEmail] = useState<string | undefined>();
   const { disconnect } = useDisconnect();
   useEffect(() => {
@@ -57,7 +32,8 @@ const CustomConnectUI = () => {
       {email && <ThemedText type="subtext">{email}</ThemedText>}
       <View style={{ height: 16 }} />
       <ThemedButton
-        onPress={() => {
+        onPress={async () => {
+          await signOut();
           disconnect(wallet);
           router.replace("/(drawer)/login");
         }}
@@ -66,7 +42,7 @@ const CustomConnectUI = () => {
     </View>
   ) : (
     <>
-      <ConnectWithGoogle />
+      <ThemedText>asds</ThemedText>
     </>
   );
 };

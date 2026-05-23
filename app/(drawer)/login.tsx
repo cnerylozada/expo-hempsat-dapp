@@ -1,17 +1,18 @@
 import { ThemedText } from "@/components/ThemedText";
 import { thirdwebClient } from "@/libs/thirdweb";
+import { useAuth } from "@/providers/AuthProvider";
 import { router } from "expo-router";
 import { useEffect } from "react";
 import { useColorScheme, View } from "react-native";
 import { sepolia } from "thirdweb/chains";
-import { ConnectButton, useActiveAccount } from "thirdweb/react";
+import { ConnectButton } from "thirdweb/react";
 import { inAppWallet } from "thirdweb/wallets/in-app";
 
 const wallets = [
   inAppWallet({
     auth: {
       options: ["google"],
-      passkeyDomain: "thirdweb.com",
+      passkeyDomain: "com.cnerylozada.hempsat",
     },
     smartAccount: {
       chain: sepolia,
@@ -22,13 +23,13 @@ const wallets = [
 
 export default function LoginScreen() {
   const theme = useColorScheme();
-  const activeAccount = useActiveAccount();
+  const { isAuthenticated, signIn } = useAuth();
 
   useEffect(() => {
-    if (activeAccount) {
+    if (isAuthenticated) {
       router.replace("/(drawer)/dashboard");
     }
-  }, [activeAccount]);
+  }, [isAuthenticated]);
 
   return (
     <View className="flex-1 justify-center">
@@ -47,6 +48,14 @@ export default function LoginScreen() {
           theme={theme || "dark"}
           wallets={wallets}
           chain={sepolia}
+          onConnect={async (activeWallet) => {
+            const account = activeWallet.getAccount();
+            if (!account) return;
+            const deadline = Math.floor(Date.now() / 1000) + 60;
+            const message = `com.cnerylozada.hempsat_deadline:${deadline}`;
+            const signature = await account.signMessage({ message });
+            await signIn(account.address, message, signature);
+          }}
         />
       </View>
     </View>
