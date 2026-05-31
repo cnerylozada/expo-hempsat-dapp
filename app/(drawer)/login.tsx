@@ -1,35 +1,33 @@
 import { ThemedText } from "@/components/ThemedText";
-import { thirdwebClient } from "@/libs/thirdweb";
+import { appChain, thirdwebClient, thirdwebWallets } from "@/libs/thirdweb";
 import { useAuth } from "@/providers/AuthProvider";
-import { router } from "expo-router";
+import { useRouter } from "expo-router";
 import { useEffect } from "react";
-import { useColorScheme, View } from "react-native";
-import { sepolia } from "thirdweb/chains";
-import { ConnectButton } from "thirdweb/react";
-import { inAppWallet } from "thirdweb/wallets/in-app";
-
-const wallets = [
-  inAppWallet({
-    auth: {
-      options: ["google"],
-      passkeyDomain: "com.cnerylozada.hempsat",
-    },
-    smartAccount: {
-      chain: sepolia,
-      sponsorGas: true,
-    },
-  }),
-];
+import { ActivityIndicator, useColorScheme, View } from "react-native";
+import { ConnectButton, useActiveAccount } from "thirdweb/react";
 
 export default function LoginScreen() {
   const theme = useColorScheme();
-  const { isAuthenticated, signIn } = useAuth();
+  const { isAuthenticated, onSignIn } = useAuth();
+  const router = useRouter();
+
+  const activeAccount = useActiveAccount();
 
   useEffect(() => {
     if (isAuthenticated) {
+      console.log("LoginScreen useEffect isAuthenticated ...");
       router.replace("/(drawer)/dashboard");
     }
   }, [isAuthenticated]);
+
+  if (activeAccount) {
+    console.log("LoginScreen activeAccount...");
+    return (
+      <View className="flex-1 justify-center">
+        <ActivityIndicator size={"large"} />
+      </View>
+    );
+  }
 
   return (
     <View className="flex-1 justify-center">
@@ -46,15 +44,15 @@ export default function LoginScreen() {
         <ConnectButton
           client={thirdwebClient}
           theme={theme || "dark"}
-          wallets={wallets}
-          chain={sepolia}
+          wallets={thirdwebWallets}
+          chain={appChain}
           onConnect={async (activeWallet) => {
             const account = activeWallet.getAccount();
             if (!account) return;
             const deadline = Math.floor(Date.now() / 1000) + 60;
             const message = `com.cnerylozada.hempsat_deadline:${deadline}`;
             const signature = await account.signMessage({ message });
-            await signIn(account.address, message, signature);
+            await onSignIn(account.address, message, signature);
           }}
         />
       </View>

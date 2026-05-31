@@ -1,3 +1,4 @@
+import { isTokenExpired, signIn, signOut } from "@/server/auth";
 import * as SecureStore from "expo-secure-store";
 import {
   createContext,
@@ -7,6 +8,7 @@ import {
   useState,
 } from "react";
 import { ActivityIndicator, View } from "react-native";
+import { useActiveWallet, useDisconnect } from "thirdweb/react";
 
 const KEYS = {
   jwt: "jwt",
@@ -14,8 +16,12 @@ const KEYS = {
 
 interface AuthContextType {
   isAuthenticated: boolean;
-  signIn: (wallet: string, message: string, signature: string) => Promise<void>;
-  signOut: () => Promise<void>;
+  onSignIn: (
+    wallet: string,
+    message: string,
+    signature: string,
+  ) => Promise<void>;
+  onSignOut: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -23,18 +29,25 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
+  const { disconnect } = useDisconnect();
+  const activeWallet = useActiveWallet();
 
   useEffect(() => {
     const loadAuthState = async () => {
       const token = await SecureStore.getItemAsync(KEYS.jwt);
-      setIsAuthenticated(!!token);
+      if (token && !isTokenExpired(token)) {
+        setIsAuthenticated(true);
+      } else await onSignOut();
       setIsLoading(false);
     };
     loadAuthState();
   }, []);
 
-  const signIn = async (wallet: string, message: string, signature: string) => {
-    console.log("signIn ....");
+  const onSignIn = async (
+    wallet: string,
+    message: string,
+    signature: string,
+  ) => {
     setIsLoading(true);
     const requestBody = {
       wallet,
@@ -42,37 +55,31 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       signature,
     };
 
-    const response = await fetch(
-      `${process.env.EXPO_PUBLIC_API_URL}/auth/sign-in`,
-      {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(requestBody),
-      },
-    );
-
-    if (!response.ok) {
-      throw new Error("Sign-in failed");
+    try {
+      const token = await signIn(requestBody);
+      await SecureStore.setItemAsync(KEYS.jwt, token);
+      setIsAuthenticated(true);
+    } catch (error) {
+      console.error(error);
     }
-
-    const { token } = await response.json();
-    await SecureStore.setItemAsync(KEYS.jwt, token);
-    setIsAuthenticated(true);
     setIsLoading(false);
   };
 
-  const signOut = async () => {
+  const onSignOut = async () => {
     const token = await SecureStore.getItemAsync(KEYS.jwt);
-    await fetch(`${process.env.EXPO_PUBLIC_API_URL}/auth/sign-out`, {
-      method: "POST",
-      headers: { Authorization: `Bearer ${token}` },
-    });
+
+    try {
+      await signOut(token);
+    } catch (error) {
+      console.error(error);
+    }
+    if (activeWallet) disconnect(activeWallet);
     await SecureStore.deleteItemAsync(KEYS.jwt);
     setIsAuthenticated(false);
   };
 
   return (
-    <AuthContext.Provider value={{ isAuthenticated, signIn, signOut }}>
+    <AuthContext.Provider value={{ isAuthenticated, onSignIn, onSignOut }}>
       {isLoading ? (
         <View className="flex-1 justify-center">
           <ActivityIndicator size={"large"} />

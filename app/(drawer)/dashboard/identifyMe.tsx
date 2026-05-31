@@ -1,10 +1,10 @@
 import { ThemedText } from "@/components/ThemedText";
 import { View } from "react-native";
 
-export default function HomeScreen() {
+export default function IdentifyMeScreen() {
   return (
-    <View className="flex-1">
-      <ThemedText>HomeScreen </ThemedText>
+    <View>
+      <ThemedText>IdentifyMeScreen</ThemedText>
     </View>
   );
 }

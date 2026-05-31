@@ -6,6 +6,8 @@ import { View } from "react-native";
 export default function DrawerLayout() {
   const { isAuthenticated } = useAuth();
 
+  console.log("isAuthenticated", Date.now());
+
   return (
     <Drawer
       screenLayout={({ children }) => (
@@ -13,7 +15,7 @@ export default function DrawerLayout() {
       )}
     >
       <Drawer.Screen
-        name="home" // This is the name of the page and must match the url from root
+        name="home"
         options={{
           drawerLabel: "Home",
           title: "Home",
@@ -23,7 +25,7 @@ export default function DrawerLayout() {
         }}
       />
       <Drawer.Screen
-        name="login" // This is the name of the page and must match the url from root
+        name="login"
         options={{
           drawerLabel: "Login",
           title: "Login",
@@ -34,12 +36,23 @@ export default function DrawerLayout() {
         }}
       />
       <Drawer.Screen
-        name="dashboard" // This is the name of the page and must match the url from root
+        name="dashboard/index"
         options={{
           drawerLabel: "Dashboard",
           title: "Dashboard",
           drawerIcon: ({ color, size }) => (
             <Ionicons color={color} size={size} name="briefcase" />
+          ),
+          drawerItemStyle: { display: !isAuthenticated ? "none" : "flex" },
+        }}
+      />
+      <Drawer.Screen
+        name="dashboard/identifyMe"
+        options={{
+          drawerLabel: "Identify me",
+          title: "Identify me",
+          drawerIcon: ({ color, size }) => (
+            <Ionicons color={color} size={size} name="person-circle-outline" />
           ),
           drawerItemStyle: { display: !isAuthenticated ? "none" : "flex" },
         }}
