@@ -8,7 +8,6 @@ import {
   useState,
 } from "react";
 import { ActivityIndicator, View } from "react-native";
-import { useActiveWallet, useDisconnect } from "thirdweb/react";
 
 const KEYS = {
   jwt: "jwt",
@@ -29,15 +28,13 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
-  const { disconnect } = useDisconnect();
-  const activeWallet = useActiveWallet();
 
   useEffect(() => {
     const loadAuthState = async () => {
       const token = await SecureStore.getItemAsync(KEYS.jwt);
       if (token && !isTokenExpired(token)) {
         setIsAuthenticated(true);
-      } else await onSignOut();
+      }
       setIsLoading(false);
     };
     loadAuthState();
@@ -73,7 +70,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     } catch (error) {
       console.error(error);
     }
-    if (activeWallet) disconnect(activeWallet);
     await SecureStore.deleteItemAsync(KEYS.jwt);
     setIsAuthenticated(false);
   };

@@ -6,8 +6,6 @@ import { View } from "react-native";
 export default function DrawerLayout() {
   const { isAuthenticated } = useAuth();
 
-  console.log("isAuthenticated", Date.now());
-
   return (
     <Drawer
       screenLayout={({ children }) => (
@@ -47,14 +45,21 @@ export default function DrawerLayout() {
         }}
       />
       <Drawer.Screen
-        name="dashboard/identifyMe"
+        name="dashboard/identification/index"
         options={{
-          drawerLabel: "Identify me",
-          title: "Identify me",
+          drawerLabel: "Identification",
+          title: "Identification",
           drawerIcon: ({ color, size }) => (
             <Ionicons color={color} size={size} name="person-circle-outline" />
           ),
           drawerItemStyle: { display: !isAuthenticated ? "none" : "flex" },
+        }}
+      />
+      <Drawer.Screen
+        name="dashboard/identification/validate-id-card"
+        options={{
+          title: "Verify Identity",
+          drawerItemStyle: { display: "none" },
         }}
       />
     </Drawer>

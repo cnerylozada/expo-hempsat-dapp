@@ -1,9 +1,12 @@
+import { ThemedButton } from "@/components/ThemedButton";
 import { ThemedText } from "@/components/ThemedText";
 import { appChain, thirdwebClient, thirdwebWallets } from "@/libs/thirdweb";
 import { useAuth } from "@/providers/AuthProvider";
+import { getMyUser } from "@/server/users";
 import { Link, router } from "expo-router";
+import * as SecureStore from "expo-secure-store";
 import { useEffect, useState } from "react";
-import { useColorScheme, View } from "react-native";
+import { ActivityIndicator, useColorScheme, View } from "react-native";
 import {
   ConnectButton,
   useActiveAccount,
@@ -11,6 +14,7 @@ import {
 } from "thirdweb/react";
 import { shortenAddress } from "thirdweb/utils";
 import { getUserEmail } from "thirdweb/wallets/in-app";
+import { IUser } from "./identification/_components/models";
 
 const WalletAccount = () => {
   const theme = useColorScheme();
@@ -55,15 +59,38 @@ const WalletAccount = () => {
 };
 
 export default function DashboardScreen() {
+  const [user, setUser] = useState<IUser | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchUser = async () => {
+      const token = await SecureStore.getItemAsync("jwt");
+      const data = await getMyUser(token);
+      setUser(data);
+      setIsLoading(false);
+    };
+    fetchUser();
+  }, []);
+
+  if (isLoading) {
+    return (
+      <View className="flex-1 justify-center items-center">
+        <ActivityIndicator size="large" />
+      </View>
+    );
+  }
+
   return (
     <View className="gap-y-6">
       <WalletAccount />
 
-      <View>
-        <Link href={"/(drawer)/dashboard/identifyMe"}>
-          <ThemedText>Go to identify me!</ThemedText>
-        </Link>
-      </View>
+      {!user?.inquiry_id && (
+        <View>
+          <Link href={"/(drawer)/dashboard/identification"} asChild>
+            <ThemedButton title="Please identify yourself" />
+          </Link>
+        </View>
+      )}
     </View>
   );
 }

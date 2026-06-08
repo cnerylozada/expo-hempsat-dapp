@@ -1,9 +1,9 @@
 import { useThemeColor } from "@/utils/useThemeColor";
 import {
+  ActivityIndicator,
   type PressableProps,
   StyleSheet,
   TouchableOpacity,
-  ActivityIndicator,
 } from "react-native";
 import { ThemedText } from "./ThemedText";
 
@@ -51,11 +51,10 @@ export function ThemedButton(props: ThemedButtonProps) {
 
 const styles = StyleSheet.create({
   button: {
-    flex: 1,
     flexDirection: "row",
     gap: 8,
     padding: 12,
-    borderRadius: 100,
+    borderRadius: 8,
     justifyContent: "center",
     alignItems: "center",
   },
