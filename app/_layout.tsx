@@ -1,4 +1,3 @@
-import { useColorScheme } from "@/hooks/use-color-scheme";
 import { AuthProvider } from "@/providers/AuthProvider";
 import {
   DarkTheme,
@@ -7,6 +6,7 @@ import {
 } from "@react-navigation/native";
 import { Slot } from "expo-router";
 import { StatusBar } from "expo-status-bar";
+import { useColorScheme } from "react-native";
 import "react-native-reanimated";
 import { ThirdwebProvider } from "thirdweb/react";
 import "./global.css";

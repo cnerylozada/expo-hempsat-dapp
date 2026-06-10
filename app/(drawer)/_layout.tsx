@@ -62,6 +62,15 @@ export default function DrawerLayout() {
           drawerItemStyle: { display: "none" },
         }}
       />
+      <Drawer.Screen
+        name="dashboard/farms/index"
+        options={{
+          title: "Farms",
+          drawerIcon: ({ color, size }) => (
+            <Ionicons color={color} size={size} name="flower-outline" />
+          ),
+        }}
+      />
     </Drawer>
   );
 }
