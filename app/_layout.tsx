@@ -1,4 +1,5 @@
 import { AuthProvider } from "@/providers/AuthProvider";
+import { PhotoProvider } from "@/providers/PhotoProvider";
 import {
   DarkTheme,
   DefaultTheme,
@@ -17,14 +18,16 @@ export default function RootLayout() {
   return (
     <ThirdwebProvider>
       <AuthProvider>
-        <ThemeProvider
-          value={colorScheme === "dark" ? DarkTheme : DefaultTheme}
-        >
-          <StatusBar style="auto" />
-          <Stack screenOptions={{ headerShown: false }}>
-            <Stack.Screen name="(drawer)" />
-          </Stack>
-        </ThemeProvider>
+        <PhotoProvider>
+          <ThemeProvider
+            value={colorScheme === "dark" ? DarkTheme : DefaultTheme}
+          >
+            <StatusBar style="auto" />
+            <Stack screenOptions={{ headerShown: false }}>
+              <Stack.Screen name="(drawer)" />
+            </Stack>
+          </ThemeProvider>
+        </PhotoProvider>
       </AuthProvider>
     </ThirdwebProvider>
   );
