@@ -23,6 +23,8 @@ module.exports = {
         border: {
           DEFAULT: "#ECEDEE",
           dark: "#333333",
+          info: "#93c5fd",
+          "info-dark": "#3b82f6",
         },
       },
     },
