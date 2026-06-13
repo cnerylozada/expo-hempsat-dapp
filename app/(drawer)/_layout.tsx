@@ -71,6 +71,13 @@ export default function DrawerLayout() {
           ),
         }}
       />
+      <Drawer.Screen
+        name="dashboard/farms/create-farm"
+        options={{
+          title: "Register farm",
+          drawerItemStyle: { display: "none" },
+        }}
+      />
     </Drawer>
   );
 }

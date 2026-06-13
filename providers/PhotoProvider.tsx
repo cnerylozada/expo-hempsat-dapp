@@ -1,17 +1,29 @@
 import { createContext, ReactNode, useContext, useState } from "react";
 
 interface PhotoContextType {
-  photoUri: string | null;
-  setPhotoUri: (uri: string | null) => void;
+  photoList: string[];
+  addPhoto: (uris: string[]) => void;
+  clearPhotoList: () => void;
 }
 
 const PhotoContext = createContext<PhotoContextType | undefined>(undefined);
 
 export const PhotoProvider = ({ children }: { children: ReactNode }) => {
-  const [photoUri, setPhotoUri] = useState<string | null>(null);
+  const [photoList, setPhotoList] = useState<string[]>([]);
+
+  const addPhoto = (uris: string[]) =>
+    setPhotoList((prev) => [...prev, ...uris]);
+
+  const clearPhotoList = () => setPhotoList([]);
 
   return (
-    <PhotoContext.Provider value={{ photoUri, setPhotoUri }}>
+    <PhotoContext.Provider
+      value={{
+        photoList,
+        addPhoto,
+        clearPhotoList,
+      }}
+    >
       {children}
     </PhotoContext.Provider>
   );

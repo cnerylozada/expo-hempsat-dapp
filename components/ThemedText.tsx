@@ -5,24 +5,21 @@ export type ThemedTextProps = TextProps & {
 };
 
 const typeClasses: Record<NonNullable<ThemedTextProps["type"]>, string> = {
-  default: "text-base leading-6 text-text dark:text-text-dark",
-  defaultSemiBold:
-    "text-base leading-6 font-semibold text-text dark:text-text-dark",
-  title: "text-3xl font-bold leading-8 text-text dark:text-text-dark",
-  subtitle: "text-xl font-bold text-text dark:text-text-dark",
-  subtext: "text-sm leading-5 text-subtext dark:text-subtext-dark",
+  default: "text-base leading-6",
+  defaultSemiBold: "text-base leading-6 font-semibold",
+  title: "text-3xl font-bold leading-8",
+  subtitle: "text-xl font-bold",
+  subtext: "text-sm leading-5",
 };
 
 export function ThemedText({
-  style,
   type = "default",
   className,
   ...rest
 }: ThemedTextProps) {
   return (
     <Text
-      className={`${typeClasses[type]} ${className ?? ""}`}
-      style={style}
+      className={`${typeClasses[type]} text-text dark:text-text-dark ${className ?? ""}`}
       {...rest}
     />
   );
