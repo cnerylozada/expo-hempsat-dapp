@@ -4,16 +4,30 @@ import { usePhoto } from "@/providers/PhotoProvider";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useFocusEffect, useRouter } from "expo-router";
-import { useCallback } from "react";
-import { Controller, useForm } from "react-hook-form";
+import { useCallback, useEffect } from "react";
+import { Controller, useFieldArray, useForm } from "react-hook-form";
 import { Image, ScrollView, TouchableOpacity, View } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { z } from "zod";
 
 const MAX_PHOTOS = 3;
+const photoSchema = z
+  .object({
+    uri: z.string(),
+    fileSizeInMB: z
+      .number()
+      .min(0.05, "File too small (min 50KB)")
+      .max(5, "File too large (max 5MB)"),
+    width: z.number(),
+    height: z.number(),
+  })
+  .refine((_) => _.width >= 600 && _.height >= 900, {
+    message: "Too small (min 600×900px)",
+  });
 
 const schema = z.object({
-  photos: z
-    .array(z.string())
+  titleDeedPhotoList: z
+    .array(photoSchema)
     .min(1, "At least 1 photo is required")
     .max(MAX_PHOTOS, `At most ${MAX_PHOTOS} photos allowed`),
 });
@@ -22,44 +36,39 @@ type FormValues = z.infer<typeof schema>;
 
 export default function CreateFarm() {
   const router = useRouter();
-  const { photoList, clearPhotoList } = usePhoto();
+  const { bottom } = useSafeAreaInsets();
+  const { onSetParams, photoList, clearPhotoList } = usePhoto();
 
   const {
     control,
     handleSubmit,
-    setValue,
     getValues,
     formState: { errors },
     reset,
   } = useForm<FormValues>({
     resolver: zodResolver(schema),
     mode: "all",
-    defaultValues: { photos: [] },
+    defaultValues: { titleDeedPhotoList: [] },
   });
 
-  console.log("photoList", photoList);
+  const { fields, append, remove } = useFieldArray({
+    control,
+    name: "titleDeedPhotoList",
+  });
+
+  useEffect(() => {
+    onSetParams({ max_files: MAX_PHOTOS });
+  }, []);
 
   useFocusEffect(
     useCallback(() => {
       if (photoList.length > 0) {
-        const current = getValues("photos");
-        const remaining = MAX_PHOTOS - current.length;
-        const toAdd = photoList.slice(0, remaining);
-        if (toAdd.length > 0) {
-          setValue("photos", [...current, ...toAdd], { shouldValidate: true });
-        }
+        const remaining = MAX_PHOTOS - getValues("titleDeedPhotoList").length;
+        photoList.slice(0, remaining).forEach((photo) => append(photo));
         clearPhotoList();
       }
     }, [photoList]),
   );
-
-  const removePhoto = (uri: string) => {
-    setValue(
-      "photos",
-      getValues("photos").filter((_) => _ !== uri),
-      { shouldValidate: true },
-    );
-  };
 
   const onSubmit = (data: FormValues) => {
     console.log("farm data:", data);
@@ -67,28 +76,64 @@ export default function CreateFarm() {
   };
 
   return (
-    <ScrollView className="flex-1" contentContainerClassName="gap-4">
+    <ScrollView
+      className="flex-1"
+      contentContainerClassName="gap-4"
+      contentContainerStyle={{ paddingBottom: bottom || 16 }}
+    >
       <View className="gap-2">
         <ThemedText type="defaultSemiBold">
-          Upload photos of title deeds. At most {MAX_PHOTOS} photos
+          Upload photos of title deeds
         </ThemedText>
+        <View>
+          <ThemedText type="subtext">• 1 to {MAX_PHOTOS} photos</ThemedText>
+          <ThemedText type="subtext">• JPG or PNG only</ThemedText>
+          <ThemedText type="subtext">• Size: 50 KB – 5 MB</ThemedText>
+          <ThemedText type="subtext">• Min. dimensions: 600×900 px</ThemedText>
+        </View>
         <Controller
           control={control}
-          name="photos"
-          render={({ field: { value } }) => (
+          name="titleDeedPhotoList"
+          render={() => (
             <View className="gap-4">
-              {value.map((uri) => (
-                <View key={uri} className="relative">
-                  <Image source={{ uri }} className="w-full h-36 rounded-lg" />
-                  <TouchableOpacity
-                    onPress={() => removePhoto(uri)}
-                    className="absolute top-1 right-1 bg-black/50 rounded-full"
-                  >
-                    <Ionicons name="close-circle" size={30} color="white" />
-                  </TouchableOpacity>
-                </View>
-              ))}
-              {value.length < MAX_PHOTOS && (
+              {fields.map((field, index) => {
+                const itemError = errors.titleDeedPhotoList?.[index];
+                const errorMessages = [
+                  itemError?.message,
+                  itemError?.fileSizeInMB?.message,
+                ].filter(Boolean);
+
+                return (
+                  <View key={field.id} className="gap-1">
+                    <ThemedText type="subtext">
+                      {field.width}×{field.height}px ·{" "}
+                      {field.fileSizeInMB.toFixed(3)} MB
+                    </ThemedText>
+                    <View className="relative">
+                      <Image
+                        source={{ uri: field.uri }}
+                        className="w-full h-44 rounded-lg"
+                      />
+                      <TouchableOpacity
+                        onPress={() => remove(index)}
+                        className="absolute top-1 right-1 bg-black/50 rounded-full"
+                      >
+                        <Ionicons name="close-circle" size={30} color="white" />
+                      </TouchableOpacity>
+                    </View>
+                    {errorMessages.map((_) => (
+                      <ThemedText
+                        key={_}
+                        type="subtext"
+                        className="text-text-danger dark:text-text-danger-dark"
+                      >
+                        {_}
+                      </ThemedText>
+                    ))}
+                  </View>
+                );
+              })}
+              {fields.length < MAX_PHOTOS && (
                 <ThemedButton
                   onPress={() => router.push("/camera")}
                   title="Take a photo"
@@ -98,8 +143,13 @@ export default function CreateFarm() {
             </View>
           )}
         />
-        {errors.photos && (
-          <ThemedText type="subtext">{errors.photos.message}</ThemedText>
+        {errors?.titleDeedPhotoList?.message && (
+          <ThemedText
+            type="subtext"
+            className="text-text-danger dark:text-text-danger-dark"
+          >
+            {errors.titleDeedPhotoList.message}
+          </ThemedText>
         )}
       </View>
 

@@ -1,8 +1,9 @@
 import { ThemedButton } from "@/components/ThemedButton";
 import { ThemedText } from "@/components/ThemedText";
-import { usePhoto } from "@/providers/PhotoProvider";
+import { IPhotoItem, usePhoto } from "@/providers/PhotoProvider";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import { CameraView, useCameraPermissions } from "expo-camera";
+import { getInfoAsync } from "expo-file-system/legacy";
 import { launchImageLibraryAsync } from "expo-image-picker";
 import { usePermissions } from "expo-media-library";
 import { useRouter } from "expo-router";
@@ -26,18 +27,25 @@ const GoBackButton = () => {
 };
 
 const GalleryButton = () => {
-  const { addPhoto } = usePhoto();
+  const { addPhoto, params } = usePhoto();
   const router = useRouter();
 
   const onSelectImages = async () => {
     const result = await launchImageLibraryAsync({
       mediaTypes: "images",
       allowsMultipleSelection: true,
-      selectionLimit: 3,
+      selectionLimit: params?.max_files,
       quality: 0.7,
     });
     if (!result.canceled) {
-      addPhoto(result.assets.map((_) => _.uri));
+      result.assets.forEach((_) =>
+        addPhoto({
+          uri: _.uri,
+          fileSizeInMB: _.fileSize ? _.fileSize / (1024 * 1024) : 0,
+          width: _.width,
+          height: _.height,
+        }),
+      );
       router.back();
     }
   };
@@ -68,7 +76,7 @@ const ShutterButton = ({
   );
 };
 
-const ConfirmPhotoButton = ({ photoTaken }: { photoTaken: string }) => {
+const ConfirmPhotoButton = ({ photoTaken }: { photoTaken: IPhotoItem }) => {
   const { addPhoto } = usePhoto();
   const router = useRouter();
 
@@ -76,7 +84,7 @@ const ConfirmPhotoButton = ({ photoTaken }: { photoTaken: string }) => {
     <View className="absolute bottom-20 left-0 right-0 items-center">
       <TouchableOpacity
         onPress={() => {
-          addPhoto([photoTaken]);
+          addPhoto(photoTaken);
           router.back();
         }}
         className="bg-black/40 rounded-full"
@@ -124,7 +132,7 @@ export default function CameraScreen() {
     }
   };
 
-  const [photoTaken, setPhotoTaken] = useState<string | null>(null);
+  const [photoTaken, setPhotoTaken] = useState<IPhotoItem | null>(null);
 
   const onTakePhoto = async () => {
     if (!cameraRef.current) return;
@@ -132,7 +140,14 @@ export default function CameraScreen() {
     const photo = await cameraRef.current.takePictureAsync({
       quality: 0.7,
     });
-    setPhotoTaken(photo.uri);
+
+    const info = await getInfoAsync(photo.uri);
+    setPhotoTaken({
+      uri: photo.uri,
+      fileSizeInMB: info.exists ? info.size / (1024 * 1024) : 0,
+      width: photo.width,
+      height: photo.height,
+    });
   };
 
   if (!cameraPermission || !galleryPermissionResponse) {
@@ -155,7 +170,7 @@ export default function CameraScreen() {
   if (photoTaken) {
     return (
       <View className="flex-1">
-        <Image source={{ uri: photoTaken }} className="flex-1" />
+        <Image source={{ uri: photoTaken.uri }} className="flex-1" />
         <GoBackButton />
         <ConfirmPhotoButton photoTaken={photoTaken} />
         <DiscardPhotoButton

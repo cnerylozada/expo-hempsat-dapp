@@ -11,6 +11,10 @@ module.exports = {
           DEFAULT: "#11181C",
           dark: "#ECEDEE",
           inverted: "#fff",
+          info: "#3b82f6",
+          "info-dark": "#93c5fd",
+          danger: "#ef4444",
+          "danger-dark": "#f87171",
         },
         subtext: {
           DEFAULT: "#687076",
