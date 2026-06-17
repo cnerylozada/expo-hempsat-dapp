@@ -72,7 +72,7 @@ export default function DrawerLayout() {
         }}
       />
       <Drawer.Screen
-        name="dashboard/farms/create-farm"
+        name="dashboard/farms/create-farm/index"
         options={{
           title: "Register farm",
           drawerItemStyle: { display: "none" },

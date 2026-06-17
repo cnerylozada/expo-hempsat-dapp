@@ -3,10 +3,11 @@ import { ThemedText } from "@/components/ThemedText";
 import { usePhoto } from "@/providers/PhotoProvider";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import { zodResolver } from "@hookform/resolvers/zod";
+import * as Location from "expo-location";
 import { useFocusEffect, useRouter } from "expo-router";
-import { useCallback, useEffect } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { Controller, useFieldArray, useForm } from "react-hook-form";
-import { Image, ScrollView, TouchableOpacity, View } from "react-native";
+import { Alert, Image, ScrollView, TouchableOpacity, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { z } from "zod";
 
@@ -30,6 +31,13 @@ const schema = z.object({
     .array(photoSchema)
     .min(1, "At least 1 photo is required")
     .max(MAX_PHOTOS, `At most ${MAX_PHOTOS} photos allowed`),
+  location: z.object(
+    {
+      latitude: z.number().min(-90).max(90),
+      longitude: z.number().min(-180).max(180),
+    },
+    { message: "Location is required" },
+  ),
 });
 
 type FormValues = z.infer<typeof schema>;
@@ -38,17 +46,22 @@ export default function CreateFarm() {
   const router = useRouter();
   const { bottom } = useSafeAreaInsets();
   const { onSetParams, photoList, clearPhotoList } = usePhoto();
+  const [placeName, setPlaceName] = useState<string | null>(null);
 
   const {
     control,
     handleSubmit,
     getValues,
+    setValue,
     formState: { errors },
     reset,
   } = useForm<FormValues>({
     resolver: zodResolver(schema),
     mode: "all",
-    defaultValues: { titleDeedPhotoList: [] },
+    defaultValues: {
+      titleDeedPhotoList: [],
+      location: undefined,
+    },
   });
 
   const { fields, append, remove } = useFieldArray({
@@ -73,12 +86,65 @@ export default function CreateFarm() {
   const onSubmit = (data: FormValues) => {
     console.log("farm data:", data);
     reset();
+    setPlaceName(null);
+    clearPhotoList();
+  };
+
+  const applyLocation = async (coords: {
+    latitude: number;
+    longitude: number;
+  }) => {
+    setValue("location", coords, { shouldValidate: true });
+
+    const [address] = await Location.reverseGeocodeAsync(coords);
+    setPlaceName(
+      address
+        ? [address.city, address.country].filter(Boolean).join(", ")
+        : null,
+    );
+  };
+
+  const onSharePosition = async () => {
+    const { status: currentStatus } =
+      await Location.getForegroundPermissionsAsync();
+
+    if (currentStatus === "granted") {
+      const location = await Location.getCurrentPositionAsync({});
+      await applyLocation({
+        latitude: location.coords.latitude,
+        longitude: location.coords.longitude,
+      });
+      return;
+    }
+
+    if (currentStatus === "denied") {
+      Alert.alert(
+        "Location access denied",
+        "Please enable location access in your device settings to share your position.",
+      );
+      return;
+    }
+
+    const { status } = await Location.requestForegroundPermissionsAsync();
+    if (status !== "granted") {
+      Alert.alert(
+        "Location access denied",
+        "Please enable location access in your device settings to share your position.",
+      );
+      return;
+    }
+
+    const location = await Location.getCurrentPositionAsync({});
+    await applyLocation({
+      latitude: location.coords.latitude,
+      longitude: location.coords.longitude,
+    });
   };
 
   return (
     <ScrollView
       className="flex-1"
-      contentContainerClassName="gap-4"
+      contentContainerClassName="gap-6"
       contentContainerStyle={{ paddingBottom: bottom || 16 }}
     >
       <View className="gap-2">
@@ -149,6 +215,45 @@ export default function CreateFarm() {
             className="text-text-danger dark:text-text-danger-dark"
           >
             {errors.titleDeedPhotoList.message}
+          </ThemedText>
+        )}
+      </View>
+
+      <View className="gap-2">
+        <ThemedText type="defaultSemiBold">
+          Confirm you are at the farm
+        </ThemedText>
+        <View>
+          <ThemedText type="subtext">
+            • Stand at the center of your farm before sharing your position
+          </ThemedText>
+          <ThemedText type="subtext">
+            • Your position must be within 20m of the location in your photos
+          </ThemedText>
+        </View>
+        <View>
+          <ThemedButton
+            title="Share position"
+            iconName="map"
+            onPress={onSharePosition}
+          />
+        </View>
+        <View>
+          {getValues("location") && (
+            <ThemedText>
+              Latitude: {getValues("location").latitude} Longitud:{" "}
+              {getValues("location").longitude}
+            </ThemedText>
+          )}
+          {placeName && <ThemedText>{placeName}</ThemedText>}
+        </View>
+
+        {errors.location?.message && (
+          <ThemedText
+            type="subtext"
+            className="text-text-danger dark:text-text-danger-dark"
+          >
+            {errors.location.message}
           </ThemedText>
         )}
       </View>
