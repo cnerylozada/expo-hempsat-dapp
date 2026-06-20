@@ -70,6 +70,7 @@ export default function DrawerLayout() {
           drawerIcon: ({ color, size }) => (
             <Ionicons color={color} size={size} name="flower-outline" />
           ),
+          drawerItemStyle: { display: !isAuthenticated ? "none" : "flex" },
         }}
       />
       <Drawer.Screen

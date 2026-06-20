@@ -1,9 +1,11 @@
 import { ThemedButton } from "@/components/ThemedButton";
 import { ThemedText } from "@/components/ThemedText";
+import { queryKeys } from "@/libs/queryKeys";
 import { saveUserIdentification } from "@/server/users";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useRouter } from "expo-router";
 import * as SecureStore from "expo-secure-store";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { ActivityIndicator, View } from "react-native";
 import Inquiry, { Environment } from "react-native-persona";
 
@@ -20,22 +22,22 @@ const tips = [
 
 export default function ValidateIDCardScreen() {
   const [status, setStatus] = useState<Status>("idle");
-  const [inquiryId, setInquiryId] = useState<string | null>(null);
   const router = useRouter();
+  const queryClient = useQueryClient();
 
-  useEffect(() => {
-    if (inquiryId) {
-      const onUpdateUser = async () => {
-        const token = await SecureStore.getItemAsync("jwt");
-        saveUserIdentification(token, inquiryId).then(() => {
-          setTimeout(() => {
-            router.replace("/(drawer)/dashboard/identification");
-          }, 3000);
-        });
-      };
-      onUpdateUser();
-    }
-  }, [inquiryId]);
+  const mutation = useMutation({
+    mutationFn: async (id: string) => {
+      const token = await SecureStore.getItemAsync("jwt");
+      return saveUserIdentification(token, id);
+    },
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({
+        queryKey: queryKeys.users.myUser,
+        refetchType: "all",
+      });
+      router.replace("/(drawer)/dashboard/identification");
+    },
+  });
 
   const startVerification = () => {
     setStatus("scanning");
@@ -44,7 +46,7 @@ export default function ValidateIDCardScreen() {
       .environment(Environment.SANDBOX)
       .onComplete(async (inquiryId, inquiryStatus, fields) => {
         if (inquiryStatus === "completed" && inquiryId) {
-          setInquiryId(inquiryId);
+          mutation.mutate(inquiryId);
         } else {
           setStatus("declined");
         }
