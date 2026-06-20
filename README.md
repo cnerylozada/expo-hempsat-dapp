@@ -1,6 +1,8 @@
-# Welcome to your Expo app 👋
+# HempSat dApp
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+An Expo / React Native app for HempSat, integrating [thirdweb](https://thirdweb.com) for wallet/blockchain features.
+
+> **Expo Go is not supported.** This project requires a development build (native modules: thirdweb adapter, expo-secure-store, expo-camera, etc.).
 
 ## Get started
 
@@ -10,41 +12,49 @@ This is an [Expo](https://expo.dev) project created with [`create-expo-app`](htt
    npm install
    ```
 
-2. Start the app
+2. Create a `.env` file at the root:
+
+   ```
+   EXPO_PUBLIC_THIRDWEB_CLIENT_ID=your_client_id
+   EXPO_PUBLIC_API_URL=http://<your-lan-ip>:3000/api/v1
+   EXPO_PUBLIC_PERSONA_TEMPLATE_ID=your_persona_template_id
+   ```
+
+   `EXPO_PUBLIC_API_URL` must point to a host reachable from your device/emulator (a LAN IP, not `localhost`, when testing on a physical device). Update it whenever your dev machine's network changes.
+
+3. Build and run a development build
+
+   ```bash
+   npx expo run:android
+   # or
+   npx expo run:ios
+   ```
+
+4. For subsequent runs, once the native build exists, you can just start Metro:
 
    ```bash
    npx expo start
    ```
 
-In the output, you'll find options to open the app in a
-
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
-
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
-
-## Get a fresh project
-
-When you're ready, run:
+## Other commands
 
 ```bash
-npm run reset-project
+# Regenerate native folders after adding new native packages
+npx expo prebuild --clean
+
+# Type check
+npx tsc --noEmit
+
+# Lint
+npx expo lint
 ```
 
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
+## Architecture
+
+See [CLAUDE.md](./CLAUDE.md) for details on routing, the thirdweb integration, provider composition, and the React Query data-fetching conventions used in this codebase.
 
 ## Learn more
 
-To learn more about developing your project with Expo, look at the following resources:
-
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
-
-## Join the community
-
-Join our community of developers creating universal apps.
-
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+- [Expo documentation](https://docs.expo.dev/)
+- [Expo Router](https://docs.expo.dev/router/introduction/)
+- [thirdweb React Native docs](https://portal.thirdweb.com/react-native/v0)

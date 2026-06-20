@@ -12,7 +12,9 @@ export default function FarmsScreen() {
     queryKey: queryKeys.farms.myFarms,
     queryFn: async () => {
       const token = await SecureStore.getItemAsync("jwt");
-      return getMyFarms(token);
+      return getMyFarms(
+        "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIweDNCMUE1Y2ZmMWVmRDU1NjY4NTllMkVlM0I1NjBiMzA2MTVBMmI5NTAiLCJqdGkiOiIxOTdjYWVhZS04OTY3LTQ1ZWEtOThjOS01YWM1NDhiZDZkNGEiLCJpYXQiOjE3ODE5NjY3NzgsImV4cCI6MTc4MjU3MTU3OH0.4IdxszkXS8WIa9P3PIjOqOgiwcC0muGHLYhWB1JTuRI",
+      );
     },
   });
 
