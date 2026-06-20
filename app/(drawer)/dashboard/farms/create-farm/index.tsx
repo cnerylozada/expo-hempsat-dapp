@@ -1,10 +1,14 @@
 import { ThemedButton } from "@/components/ThemedButton";
 import { ThemedText } from "@/components/ThemedText";
+import { queryKeys } from "@/libs/queryKeys";
 import { usePhoto } from "@/providers/PhotoProvider";
+import { createFarm } from "@/server/farms";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import * as Location from "expo-location";
 import { useFocusEffect, useRouter } from "expo-router";
+import * as SecureStore from "expo-secure-store";
 import { useCallback, useEffect, useState } from "react";
 import { Controller, useFieldArray, useForm } from "react-hook-form";
 import { Alert, Image, ScrollView, TouchableOpacity, View } from "react-native";
@@ -44,6 +48,7 @@ type FormValues = z.infer<typeof schema>;
 
 export default function CreateFarm() {
   const router = useRouter();
+  const queryClient = useQueryClient();
   const { bottom } = useSafeAreaInsets();
   const { onSetParams, photoList, clearPhotoList } = usePhoto();
   const [placeName, setPlaceName] = useState<string | null>(null);
@@ -69,6 +74,20 @@ export default function CreateFarm() {
     name: "titleDeedPhotoList",
   });
 
+  const mutation = useMutation({
+    mutationFn: async (data: FormValues) => {
+      const token = await SecureStore.getItemAsync("jwt");
+      return createFarm(token, data);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: queryKeys.farms.myFarms });
+      reset();
+      setPlaceName(null);
+      clearPhotoList();
+      router.replace("/(drawer)/dashboard/farms");
+    },
+  });
+
   useEffect(() => {
     onSetParams({ max_files: MAX_PHOTOS });
   }, []);
@@ -84,10 +103,7 @@ export default function CreateFarm() {
   );
 
   const onSubmit = (data: FormValues) => {
-    console.log("farm data:", data);
-    reset();
-    setPlaceName(null);
-    clearPhotoList();
+    mutation.mutate(data);
   };
 
   const applyLocation = async (coords: {
@@ -258,7 +274,18 @@ export default function CreateFarm() {
         )}
       </View>
 
-      <ThemedButton onPress={handleSubmit(onSubmit)} title="Save" />
+      {mutation.isError && (
+        <ThemedText className="dark:text-text-danger-dark">
+          Something went wrong: {mutation.error.message}
+        </ThemedText>
+      )}
+
+      <ThemedButton
+        onPress={handleSubmit(onSubmit)}
+        title="Save"
+        loading={mutation.isPending}
+        loadingTitle="Saving farm..."
+      />
     </ScrollView>
   );
 }

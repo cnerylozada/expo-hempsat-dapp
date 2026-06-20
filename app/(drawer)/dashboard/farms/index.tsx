@@ -6,15 +6,14 @@ import { useQuery } from "@tanstack/react-query";
 import { Link } from "expo-router";
 import * as SecureStore from "expo-secure-store";
 import { ActivityIndicator, View } from "react-native";
+import { FarmCard } from "./_components/FarmCard";
 
 export default function FarmsScreen() {
   const { data, isLoading, isError, error } = useQuery({
     queryKey: queryKeys.farms.myFarms,
     queryFn: async () => {
       const token = await SecureStore.getItemAsync("jwt");
-      return getMyFarms(
-        "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIweDNCMUE1Y2ZmMWVmRDU1NjY4NTllMkVlM0I1NjBiMzA2MTVBMmI5NTAiLCJqdGkiOiIxOTdjYWVhZS04OTY3LTQ1ZWEtOThjOS01YWM1NDhiZDZkNGEiLCJpYXQiOjE3ODE5NjY3NzgsImV4cCI6MTc4MjU3MTU3OH0.4IdxszkXS8WIa9P3PIjOqOgiwcC0muGHLYhWB1JTuRI",
-      );
+      return getMyFarms(token);
     },
   });
 
@@ -27,12 +26,12 @@ export default function FarmsScreen() {
   }
 
   return (
-    <View className="flex-1 gap-4">
+    <View className="flex-1 gap-6">
       <Link href={"/(drawer)/dashboard/farms/create-farm"} asChild>
         <ThemedButton title="Register new farm" iconName="add-circle" />
       </Link>
 
-      <View>
+      <View className="gap-3">
         {isError && (
           <View>
             <ThemedText className="dark:text-text-danger-dark">
@@ -48,7 +47,7 @@ export default function FarmsScreen() {
               farm&quot; to get started.
             </ThemedText>
           ) : (
-            data?.map((_) => <ThemedText key={_.id}>{_.id}</ThemedText>)
+            data?.map((farm) => <FarmCard key={farm.id} {...farm} />)
           ))}
       </View>
     </View>

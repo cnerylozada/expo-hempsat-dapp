@@ -8,6 +8,7 @@ export default function DrawerLayout() {
 
   return (
     <Drawer
+      backBehavior="history"
       screenLayout={({ children }) => (
         <View className="flex-1 p-4">{children}</View>
       )}

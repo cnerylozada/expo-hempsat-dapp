@@ -15,3 +15,15 @@ export interface IFarm {
   longitude: number;
   user_id: string;
 }
+
+export interface ITitleDeedPhoto {
+  uri: string;
+  width: number;
+  height: number;
+  fileSizeInMB: number;
+}
+
+export interface ICreateFarmInput {
+  location: { latitude: number; longitude: number };
+  titleDeedPhotoList: ITitleDeedPhoto[];
+}
