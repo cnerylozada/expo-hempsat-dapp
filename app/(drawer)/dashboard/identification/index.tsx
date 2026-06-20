@@ -1,27 +1,20 @@
+import { ThemedText } from "@/components/ThemedText";
+import { queryKeys } from "@/libs/queryKeys";
 import { getMyUser } from "@/server/users";
-import { Redirect, useFocusEffect } from "expo-router";
+import { useQuery } from "@tanstack/react-query";
+import { Redirect } from "expo-router";
 import * as SecureStore from "expo-secure-store";
-import { useCallback, useState } from "react";
 import { ActivityIndicator, View } from "react-native";
 import { IDCard } from "./_components/IDCard";
-import { IUser } from "./_components/models";
 
 export default function IdentificationScreen() {
-  const [user, setUser] = useState<IUser | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
-
-  useFocusEffect(
-    useCallback(() => {
-      const fetchUser = async () => {
-        setIsLoading(true);
-        const token = await SecureStore.getItemAsync("jwt");
-        const data = await getMyUser(token);
-        setUser(data);
-        setIsLoading(false);
-      };
-      fetchUser();
-    }, []),
-  );
+  const { data, isLoading, isError, error } = useQuery({
+    queryKey: queryKeys.users.myUser,
+    queryFn: async () => {
+      const token = await SecureStore.getItemAsync("jwt");
+      return getMyUser(token);
+    },
+  });
 
   if (isLoading) {
     return (
@@ -31,16 +24,28 @@ export default function IdentificationScreen() {
     );
   }
 
-  return user && user.inquiry_id ? (
-    <View>
-      <IDCard
-        name={user.first_name ?? ""}
-        lastName={user.last_name ?? ""}
-        idNumber={user.national_id ?? ""}
-        imageUri={user.avatar_url ?? ""}
-      />
+  if (!isLoading && !isError && !data?.inquiry_id) {
+    return (
+      <Redirect href={"/(drawer)/dashboard/identification/validate-id-card"} />
+    );
+  }
+
+  return (
+    <View className="flex-1 gap-4">
+      {isError && (
+        <ThemedText className="dark:text-text-danger-dark">
+          Something went wrong: {error.message}
+        </ThemedText>
+      )}
+
+      {!isError && data?.inquiry_id && (
+        <IDCard
+          name={data.first_name ?? ""}
+          lastName={data.last_name ?? ""}
+          idNumber={data.national_id ?? ""}
+          imageUri={data.avatar_url ?? ""}
+        />
+      )}
     </View>
-  ) : (
-    <Redirect href={"/(drawer)/dashboard/identification/validate-id-card"} />
   );
 }

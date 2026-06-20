@@ -1,4 +1,4 @@
-import { IUser } from "@/app/(drawer)/dashboard/identification/_components/models";
+import { IUser } from "@/server/models";
 
 export const getMyUser = async (token: string | null) => {
   const response = await fetch(`${process.env.EXPO_PUBLIC_API_URL}/users/me`, {
@@ -6,8 +6,15 @@ export const getMyUser = async (token: string | null) => {
     headers: { Authorization: `Bearer ${token}` },
   });
 
-  const user = await response.json();
-  return user as IUser;
+  if (!response.ok) {
+    const body: { error?: string } | null = await response
+      .json()
+      .catch(() => null);
+    throw new Error(body?.error);
+  }
+
+  const user: IUser = await response.json();
+  return user;
 };
 
 export const saveUserIdentification = async (

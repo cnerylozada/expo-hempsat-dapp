@@ -1,8 +1,10 @@
 import { ThemedButton } from "@/components/ThemedButton";
 import { ThemedText } from "@/components/ThemedText";
+import { queryKeys } from "@/libs/queryKeys";
 import { appChain, thirdwebClient, thirdwebWallets } from "@/libs/thirdweb";
 import { useAuth } from "@/providers/AuthProvider";
 import { getMyUser } from "@/server/users";
+import { useQuery } from "@tanstack/react-query";
 import { Link, router } from "expo-router";
 import * as SecureStore from "expo-secure-store";
 import { useEffect, useState } from "react";
@@ -14,7 +16,6 @@ import {
 } from "thirdweb/react";
 import { shortenAddress } from "thirdweb/utils";
 import { getUserEmail } from "thirdweb/wallets/in-app";
-import { IUser } from "./identification/_components/models";
 
 const WalletAccount = () => {
   const theme = useColorScheme();
@@ -59,18 +60,13 @@ const WalletAccount = () => {
 };
 
 export default function DashboardScreen() {
-  const [user, setUser] = useState<IUser | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
-
-  useEffect(() => {
-    const fetchUser = async () => {
+  const { data, isLoading, isError, error } = useQuery({
+    queryKey: queryKeys.users.myUser,
+    queryFn: async () => {
       const token = await SecureStore.getItemAsync("jwt");
-      const data = await getMyUser(token);
-      setUser(data);
-      setIsLoading(false);
-    };
-    fetchUser();
-  }, []);
+      return getMyUser(token);
+    },
+  });
 
   if (isLoading) {
     return (
@@ -81,10 +77,16 @@ export default function DashboardScreen() {
   }
 
   return (
-    <View className="gap-y-6">
+    <View className="flex-1 gap-y-6">
       <WalletAccount />
 
-      {!user?.inquiry_id && (
+      {isError && (
+        <ThemedText className="dark:text-text-danger-dark">
+          Something went wrong: {error.message}
+        </ThemedText>
+      )}
+
+      {!isError && !data?.inquiry_id && (
         <View>
           <Link href={"/(drawer)/dashboard/identification"} asChild>
             <ThemedButton title="Please identify yourself" />

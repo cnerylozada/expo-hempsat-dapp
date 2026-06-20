@@ -1,5 +1,4 @@
-import { AuthProvider } from "@/providers/AuthProvider";
-import { PhotoProvider } from "@/providers/PhotoProvider";
+import { AppProviders } from "@/providers/AppProviders";
 import {
   DarkTheme,
   DefaultTheme,
@@ -9,26 +8,19 @@ import { Stack } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 import { useColorScheme } from "react-native";
 import "react-native-reanimated";
-import { ThirdwebProvider } from "thirdweb/react";
 import "./global.css";
 
 export default function RootLayout() {
   const colorScheme = useColorScheme();
 
   return (
-    <ThirdwebProvider>
-      <AuthProvider>
-        <PhotoProvider>
-          <ThemeProvider
-            value={colorScheme === "dark" ? DarkTheme : DefaultTheme}
-          >
-            <StatusBar style="auto" />
-            <Stack screenOptions={{ headerShown: false }}>
-              <Stack.Screen name="(drawer)" />
-            </Stack>
-          </ThemeProvider>
-        </PhotoProvider>
-      </AuthProvider>
-    </ThirdwebProvider>
+    <AppProviders>
+      <ThemeProvider value={colorScheme === "dark" ? DarkTheme : DefaultTheme}>
+        <StatusBar style="auto" />
+        <Stack screenOptions={{ headerShown: false }}>
+          <Stack.Screen name="(drawer)" />
+        </Stack>
+      </ThemeProvider>
+    </AppProviders>
   );
 }

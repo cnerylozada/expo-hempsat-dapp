@@ -20,6 +20,7 @@
     "@react-navigation/drawer": "^7.10.2",
     "@react-navigation/elements": "^2.6.3",
     "@react-navigation/native": "^7.1.8",
+    "@tanstack/react-query": "^5.101.0",
     "@thirdweb-dev/react-native-adapter": "^1.5.5",
     "@walletconnect/react-native-compat": "^2.23.9",
     "amazon-cognito-identity-js": "^6.3.16",
