@@ -1,12 +1,13 @@
 import { WeatherForecastCard } from "@/components/farms/WeatherForecastCard";
 import { ThemedText } from "@/components/ThemedText";
+import { queryKeys } from "@/libs/queryKeys";
 import { fetchFiveDayForecast } from "@/server/weather-metrics";
 import { useQuery } from "@tanstack/react-query";
 import { ActivityIndicator, View } from "react-native";
 
 export default function FarmById() {
   const { data, isLoading, isError, error } = useQuery({
-    queryKey: ["asd"],
+    queryKey: queryKeys.weather.forecast,
     queryFn: () => fetchFiveDayForecast(-12.110105, -77.013819),
   });
 

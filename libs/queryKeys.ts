@@ -5,4 +5,7 @@ export const queryKeys = {
   users: {
     myUser: ["users", "me"] as const,
   },
+  weather: {
+    forecast: ["weather", "forecast"] as const,
+  },
 };

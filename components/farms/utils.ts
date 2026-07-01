@@ -14,7 +14,7 @@ const WMO_WEATHER: Record<number, WeatherInfo> = {
   53: { icon: "water-outline", label: "Moderate drizzle" },
   55: { icon: "water-outline", label: "Dense drizzle" },
   56: { icon: "rainy-outline", label: "Light freezing drizzle" },
-  57: { icon: "rainy-outline", label: "Heavy freezing drizzle" },
+  57: { icon: "rainy-outline", label: "Dense freezing drizzle" },
   61: { icon: "rainy-outline", label: "Slight rain" },
   63: { icon: "rainy-outline", label: "Moderate rain" },
   65: { icon: "rainy-outline", label: "Heavy rain" },
@@ -30,7 +30,7 @@ const WMO_WEATHER: Record<number, WeatherInfo> = {
   85: { icon: "snow-outline", label: "Slight snow showers" },
   86: { icon: "snow-outline", label: "Heavy snow showers" },
   95: { icon: "thunderstorm-outline", label: "Thunderstorm" },
-  96: { icon: "thunderstorm-outline", label: "Thunderstorm with hail" },
+  96: { icon: "thunderstorm-outline", label: "Thunderstorm with slight hail" },
   99: { icon: "thunderstorm-outline", label: "Thunderstorm with heavy hail" },
 };
 

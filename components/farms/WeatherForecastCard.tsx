@@ -34,6 +34,9 @@ export const WeatherForecastCard = ({
                 <View>
                   <ThemedText type="defaultSemiBold">Today</ThemedText>
                   <ThemedText type="subtext">{weatherInfo.label}</ThemedText>
+                  <ThemedText type="subtext">
+                    Humidity {currentDay.humidity}%
+                  </ThemedText>
                 </View>
               </View>
             </View>

@@ -33,4 +33,5 @@ export interface IForecast {
   maxTemp: number;
   minTemp: number;
   weatherCode: number;
+  humidity: number;
 }
