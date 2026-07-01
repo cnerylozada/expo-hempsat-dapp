@@ -1,3 +1,4 @@
+import { FarmCard } from "@/components/farms/FarmCard";
 import { ThemedButton } from "@/components/ThemedButton";
 import { ThemedText } from "@/components/ThemedText";
 import { queryKeys } from "@/libs/queryKeys";
@@ -6,7 +7,6 @@ import { useQuery } from "@tanstack/react-query";
 import { Link } from "expo-router";
 import * as SecureStore from "expo-secure-store";
 import { ActivityIndicator, View } from "react-native";
-import { FarmCard } from "./_components/FarmCard";
 
 export default function FarmsScreen() {
   const { data, isLoading, isError, error } = useQuery({
@@ -47,7 +47,15 @@ export default function FarmsScreen() {
               farm&quot; to get started.
             </ThemedText>
           ) : (
-            data?.map((farm) => <FarmCard key={farm.id} {...farm} />)
+            data?.map((farm) => (
+              <Link
+                key={farm.id}
+                asChild
+                href={`/(drawer)/dashboard/farms/${farm.id}`}
+              >
+                <FarmCard {...farm} />
+              </Link>
+            ))
           ))}
       </View>
     </View>

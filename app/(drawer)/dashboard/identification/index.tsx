@@ -1,3 +1,4 @@
+import { IDCard } from "@/components/identification/IDCard";
 import { ThemedText } from "@/components/ThemedText";
 import { queryKeys } from "@/libs/queryKeys";
 import { getMyUser } from "@/server/users";
@@ -5,7 +6,6 @@ import { useQuery } from "@tanstack/react-query";
 import { Redirect } from "expo-router";
 import * as SecureStore from "expo-secure-store";
 import { ActivityIndicator, View } from "react-native";
-import { IDCard } from "./_components/IDCard";
 
 export default function IdentificationScreen() {
   const { data, isLoading, isError, error } = useQuery({

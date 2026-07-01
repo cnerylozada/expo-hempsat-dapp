@@ -27,3 +27,10 @@ export interface ICreateFarmInput {
   location: { latitude: number; longitude: number };
   titleDeedPhotoList: ITitleDeedPhoto[];
 }
+
+export interface IForecast {
+  date: Date;
+  maxTemp: number;
+  minTemp: number;
+  weatherCode: number;
+}

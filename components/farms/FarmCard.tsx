@@ -1,21 +1,26 @@
 import { ThemedText } from "@/components/ThemedText";
 import { IFarm } from "@/server/models";
 import Ionicons from "@expo/vector-icons/Ionicons";
-import { View } from "react-native";
+import { TouchableOpacity, TouchableOpacityProps, View } from "react-native";
 
 type FarmCardProps = Pick<
   IFarm,
   "country" | "location" | "latitude" | "longitude"
->;
+> &
+  TouchableOpacityProps;
 
 export const FarmCard = ({
   country,
   location,
   latitude,
   longitude,
+  ...props
 }: FarmCardProps) => {
   return (
-    <View className="rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden bg-white dark:bg-gray-900">
+    <TouchableOpacity
+      {...props}
+      className="rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden bg-white dark:bg-gray-900"
+    >
       <View className="h-2 bg-tint" />
       <View className="flex-row items-center gap-4 p-4">
         <View className="bg-tint/10 rounded-full p-3">
@@ -29,6 +34,6 @@ export const FarmCard = ({
           </ThemedText>
         </View>
       </View>
-    </View>
+    </TouchableOpacity>
   );
 };
