@@ -81,7 +81,7 @@ export default function DrawerLayout() {
         }}
       />
       <Drawer.Screen
-        name="dashboard/farms/[id]/index"
+        name="dashboard/farms/[id]"
         options={{
           drawerItemStyle: { display: "none" },
         }}
