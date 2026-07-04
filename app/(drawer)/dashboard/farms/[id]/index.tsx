@@ -4,7 +4,7 @@ import { queryKeys } from "@/libs/queryKeys";
 import { getMyFarmById } from "@/server/farms";
 import { fetchFiveDayForecast } from "@/server/weather-metrics";
 import { useQuery } from "@tanstack/react-query";
-import { useLocalSearchParams } from "expo-router";
+import { Stack, useLocalSearchParams } from "expo-router";
 import * as SecureStore from "expo-secure-store";
 import { ActivityIndicator, View } from "react-native";
 
@@ -48,6 +48,7 @@ export default function FarmById() {
 
   return (
     <View className="flex-1">
+      <Stack.Screen options={{ title: farm?.location ?? id }} />
       {isFarmError && (
         <ThemedText className="dark:text-text-danger-dark">
           Something went wrong: {farmError.message}

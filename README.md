@@ -1,6 +1,6 @@
 # HempSat dApp
 
-An Expo / React Native app for HempSat, integrating [thirdweb](https://thirdweb.com) for wallet/blockchain features.
+An Expo / React Native app for HempSat, integrating [thirdweb](https://thirdweb.com) for wallet/blockchain features and [Open-Meteo](https://open-meteo.com) for farm weather forecasts.
 
 > **Expo Go is not supported.** This project requires a development build (native modules: thirdweb adapter, expo-secure-store, expo-camera, etc.).
 
@@ -51,10 +51,11 @@ npx expo lint
 
 ## Architecture
 
-See [CLAUDE.md](./CLAUDE.md) for details on routing, the thirdweb integration, provider composition, and the React Query data-fetching conventions used in this codebase.
+See [CLAUDE.md](./CLAUDE.md) for details on routing, the thirdweb integration, provider composition, weather forecasting, and the React Query data-fetching conventions used in this codebase.
 
 ## Learn more
 
 - [Expo documentation](https://docs.expo.dev/)
 - [Expo Router](https://docs.expo.dev/router/introduction/)
 - [thirdweb React Native docs](https://portal.thirdweb.com/react-native/v0)
+- [Open-Meteo API docs](https://open-meteo.com/en/docs)
