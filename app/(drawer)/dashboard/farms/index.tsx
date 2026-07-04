@@ -2,7 +2,7 @@ import { FarmCard } from "@/components/farms/FarmCard";
 import { ThemedButton } from "@/components/ThemedButton";
 import { ThemedText } from "@/components/ThemedText";
 import { queryKeys } from "@/libs/queryKeys";
-import { getMyFarms } from "@/server/farms";
+import { getMyFarmList } from "@/server/farms";
 import { useQuery } from "@tanstack/react-query";
 import { Link } from "expo-router";
 import * as SecureStore from "expo-secure-store";
@@ -13,7 +13,7 @@ export default function FarmsScreen() {
     queryKey: queryKeys.farms.myFarms,
     queryFn: async () => {
       const token = await SecureStore.getItemAsync("jwt");
-      return getMyFarms(token);
+      return getMyFarmList(token);
     },
   });
 

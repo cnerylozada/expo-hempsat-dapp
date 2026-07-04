@@ -62,7 +62,13 @@ Route structure:
 - `@tanstack/react-query` is used for all server data fetching; avoid manual `useState`/`useEffect`/`useFocusEffect` fetch patterns for new screens.
 - `libs/queryKeys.ts` — single source of truth for query keys, organized by domain (e.g. `queryKeys.farms.myFarms`, `queryKeys.users.myUser`). Use these keys for both `useQuery` and any `invalidateQueries` calls — do not inline ad-hoc key arrays.
 - `server/*.ts` — one file per domain (`server/farms.ts`, `server/users.ts`) exporting fetch functions that take a `token: string | null` (read via `SecureStore.getItemAsync("jwt")` in the calling screen) and throw `Error(body?.error)` parsed from the JSON response when `!response.ok`, so `useQuery`'s `error.message` reflects the backend's actual error.
-- `server/models.ts` — single file for shared domain interfaces (`IUser`, `IFarm`) returned by the `server/*.ts` fetch functions.
+- `server/weather-metrics.ts` — fetches 5-day forecast from Open-Meteo (`fetchFiveDayForecast`). Uses the `openmeteo` SDK with `daily` (temperature, weather_code) and `hourly` (relative_humidity_2m) variables. Returns `IForecast[]`.
+- `server/models.ts` — single file for shared domain interfaces (`IUser`, `IFarm`, `IForecast`) returned by the `server/*.ts` fetch functions.
+
+### Weather
+- `server/weather-metrics.ts` — Open-Meteo integration. Fetches `temperature_2m_max`, `temperature_2m_min`, `weather_code` (daily) and `relative_humidity_2m` (hourly, averaged per day). Returns `Promise<IForecast[]>` for 5 days.
+- `components/farms/utils.ts` — `getWeatherInfo(code)` maps WMO weather codes to `{ icon, label }`. `getDayLabel(date, index)` returns `"Today"` for index 0 or a short weekday name (UTC timezone to avoid offset issues).
+- `components/farms/WeatherForecastCard.tsx` — displays the 5-day forecast: today in a full-width row, the next 4 days in a compact horizontal row below.
 
 ### Theming
 - `components/Colors.ts` — color palette for light/dark.

@@ -11,7 +11,7 @@ export const WeatherForecastCard = ({
 }) => {
   return (
     <View className="rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 p-4 gap-4">
-      <View className="flex-row items-center gap-2">
+      <View className="flex-row items-center gap-1">
         <Ionicons name="sunny-outline" size={24} color="white" />
         <ThemedText type="subtitle">Weather</ThemedText>
       </View>
@@ -22,11 +22,11 @@ export const WeatherForecastCard = ({
           const weatherInfo = getWeatherInfo(currentDay.weatherCode);
           return (
             <View className="flex-row">
-              <View className="flex-row gap-3">
-                <View className="gap-1">
+              <View className="flex-row gap-4">
+                <View className="gap-1 items-center">
                   <Ionicons name={weatherInfo.icon} size={40} color="white" />
-                  <View className="flex-row items-center gap-1">
-                    <ThemedText>{currentDay.maxTemp}°</ThemedText>
+                  <View className="flex-row items-center">
+                    <ThemedText>{currentDay.maxTemp}° / </ThemedText>
                     <ThemedText>{currentDay.minTemp}°</ThemedText>
                   </View>
                 </View>
@@ -52,8 +52,8 @@ export const WeatherForecastCard = ({
                   {getDayLabel(_.date, index + 1)}
                 </ThemedText>
                 <Ionicons name={weather.icon} size={28} color="white" />
-                <View className="flex-row items-center gap-1">
-                  <ThemedText>{_.maxTemp}°</ThemedText>
+                <View className="flex-row items-center">
+                  <ThemedText>{_.maxTemp}° / </ThemedText>
                   <ThemedText>{_.minTemp}°</ThemedText>
                 </View>
               </View>
