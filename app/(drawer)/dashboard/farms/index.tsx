@@ -27,7 +27,7 @@ export default function FarmsScreen() {
 
   return (
     <View className="flex-1 gap-6">
-      <Link href={"/(drawer)/dashboard/farms/create-farm"} asChild>
+      <Link href={"/(drawer)/dashboard/farms/register-farm"} asChild>
         <ThemedButton title="Register new farm" iconName="add-circle" />
       </Link>
 

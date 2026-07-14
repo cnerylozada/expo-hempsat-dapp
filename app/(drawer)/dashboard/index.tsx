@@ -1,3 +1,4 @@
+import { ScreenLayout } from "@/components/ScreenLayout";
 import { ThemedButton } from "@/components/ThemedButton";
 import { ThemedText } from "@/components/ThemedText";
 import { queryKeys } from "@/libs/queryKeys";
@@ -70,29 +71,33 @@ export default function DashboardScreen() {
 
   if (isLoading) {
     return (
-      <View className="flex-1 justify-center items-center">
-        <ActivityIndicator size="large" />
-      </View>
+      <ScreenLayout>
+        <View className="flex-1 justify-center items-center">
+          <ActivityIndicator size="large" />
+        </View>
+      </ScreenLayout>
     );
   }
 
   return (
-    <View className="flex-1 gap-y-6">
-      <WalletAccount />
+    <ScreenLayout>
+      <View className="gap-y-6">
+        <WalletAccount />
 
-      {isError && (
-        <ThemedText className="dark:text-text-danger-dark">
-          Something went wrong: {error.message}
-        </ThemedText>
-      )}
+        {isError && (
+          <ThemedText className="dark:text-text-danger-dark">
+            Something went wrong: {error.message}
+          </ThemedText>
+        )}
 
-      {!isError && !data?.inquiry_id && (
-        <View>
-          <Link href={"/(drawer)/dashboard/identification"} asChild>
-            <ThemedButton title="Please identify yourself" />
-          </Link>
-        </View>
-      )}
-    </View>
+        {!isError && !data?.inquiry_id && (
+          <View>
+            <Link href={"/(drawer)/dashboard/identification"} asChild>
+              <ThemedButton title="Please identify yourself" />
+            </Link>
+          </View>
+        )}
+      </View>
+    </ScreenLayout>
   );
 }

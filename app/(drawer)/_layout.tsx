@@ -1,18 +1,12 @@
 import { useAuth } from "@/providers/AuthProvider";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import { Drawer } from "expo-router/drawer";
-import { View } from "react-native";
 
 export default function DrawerLayout() {
   const { isAuthenticated } = useAuth();
 
   return (
-    <Drawer
-      backBehavior="history"
-      screenLayout={({ children }) => (
-        <View className="flex-1 p-4">{children}</View>
-      )}
-    >
+    <Drawer>
       <Drawer.Screen
         name="home"
         options={{
@@ -46,26 +40,9 @@ export default function DrawerLayout() {
         }}
       />
       <Drawer.Screen
-        name="dashboard/identification/index"
+        name="dashboard/farms"
         options={{
-          drawerLabel: "Identification",
-          title: "Identification",
-          drawerIcon: ({ color, size }) => (
-            <Ionicons color={color} size={size} name="person-circle-outline" />
-          ),
-          drawerItemStyle: { display: !isAuthenticated ? "none" : "flex" },
-        }}
-      />
-      <Drawer.Screen
-        name="dashboard/identification/validate-id-card"
-        options={{
-          title: "Verify Identity",
-          drawerItemStyle: { display: "none" },
-        }}
-      />
-      <Drawer.Screen
-        name="dashboard/farms/index"
-        options={{
+          headerShown: false,
           title: "Farms",
           drawerIcon: ({ color, size }) => (
             <Ionicons color={color} size={size} name="flower-outline" />
@@ -74,15 +51,9 @@ export default function DrawerLayout() {
         }}
       />
       <Drawer.Screen
-        name="dashboard/farms/create-farm/index"
+        name="dashboard/identification"
         options={{
-          title: "Register farm",
-          drawerItemStyle: { display: "none" },
-        }}
-      />
-      <Drawer.Screen
-        name="dashboard/farms/[id]"
-        options={{
+          headerShown: false,
           drawerItemStyle: { display: "none" },
         }}
       />
