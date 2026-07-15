@@ -5,7 +5,8 @@ import { getMyUser } from "@/server/users";
 import { useQuery } from "@tanstack/react-query";
 import { Redirect } from "expo-router";
 import * as SecureStore from "expo-secure-store";
-import { ActivityIndicator, View } from "react-native";
+import { LoadingScreen } from "@/components/LoadingScreen";
+import { View } from "react-native";
 
 export default function IdentificationScreen() {
   const { data, isLoading, isError, error } = useQuery({
@@ -18,9 +19,7 @@ export default function IdentificationScreen() {
 
   if (isLoading) {
     return (
-      <View className="flex-1 justify-center items-center">
-        <ActivityIndicator size="large" />
-      </View>
+      <LoadingScreen />
     );
   }
 

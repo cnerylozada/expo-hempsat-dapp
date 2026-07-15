@@ -63,12 +63,16 @@ Route structure:
 - `libs/queryKeys.ts` — single source of truth for query keys, organized by domain (e.g. `queryKeys.farms.myFarms`, `queryKeys.users.myUser`). Use these keys for both `useQuery` and any `invalidateQueries` calls — do not inline ad-hoc key arrays.
 - `server/*.ts` — one file per domain (`server/farms.ts`, `server/users.ts`) exporting fetch functions that take a `token: string | null` (read via `SecureStore.getItemAsync("jwt")` in the calling screen) and throw `Error(body?.error)` parsed from the JSON response when `!response.ok`, so `useQuery`'s `error.message` reflects the backend's actual error.
 - `server/weather-metrics.ts` — fetches 5-day forecast from Open-Meteo (`fetchFiveDayForecast`). Uses the `openmeteo` SDK with `daily` (temperature, weather_code) and `hourly` (relative_humidity_2m) variables. Returns `IForecast[]`.
-- `server/models.ts` — single file for shared domain interfaces (`IUser`, `IFarm`, `IForecast`) returned by the `server/*.ts` fetch functions.
+- `server/models.ts` — single file for shared domain interfaces (`IUser`, `IFarm`, `IForecast`, `ITitleDeedPhoto`, `ICreateFarmInput`) returned by the `server/*.ts` fetch functions.
 
 ### Weather
 - `server/weather-metrics.ts` — Open-Meteo integration. Fetches `temperature_2m_max`, `temperature_2m_min`, `weather_code` (daily) and `relative_humidity_2m` (hourly, averaged per day). Returns `Promise<IForecast[]>` for 5 days.
 - `components/farms/utils.ts` — `getWeatherInfo(code)` maps WMO weather codes to `{ icon, label }`. `getDayLabel(date, index)` returns `"Today"` for index 0 or a short weekday name (UTC timezone to avoid offset issues).
 - `components/farms/WeatherForecastCard.tsx` — displays the 5-day forecast: today in a full-width row, the next 4 days in a compact horizontal row below.
+
+### Layout Conventions
+- `components/ScreenLayout.tsx` — full-screen padded wrapper (`flex-1 p-4`). Pass directly as `screenLayout={ScreenLayout}` on any `Stack` navigator. For `Drawer` screens (which do not support `screenLayout`), import and wrap the screen's return value with `<ScreenLayout>` directly in the screen file.
+- `components/StackHeaderLeft.tsx` — renders `HeaderBackButton` (calls `router.back()`) when `canGoBack`, otherwise `DrawerToggleButton`. Add to any `Stack` via `screenOptions={{ headerLeft: (props) => <StackHeaderLeft {...props} /> }}`. Do not use `useNavigation` + `StackActions.pop()` — that dispatches to the parent Drawer navigator and throws a POP warning.
 
 ### Theming
 - `components/Colors.ts` — color palette for light/dark.

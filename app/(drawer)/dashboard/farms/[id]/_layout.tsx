@@ -1,3 +1,4 @@
+import { LoadingScreen } from "@/components/LoadingScreen";
 import { ThemedText } from "@/components/ThemedText";
 import { queryKeys } from "@/libs/queryKeys";
 import { getMyFarmById } from "@/server/farms";
@@ -6,7 +7,7 @@ import { useQuery } from "@tanstack/react-query";
 import { Tabs, useGlobalSearchParams, useNavigation } from "expo-router";
 import * as SecureStore from "expo-secure-store";
 import { useEffect } from "react";
-import { ActivityIndicator, View } from "react-native";
+import { View } from "react-native";
 
 export default function Layout() {
   const { id } = useGlobalSearchParams<{ id: string }>();
@@ -28,9 +29,7 @@ export default function Layout() {
 
   if (isLoading) {
     return (
-      <View className="flex-1 justify-center items-center">
-        <ActivityIndicator size="large" />
-      </View>
+      <LoadingScreen />
     );
   }
 

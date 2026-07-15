@@ -6,7 +6,8 @@ import { getMyFarmList } from "@/server/farms";
 import { useQuery } from "@tanstack/react-query";
 import { Link } from "expo-router";
 import * as SecureStore from "expo-secure-store";
-import { ActivityIndicator, View } from "react-native";
+import { LoadingScreen } from "@/components/LoadingScreen";
+import { View } from "react-native";
 
 export default function FarmsScreen() {
   const { data, isLoading, isError, error } = useQuery({
@@ -19,9 +20,7 @@ export default function FarmsScreen() {
 
   if (isLoading) {
     return (
-      <View className="flex-1 justify-center items-center">
-        <ActivityIndicator size="large" />
-      </View>
+      <LoadingScreen />
     );
   }
 

@@ -9,7 +9,8 @@ import { useQuery } from "@tanstack/react-query";
 import { Link, router } from "expo-router";
 import * as SecureStore from "expo-secure-store";
 import { useEffect, useState } from "react";
-import { ActivityIndicator, useColorScheme, View } from "react-native";
+import { LoadingScreen } from "@/components/LoadingScreen";
+import { useColorScheme, View } from "react-native";
 import {
   ConnectButton,
   useActiveAccount,
@@ -72,9 +73,7 @@ export default function DashboardScreen() {
   if (isLoading) {
     return (
       <ScreenLayout>
-        <View className="flex-1 justify-center items-center">
-          <ActivityIndicator size="large" />
-        </View>
+        <LoadingScreen />
       </ScreenLayout>
     );
   }

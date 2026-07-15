@@ -5,7 +5,8 @@ import { IFarm } from "@/server/models";
 import { fetchFiveDayForecast } from "@/server/weather-metrics";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useGlobalSearchParams } from "expo-router";
-import { ActivityIndicator, View } from "react-native";
+import { LoadingScreen } from "@/components/LoadingScreen";
+import { View } from "react-native";
 
 export default function FarmConditions() {
   const { id } = useGlobalSearchParams<{ id: string }>();
@@ -28,9 +29,7 @@ export default function FarmConditions() {
 
   if (isForecastLoading) {
     return (
-      <View className="flex-1 justify-center items-center">
-        <ActivityIndicator size="large" />
-      </View>
+      <LoadingScreen />
     );
   }
 
