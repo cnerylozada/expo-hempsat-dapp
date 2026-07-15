@@ -13,7 +13,10 @@ export const signIn = async (requestBody: {
   );
 
   if (!response.ok) {
-    throw new Error("Sign-in failed");
+    const body: { error?: string } | null = await response
+      .json()
+      .catch(() => null);
+    throw new Error(body?.error ?? "Sign-in failed");
   }
 
   const { token } = await response.json();

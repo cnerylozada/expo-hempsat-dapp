@@ -18,7 +18,6 @@ export const thirdwebWallets = [
   inAppWallet({
     auth: {
       options: ["google"],
-      passkeyDomain: "com.cnerylozada.hempsat",
     },
   }),
 ];

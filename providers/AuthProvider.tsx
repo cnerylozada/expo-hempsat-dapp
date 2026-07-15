@@ -1,4 +1,6 @@
+import { LoadingScreen } from "@/components/LoadingScreen";
 import { isTokenExpired, signIn, signOut } from "@/server/auth";
+import { router } from "expo-router";
 import * as SecureStore from "expo-secure-store";
 import {
   createContext,
@@ -7,7 +9,6 @@ import {
   useEffect,
   useState,
 } from "react";
-import { ActivityIndicator, View } from "react-native";
 
 const KEYS = {
   jwt: "jwt",
@@ -31,6 +32,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   useEffect(() => {
     const loadAuthState = async () => {
+      console.log("AuthProvider loadAuthState...");
       const token = await SecureStore.getItemAsync(KEYS.jwt);
       if (token && !isTokenExpired(token)) {
         setIsAuthenticated(true);
@@ -45,6 +47,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     message: string,
     signature: string,
   ) => {
+    console.log("AuthProvider onSignIn...");
     setIsLoading(true);
     const requestBody = {
       wallet,
@@ -54,15 +57,17 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
     try {
       const token = await signIn(requestBody);
+      console.log("onSignIn token...", token);
       await SecureStore.setItemAsync(KEYS.jwt, token);
       setIsAuthenticated(true);
-    } catch (error) {
-      console.error(error);
+      router.replace("/(drawer)/dashboard");
+    } finally {
+      setIsLoading(false);
     }
-    setIsLoading(false);
   };
 
   const onSignOut = async () => {
+    setIsLoading(true);
     const token = await SecureStore.getItemAsync(KEYS.jwt);
 
     try {
@@ -72,17 +77,12 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     }
     await SecureStore.deleteItemAsync(KEYS.jwt);
     setIsAuthenticated(false);
+    setIsLoading(false);
   };
 
   return (
     <AuthContext.Provider value={{ isAuthenticated, onSignIn, onSignOut }}>
-      {isLoading ? (
-        <View className="flex-1 justify-center">
-          <ActivityIndicator size={"large"} />
-        </View>
-      ) : (
-        children
-      )}
+      {isLoading ? <LoadingScreen /> : children}
     </AuthContext.Provider>
   );
 };

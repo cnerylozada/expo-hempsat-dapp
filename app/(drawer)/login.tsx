@@ -1,33 +1,36 @@
+import { ThemedButton } from "@/components/ThemedButton";
 import { ThemedText } from "@/components/ThemedText";
 import { appChain, thirdwebClient, thirdwebWallets } from "@/libs/thirdweb";
 import { useAuth } from "@/providers/AuthProvider";
-import { useRouter } from "expo-router";
-import { useEffect } from "react";
-import { ActivityIndicator, useColorScheme, View } from "react-native";
+import { useState } from "react";
+import { useColorScheme, View } from "react-native";
 import { ConnectButton, useActiveAccount } from "thirdweb/react";
+import type { Account } from "thirdweb/wallets";
 
 export default function LoginScreen() {
+  console.log("LoginScreen...");
+
+  const account = useActiveAccount();
   const theme = useColorScheme();
   const { isAuthenticated, onSignIn } = useAuth();
-  const router = useRouter();
+  const [error, setError] = useState<string | null>(null);
+  const [isSigning, setIsSigning] = useState(false);
 
-  const activeAccount = useActiveAccount();
-
-  useEffect(() => {
-    if (isAuthenticated) {
-      console.log("LoginScreen useEffect isAuthenticated ...");
-      router.replace("/(drawer)/dashboard");
+  const handleSignIn = async (signerAccount: Account) => {
+    setError(null);
+    setIsSigning(true);
+    try {
+      const deadline = Math.floor(Date.now() / 1000) + 60;
+      const message = `com.cnerylozada.hempsat_deadline:${deadline}`;
+      const signature = await signerAccount.signMessage({ message });
+      await onSignIn(signerAccount.address, message, signature);
+    } catch (err) {
+      console.error("LoginScreen sign-in error...", err);
+      setError(`${(err as Error).message}. Please retry.`);
+    } finally {
+      setIsSigning(false);
     }
-  }, [isAuthenticated]);
-
-  if (activeAccount) {
-    console.log("LoginScreen activeAccount...");
-    return (
-      <View className="flex-1 justify-center">
-        <ActivityIndicator size={"large"} />
-      </View>
-    );
-  }
+  };
 
   return (
     <View className="flex-1 justify-center">
@@ -40,21 +43,38 @@ export default function LoginScreen() {
         </ThemedText>
       </View>
 
-      <View className="items-center">
+      <View className="items-center gap-4">
         <ConnectButton
           client={thirdwebClient}
           theme={theme || "dark"}
           wallets={thirdwebWallets}
           chain={appChain}
-          onConnect={async (activeWallet) => {
-            const account = activeWallet.getAccount();
-            if (!account) return;
-            const deadline = Math.floor(Date.now() / 1000) + 60;
-            const message = `com.cnerylozada.hempsat_deadline:${deadline}`;
-            const signature = await account.signMessage({ message });
-            await onSignIn(account.address, message, signature);
+          onConnect={(activeWallet) => {
+            const signerAccount = activeWallet.getAccount();
+            if (signerAccount) {
+              console.log(
+                "LoginScreen ConnectButton signerAccount...",
+                signerAccount,
+              );
+              handleSignIn(signerAccount);
+            }
           }}
         />
+
+        {account && !isAuthenticated && (
+          <ThemedButton
+            title="Retry sign-in"
+            loading={isSigning}
+            loadingTitle="Signing in..."
+            onPress={() => handleSignIn(account)}
+          />
+        )}
+
+        {error && (
+          <ThemedText className="dark:text-text-danger-dark text-center">
+            {error}
+          </ThemedText>
+        )}
       </View>
     </View>
   );

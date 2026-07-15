@@ -1,3 +1,4 @@
+import { LoadingScreen } from "@/components/LoadingScreen";
 import { ScreenLayout } from "@/components/ScreenLayout";
 import { ThemedButton } from "@/components/ThemedButton";
 import { ThemedText } from "@/components/ThemedText";
@@ -9,7 +10,6 @@ import { useQuery } from "@tanstack/react-query";
 import { Link, router } from "expo-router";
 import * as SecureStore from "expo-secure-store";
 import { useEffect, useState } from "react";
-import { LoadingScreen } from "@/components/LoadingScreen";
 import { useColorScheme, View } from "react-native";
 import {
   ConnectButton,
