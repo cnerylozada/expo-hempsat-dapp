@@ -1,4 +1,5 @@
 import { FarmCard } from "@/components/farms/FarmCard";
+import { LoadingScreen } from "@/components/LoadingScreen";
 import { ThemedButton } from "@/components/ThemedButton";
 import { ThemedText } from "@/components/ThemedText";
 import { queryKeys } from "@/libs/queryKeys";
@@ -6,7 +7,6 @@ import { getMyFarmList } from "@/server/farms";
 import { useQuery } from "@tanstack/react-query";
 import { Link } from "expo-router";
 import * as SecureStore from "expo-secure-store";
-import { LoadingScreen } from "@/components/LoadingScreen";
 import { View } from "react-native";
 
 export default function FarmsScreen() {
@@ -18,11 +18,7 @@ export default function FarmsScreen() {
     },
   });
 
-  if (isLoading) {
-    return (
-      <LoadingScreen />
-    );
-  }
+  if (isLoading) return <LoadingScreen />;
 
   return (
     <View className="flex-1 gap-6">

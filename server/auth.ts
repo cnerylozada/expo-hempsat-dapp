@@ -24,10 +24,20 @@ export const signIn = async (requestBody: {
 };
 
 export const signOut = async (token: string | null) => {
-  await fetch(`${process.env.EXPO_PUBLIC_API_URL}/auth/sign-out`, {
-    method: "POST",
-    headers: { Authorization: `Bearer ${token}` },
-  });
+  const response = await fetch(
+    `${process.env.EXPO_PUBLIC_API_URL}/auth/sign-out`,
+    {
+      method: "POST",
+      headers: { Authorization: `Bearer ${token}` },
+    },
+  );
+
+  if (!response.ok) {
+    const body: { error?: string } | null = await response
+      .json()
+      .catch(() => null);
+    throw new Error(body?.error ?? "Sign-out failed");
+  }
 };
 
 export const isTokenExpired = (token: string) => {

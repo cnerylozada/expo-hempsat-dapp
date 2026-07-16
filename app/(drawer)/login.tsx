@@ -8,13 +8,13 @@ import { ConnectButton, useActiveAccount } from "thirdweb/react";
 import type { Account } from "thirdweb/wallets";
 
 export default function LoginScreen() {
-  console.log("LoginScreen...");
-
   const account = useActiveAccount();
   const theme = useColorScheme();
   const { isAuthenticated, onSignIn } = useAuth();
   const [error, setError] = useState<string | null>(null);
   const [isSigning, setIsSigning] = useState(false);
+
+  console.log("LoginScreen account...", account?.address);
 
   const handleSignIn = async (signerAccount: Account) => {
     setError(null);
@@ -49,15 +49,10 @@ export default function LoginScreen() {
           theme={theme || "dark"}
           wallets={thirdwebWallets}
           chain={appChain}
+          autoConnect={false}
           onConnect={(activeWallet) => {
             const signerAccount = activeWallet.getAccount();
-            if (signerAccount) {
-              console.log(
-                "LoginScreen ConnectButton signerAccount...",
-                signerAccount,
-              );
-              handleSignIn(signerAccount);
-            }
+            if (signerAccount) handleSignIn(signerAccount);
           }}
         />
 

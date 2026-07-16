@@ -7,7 +7,7 @@ import { appChain, thirdwebClient, thirdwebWallets } from "@/libs/thirdweb";
 import { useAuth } from "@/providers/AuthProvider";
 import { getMyUser } from "@/server/users";
 import { useQuery } from "@tanstack/react-query";
-import { Link, router } from "expo-router";
+import { Link } from "expo-router";
 import * as SecureStore from "expo-secure-store";
 import { useEffect, useState } from "react";
 import { useColorScheme, View } from "react-native";
@@ -43,7 +43,6 @@ const WalletAccount = () => {
         chain={appChain}
         onDisconnect={async () => {
           await onSignOut();
-          router.replace("/(drawer)/login");
         }}
       />
 

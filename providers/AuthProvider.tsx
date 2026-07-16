@@ -32,11 +32,12 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   useEffect(() => {
     const loadAuthState = async () => {
-      console.log("AuthProvider loadAuthState...");
       const token = await SecureStore.getItemAsync(KEYS.jwt);
-      if (token && !isTokenExpired(token)) {
-        setIsAuthenticated(true);
+      if (token && isTokenExpired(token)) {
+        await onSignOut();
+        return;
       }
+      setIsAuthenticated(!!token);
       setIsLoading(false);
     };
     loadAuthState();
@@ -47,7 +48,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     message: string,
     signature: string,
   ) => {
-    console.log("AuthProvider onSignIn...");
     setIsLoading(true);
     const requestBody = {
       wallet,
@@ -57,7 +57,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
     try {
       const token = await signIn(requestBody);
-      console.log("onSignIn token...", token);
       await SecureStore.setItemAsync(KEYS.jwt, token);
       setIsAuthenticated(true);
       router.replace("/(drawer)/dashboard");
@@ -68,8 +67,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   const onSignOut = async () => {
     setIsLoading(true);
-    const token = await SecureStore.getItemAsync(KEYS.jwt);
 
+    const token = await SecureStore.getItemAsync(KEYS.jwt);
     try {
       await signOut(token);
     } catch (error) {
@@ -78,6 +77,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     await SecureStore.deleteItemAsync(KEYS.jwt);
     setIsAuthenticated(false);
     setIsLoading(false);
+    router.replace("/(drawer)/login");
   };
 
   return (
