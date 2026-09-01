@@ -1,3 +1,4 @@
+import { useAuthedQuery } from "@/components/authedRequests";
 import { FarmCard } from "@/components/farms/FarmCard";
 import { LoadingScreen } from "@/components/LoadingScreen";
 import { ThemedButton } from "@/components/ThemedButton";
@@ -5,27 +6,14 @@ import { ThemedText } from "@/components/ThemedText";
 import { queryKeys } from "@/libs/queryKeys";
 import { useAuth } from "@/providers/AuthProvider";
 import { getMyFarmList } from "@/server/farms";
-import { TokenExpiredError } from "@/server/http";
-import { useQuery } from "@tanstack/react-query";
 import { Link } from "expo-router";
-import * as SecureStore from "expo-secure-store";
 import { View } from "react-native";
 
 export default function FarmsScreen() {
-  const { onSignOut } = useAuth();
+  const { token } = useAuth();
 
-  const { data, isLoading, isError, error, refetch, isRefetching } = useQuery({
-    queryKey: queryKeys.farms.myFarms,
-    queryFn: async () => {
-      const token = await SecureStore.getItemAsync("jwt");
-      try {
-        return await getMyFarmList(token);
-      } catch (error) {
-        if (error instanceof TokenExpiredError) await onSignOut();
-        throw error;
-      }
-    },
-  });
+  const { data, isLoading, isError, error, refetch, isRefetching } =
+    useAuthedQuery(queryKeys.farms.myFarms, () => getMyFarmList(token));
 
   if (isLoading) return <LoadingScreen />;
 

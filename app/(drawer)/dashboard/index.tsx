@@ -2,13 +2,12 @@ import { LoadingScreen } from "@/components/LoadingScreen";
 import { ScreenLayout } from "@/components/ScreenLayout";
 import { ThemedButton } from "@/components/ThemedButton";
 import { ThemedText } from "@/components/ThemedText";
+import { useAuthedQuery } from "@/components/authedRequests";
 import { queryKeys } from "@/libs/queryKeys";
 import { appChain, thirdwebClient, thirdwebWallets } from "@/libs/thirdweb";
 import { useAuth } from "@/providers/AuthProvider";
 import { getMyUser } from "@/server/users";
-import { useQuery } from "@tanstack/react-query";
 import { Link } from "expo-router";
-import * as SecureStore from "expo-secure-store";
 import { useEffect, useState } from "react";
 import { useColorScheme, View } from "react-native";
 import {
@@ -61,13 +60,12 @@ const WalletAccount = () => {
 };
 
 export default function DashboardScreen() {
-  const { data, isLoading, isError, error } = useQuery({
-    queryKey: queryKeys.users.myUser,
-    queryFn: async () => {
-      const token = await SecureStore.getItemAsync("jwt");
-      return getMyUser(token);
-    },
-  });
+  const { token } = useAuth();
+
+  const { data, isLoading, isError, error } = useAuthedQuery(
+    queryKeys.users.myUser,
+    () => getMyUser(token),
+  );
 
   if (isLoading) {
     return (

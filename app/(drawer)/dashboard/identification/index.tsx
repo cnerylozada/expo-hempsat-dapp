@@ -1,26 +1,23 @@
 import { IDCard } from "@/components/identification/IDCard";
-import { ThemedText } from "@/components/ThemedText";
-import { queryKeys } from "@/libs/queryKeys";
-import { getMyUser } from "@/server/users";
-import { useQuery } from "@tanstack/react-query";
-import { Redirect } from "expo-router";
-import * as SecureStore from "expo-secure-store";
 import { LoadingScreen } from "@/components/LoadingScreen";
+import { ThemedText } from "@/components/ThemedText";
+import { useAuthedQuery } from "@/components/authedRequests";
+import { queryKeys } from "@/libs/queryKeys";
+import { useAuth } from "@/providers/AuthProvider";
+import { getMyUser } from "@/server/users";
+import { Redirect } from "expo-router";
 import { View } from "react-native";
 
 export default function IdentificationScreen() {
-  const { data, isLoading, isError, error } = useQuery({
-    queryKey: queryKeys.users.myUser,
-    queryFn: async () => {
-      const token = await SecureStore.getItemAsync("jwt");
-      return getMyUser(token);
-    },
-  });
+  const { token } = useAuth();
+
+  const { data, isLoading, isError, error } = useAuthedQuery(
+    queryKeys.users.myUser,
+    () => getMyUser(token),
+  );
 
   if (isLoading) {
-    return (
-      <LoadingScreen />
-    );
+    return <LoadingScreen />;
   }
 
   if (!isLoading && !isError && !data?.inquiry_id) {

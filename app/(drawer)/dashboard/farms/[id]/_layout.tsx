@@ -1,11 +1,11 @@
 import { LoadingScreen } from "@/components/LoadingScreen";
 import { ThemedText } from "@/components/ThemedText";
+import { useAuthedQuery } from "@/components/authedRequests";
 import { queryKeys } from "@/libs/queryKeys";
+import { useAuth } from "@/providers/AuthProvider";
 import { getMyFarmById } from "@/server/farms";
 import Ionicons from "@expo/vector-icons/Ionicons";
-import { useQuery } from "@tanstack/react-query";
 import { Tabs, useGlobalSearchParams, useNavigation } from "expo-router";
-import * as SecureStore from "expo-secure-store";
 import { useEffect } from "react";
 import { View } from "react-native";
 
@@ -13,13 +13,12 @@ export default function Layout() {
   const { id } = useGlobalSearchParams<{ id: string }>();
   const navigation = useNavigation();
 
-  const { data, isLoading, isError, error } = useQuery({
-    queryKey: queryKeys.farms.farmById(id),
-    queryFn: async () => {
-      const token = await SecureStore.getItemAsync("jwt");
-      return getMyFarmById(token, id);
-    },
-  });
+  const { token } = useAuth();
+
+  const { data, isLoading, isError, error } = useAuthedQuery(
+    queryKeys.farms.farmById(id),
+    () => getMyFarmById(token, id),
+  );
 
   useEffect(() => {
     if (data?.location) {
@@ -28,9 +27,7 @@ export default function Layout() {
   }, [data?.location, navigation]);
 
   if (isLoading) {
-    return (
-      <LoadingScreen />
-    );
+    return <LoadingScreen />;
   }
 
   if (isError) {

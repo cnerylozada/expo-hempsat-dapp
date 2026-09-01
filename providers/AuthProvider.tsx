@@ -16,6 +16,7 @@ const KEYS = {
 } as const;
 
 interface AuthContextType {
+  token: string | null;
   isAuthenticated: boolean;
   onSignIn: (
     wallet: string,
@@ -28,19 +29,19 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [token, setToken] = useState<string | null>(null);
   const wallet = useActiveWallet();
   const { disconnect } = useDisconnect();
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     const loadAuthState = async () => {
-      const token = await SecureStore.getItemAsync(KEYS.jwt);
-      if (token && isTokenExpired(token)) {
+      const storedToken = await SecureStore.getItemAsync(KEYS.jwt);
+      if (storedToken && isTokenExpired(storedToken)) {
         await onSignOut();
         return;
       }
-      setIsAuthenticated(!!token);
+      setToken(storedToken);
       setIsLoading(false);
     };
     loadAuthState();
@@ -59,9 +60,9 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     };
 
     try {
-      const token = await signIn(requestBody);
-      await SecureStore.setItemAsync(KEYS.jwt, token);
-      setIsAuthenticated(true);
+      const newToken = await signIn(requestBody);
+      await SecureStore.setItemAsync(KEYS.jwt, newToken);
+      setToken(newToken);
       router.replace("/(drawer)/dashboard");
     } finally {
       setIsLoading(false);
@@ -73,17 +74,18 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
     if (wallet) disconnect(wallet);
 
-    const token = await SecureStore.getItemAsync(KEYS.jwt);
     signOut(token).catch(console.error);
     await SecureStore.deleteItemAsync(KEYS.jwt);
 
     setIsLoading(false);
-    setIsAuthenticated(false);
+    setToken(null);
     router.replace("/(drawer)/login");
   };
 
   return (
-    <AuthContext.Provider value={{ isAuthenticated, onSignIn, onSignOut }}>
+    <AuthContext.Provider
+      value={{ token, isAuthenticated: !!token, onSignIn, onSignOut }}
+    >
       {isLoading ? <LoadingScreen /> : children}
     </AuthContext.Provider>
   );
