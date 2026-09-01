@@ -9,6 +9,7 @@ import {
   useEffect,
   useState,
 } from "react";
+import { useActiveWallet, useDisconnect } from "thirdweb/react";
 
 const KEYS = {
   jwt: "jwt",
@@ -28,6 +29,8 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const wallet = useActiveWallet();
+  const { disconnect } = useDisconnect();
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
@@ -68,15 +71,14 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const onSignOut = async () => {
     setIsLoading(true);
 
+    if (wallet) disconnect(wallet);
+
     const token = await SecureStore.getItemAsync(KEYS.jwt);
-    try {
-      await signOut(token);
-    } catch (error) {
-      console.error(error);
-    }
+    signOut(token).catch(console.error);
     await SecureStore.deleteItemAsync(KEYS.jwt);
-    setIsAuthenticated(false);
+
     setIsLoading(false);
+    setIsAuthenticated(false);
     router.replace("/(drawer)/login");
   };
 

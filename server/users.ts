@@ -1,3 +1,4 @@
+import { throwIfNotOk } from "@/server/http";
 import { IUser } from "@/server/models";
 
 export const getMyUser = async (token: string | null) => {
@@ -6,12 +7,7 @@ export const getMyUser = async (token: string | null) => {
     headers: { Authorization: `Bearer ${token}` },
   });
 
-  if (!response.ok) {
-    const body: { error?: string } | null = await response
-      .json()
-      .catch(() => null);
-    throw new Error(body?.error);
-  }
+  await throwIfNotOk(response);
 
   const user: IUser = await response.json();
   return user;
@@ -30,7 +26,5 @@ export const saveUserIdentification = async (
     body: JSON.stringify({ inquiryId }),
   });
 
-  if (!response.ok) {
-    throw new Error("Failed to save identification");
-  }
+  await throwIfNotOk(response, "Failed to save identification");
 };

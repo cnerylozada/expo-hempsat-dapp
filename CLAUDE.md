@@ -61,9 +61,15 @@ Route structure:
 ### Data Fetching
 - `@tanstack/react-query` is used for all server data fetching; avoid manual `useState`/`useEffect`/`useFocusEffect` fetch patterns for new screens.
 - `libs/queryKeys.ts` — single source of truth for query keys, organized by domain (e.g. `queryKeys.farms.myFarms`, `queryKeys.users.myUser`). Use these keys for both `useQuery` and any `invalidateQueries` calls — do not inline ad-hoc key arrays.
-- `server/*.ts` — one file per domain (`server/farms.ts`, `server/users.ts`) exporting fetch functions that take a `token: string | null` (read via `SecureStore.getItemAsync("jwt")` in the calling screen) and throw `Error(body?.error)` parsed from the JSON response when `!response.ok`, so `useQuery`'s `error.message` reflects the backend's actual error.
+- `server/*.ts` — one file per domain (`server/farms.ts`, `server/users.ts`, `server/auth.ts`) exporting fetch functions that take a `token: string | null` (read via `SecureStore.getItemAsync("jwt")` in the calling screen) and throw `Error(body?.error)` parsed from the JSON response when `!response.ok`, so `useQuery`'s `error.message` reflects the backend's actual error.
 - `server/weather-metrics.ts` — fetches 5-day forecast from Open-Meteo (`fetchFiveDayForecast`). Uses the `openmeteo` SDK with `daily` (temperature, weather_code) and `hourly` (relative_humidity_2m) variables. Returns `IForecast[]`.
 - `server/models.ts` — single file for shared domain interfaces (`IUser`, `IFarm`, `IForecast`, `ITitleDeedPhoto`, `ICreateFarmInput`) returned by the `server/*.ts` fetch functions.
+
+### Authentication
+- `providers/AuthProvider.tsx` manages the JWT session. On mount it reads the token from `SecureStore` and calls `isTokenExpired(token)` (client-side JWT `exp` decode, no network call) — if already expired, it calls `onSignOut()` immediately instead of leaving the user in a half-authenticated state.
+- `server/auth.ts` — `signIn`/`signOut` (POST `/auth/sign-in`, `/auth/sign-out`, same throw-on-`!response.ok` convention as other `server/*.ts` files); `getTokenExpiry`/`isTokenExpired` decode the JWT payload locally.
+- **Wallet auto-connect gotcha**: `ConnectButton` mounts an internal `<AutoConnect>` by default, which forwards whatever `onConnect` prop you gave it. On `app/(drawer)/login.tsx` this means a still-valid wallet session would silently reconnect and re-fire the sign-in flow with no user interaction — hence `login.tsx`'s `ConnectButton` always sets `autoConnect={false}`. Dashboard's `ConnectButton` (`app/(drawer)/dashboard/index.tsx`) keeps the default (enabled) — it has no `onConnect` handler, and it only ever mounts once `isAuthenticated` is already `true`, so silently reconnecting there is safe and desired (keeps the wallet connected across app restarts for an already-valid session).
+- **Disconnect gotcha**: always disconnect via the `useDisconnect()` hook's `disconnect(wallet)`, never call `wallet.disconnect()` directly. The manager-level `disconnect` clears the persisted `LAST_ACTIVE_EOA_ID` (what `AutoConnect` checks on next launch); calling `wallet.disconnect()` directly skips that, so the wallet silently reconnects on the next app open despite having been "signed out."
 
 ### Weather
 - `server/weather-metrics.ts` — Open-Meteo integration. Fetches `temperature_2m_max`, `temperature_2m_min`, `weather_code` (daily) and `relative_humidity_2m` (hourly, averaged per day). Returns `Promise<IForecast[]>` for 5 days.
@@ -73,6 +79,7 @@ Route structure:
 ### Layout Conventions
 - `components/ScreenLayout.tsx` — full-screen padded wrapper (`flex-1 p-4`). Pass directly as `screenLayout={ScreenLayout}` on any `Stack` navigator. For `Drawer` screens (which do not support `screenLayout`), import and wrap the screen's return value with `<ScreenLayout>` directly in the screen file.
 - `components/StackHeaderLeft.tsx` — renders `HeaderBackButton` (calls `router.back()`) when `canGoBack`, otherwise `DrawerToggleButton`. Add to any `Stack` via `screenOptions={{ headerLeft: (props) => <StackHeaderLeft {...props} /> }}`. Do not use `useNavigation` + `StackActions.pop()` — that dispatches to the parent Drawer navigator and throws a POP warning.
+- `components/LoadingScreen.tsx` — centered `ActivityIndicator` (`flex-1 justify-center items-center`, `size="large"`). Use for any full-screen loading state instead of inlining the same `View`/`ActivityIndicator` pair.
 
 ### Theming
 - `components/Colors.ts` — color palette for light/dark.

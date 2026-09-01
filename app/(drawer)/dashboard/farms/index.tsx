@@ -3,18 +3,27 @@ import { LoadingScreen } from "@/components/LoadingScreen";
 import { ThemedButton } from "@/components/ThemedButton";
 import { ThemedText } from "@/components/ThemedText";
 import { queryKeys } from "@/libs/queryKeys";
+import { useAuth } from "@/providers/AuthProvider";
 import { getMyFarmList } from "@/server/farms";
+import { TokenExpiredError } from "@/server/http";
 import { useQuery } from "@tanstack/react-query";
 import { Link } from "expo-router";
 import * as SecureStore from "expo-secure-store";
 import { View } from "react-native";
 
 export default function FarmsScreen() {
-  const { data, isLoading, isError, error } = useQuery({
+  const { onSignOut } = useAuth();
+
+  const { data, isLoading, isError, error, refetch, isRefetching } = useQuery({
     queryKey: queryKeys.farms.myFarms,
     queryFn: async () => {
       const token = await SecureStore.getItemAsync("jwt");
-      return getMyFarmList(token);
+      try {
+        return await getMyFarmList(token);
+      } catch (error) {
+        if (error instanceof TokenExpiredError) await onSignOut();
+        throw error;
+      }
     },
   });
 
@@ -28,10 +37,17 @@ export default function FarmsScreen() {
 
       <View className="gap-3">
         {isError && (
-          <View>
+          <View className="gap-3">
             <ThemedText className="dark:text-text-danger-dark">
               Something went wrong: {error.message}
             </ThemedText>
+            <ThemedButton
+              title="Try again"
+              iconName="refresh"
+              loading={isRefetching}
+              loadingTitle="Retrying..."
+              onPress={() => refetch()}
+            />
           </View>
         )}
 

@@ -14,8 +14,6 @@ export default function LoginScreen() {
   const [error, setError] = useState<string | null>(null);
   const [isSigning, setIsSigning] = useState(false);
 
-  console.log("LoginScreen account...", account?.address);
-
   const handleSignIn = async (signerAccount: Account) => {
     setError(null);
     setIsSigning(true);

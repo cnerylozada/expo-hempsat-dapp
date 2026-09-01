@@ -1,3 +1,4 @@
+import { throwIfNotOk } from "@/server/http";
 import { ICreateFarmInput, IFarm } from "@/server/models";
 
 export const getMyFarmList = async (token: string | null) => {
@@ -6,12 +7,7 @@ export const getMyFarmList = async (token: string | null) => {
     headers: { Authorization: `Bearer ${token}` },
   });
 
-  if (!response.ok) {
-    const body: { error?: string } | null = await response
-      .json()
-      .catch(() => null);
-    throw new Error(body?.error);
-  }
+  await throwIfNotOk(response);
 
   const farmList: IFarm[] = await response.json();
   return farmList;
@@ -26,12 +22,7 @@ export const getMyFarmById = async (token: string | null, id: string) => {
     },
   );
 
-  if (!response.ok) {
-    const body: { error?: string } | null = await response
-      .json()
-      .catch(() => null);
-    throw new Error(body?.error);
-  }
+  await throwIfNotOk(response);
 
   const farm: IFarm = await response.json();
   return farm;
@@ -60,10 +51,5 @@ export const createFarm = async (
     body: formData,
   });
 
-  if (!response.ok) {
-    const body: { error?: string } | null = await response
-      .json()
-      .catch(() => null);
-    throw new Error(body?.error);
-  }
+  await throwIfNotOk(response);
 };
