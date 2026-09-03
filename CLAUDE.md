@@ -44,8 +44,9 @@ File-based routing via expo-router. The entry point is `index.js` (not `app/`), 
 
 Route structure:
 - `app/index.tsx` — redirects to `/(drawer)/home`
-- `app/(drawer)/` — drawer navigator (main shell)
-- `app/tabs/` — tab navigator nested inside the drawer, with Connect and Read tabs
+- `app/(drawer)/` — drawer navigator (main shell): `home`, `login`, `dashboard`
+- `app/(drawer)/dashboard/` — `farms/` (with a nested `[id]/` tab navigator) and `identification/`
+- `app/camera.tsx` — full-screen camera route, outside the drawer
 
 ### Thirdweb Integration
 - `libs/thirdweb.ts` — exports `thirdwebClient` (singleton). Import this wherever blockchain calls are needed.
@@ -54,20 +55,23 @@ Route structure:
 - `package.json` overrides `react-native-quick-base64` to `3.0.0` to fix a JSI compatibility issue with React Native new architecture (which is enabled).
 
 ### Providers
-- `providers/AppProviders.tsx` — wraps the root with `ThirdwebProvider`, `QueryClientProvider`, `AuthProvider`, and `PhotoProvider`, in that order. Mounted once in `app/_layout.tsx` alongside the local `ThemeProvider` (which stays in `_layout.tsx` since it depends on the `useColorScheme()` hook).
+- `providers/AppProviders.tsx` — wraps the root with `ThirdwebProvider`, `QueryClientProvider`, `AuthProvider`, and `PhotoProvider`, in that order. Mounted once in `app/_layout.tsx`, which additionally mounts `GluestackUIProvider` and the local `ThemeProvider` (the latter stays in `_layout.tsx` since it depends on the `useColorScheme()` hook).
 - `providers/AuthProvider.tsx` — manages the JWT session via `expo-secure-store` under the key `"jwt"`.
 - `providers/PhotoProvider.tsx` — camera/gallery photo capture state.
 
 ### Data Fetching
 - `@tanstack/react-query` is used for all server data fetching; avoid manual `useState`/`useEffect`/`useFocusEffect` fetch patterns for new screens.
 - `libs/queryKeys.ts` — single source of truth for query keys, organized by domain (e.g. `queryKeys.farms.myFarms`, `queryKeys.users.myUser`). Use these keys for both `useQuery` and any `invalidateQueries` calls — do not inline ad-hoc key arrays.
-- `server/*.ts` — one file per domain (`server/farms.ts`, `server/users.ts`, `server/auth.ts`) exporting fetch functions that take a `token: string | null` (read via `SecureStore.getItemAsync("jwt")` in the calling screen) and throw `Error(body?.error)` parsed from the JSON response when `!response.ok`, so `useQuery`'s `error.message` reflects the backend's actual error.
+- `server/*.ts` — one file per domain (`server/farms.ts`, `server/users.ts`, `server/auth.ts`) exporting fetch functions that take a `token: string | null`. Get that token from `useAuth()` in the calling screen — do not call `SecureStore.getItemAsync("jwt")` directly; `AuthProvider` already holds it. (Two screens still do the direct read: `dashboard/farms/register-farm.tsx:79` and `dashboard/identification/validate-id-card.tsx:30`. Both are mutations, not queries; migrate them when touched.)
+- `server/http.ts` — `throwIfNotOk(response, fallbackMessage?)` is the shared error path for every `server/*.ts` fetch. It parses the JSON body and throws `TokenExpiredError(body.error)` when `body.code === "TOKEN_EXPIRED"`, otherwise `Error(body?.error ?? fallbackMessage)` — so `useQuery`'s `error.message` reflects the backend's actual error.
+- `components/authedRequests.ts` — `useAuthedQuery(queryKey, queryFn)` wraps `useQuery` and calls `onSignOut()` when the query throws `TokenExpiredError`, then rethrows. **Use this instead of bare `useQuery` for any authenticated request**, otherwise an expired token leaves the user in a signed-in UI making failing calls.
 - `server/weather-metrics.ts` — fetches 5-day forecast from Open-Meteo (`fetchFiveDayForecast`). Uses the `openmeteo` SDK with `daily` (temperature, weather_code) and `hourly` (relative_humidity_2m) variables. Returns `IForecast[]`.
 - `server/models.ts` — single file for shared domain interfaces (`IUser`, `IFarm`, `IForecast`, `ITitleDeedPhoto`, `ICreateFarmInput`) returned by the `server/*.ts` fetch functions.
 
 ### Authentication
 - `providers/AuthProvider.tsx` manages the JWT session. On mount it reads the token from `SecureStore` and calls `isTokenExpired(token)` (client-side JWT `exp` decode, no network call) — if already expired, it calls `onSignOut()` immediately instead of leaving the user in a half-authenticated state.
 - `server/auth.ts` — `signIn`/`signOut` (POST `/auth/sign-in`, `/auth/sign-out`, same throw-on-`!response.ok` convention as other `server/*.ts` files); `getTokenExpiry`/`isTokenExpired` decode the JWT payload locally.
+- **Two distinct expiry paths.** Expiry *before* mount is caught by `AuthProvider`'s `isTokenExpired` check (local decode). Expiry *during* a session is caught server-side: the backend returns `code: "TOKEN_EXPIRED"`, `throwIfNotOk` turns it into `TokenExpiredError`, and `useAuthedQuery` signs the user out. Both are needed — neither covers the other's case.
 - **Wallet auto-connect gotcha**: `ConnectButton` mounts an internal `<AutoConnect>` by default, which forwards whatever `onConnect` prop you gave it. On `app/(drawer)/login.tsx` this means a still-valid wallet session would silently reconnect and re-fire the sign-in flow with no user interaction — hence `login.tsx`'s `ConnectButton` always sets `autoConnect={false}`. Dashboard's `ConnectButton` (`app/(drawer)/dashboard/index.tsx`) keeps the default (enabled) — it has no `onConnect` handler, and it only ever mounts once `isAuthenticated` is already `true`, so silently reconnecting there is safe and desired (keeps the wallet connected across app restarts for an already-valid session).
 - **Disconnect gotcha**: always disconnect via the `useDisconnect()` hook's `disconnect(wallet)`, never call `wallet.disconnect()` directly. The manager-level `disconnect` clears the persisted `LAST_ACTIVE_EOA_ID` (what `AutoConnect` checks on next launch); calling `wallet.disconnect()` directly skips that, so the wallet silently reconnects on the next app open despite having been "signed out."
 
@@ -82,9 +86,52 @@ Route structure:
 - `components/LoadingScreen.tsx` — centered `ActivityIndicator` (`flex-1 justify-center items-center`, `size="large"`). Use for any full-screen loading state instead of inlining the same `View`/`ActivityIndicator` pair.
 
 ### Theming
-- `components/Colors.ts` — color palette for light/dark.
-- `utils/useThemeColor.ts` — hook to look up a color key from the current scheme.
-- `components/ThemedText.tsx` and `components/ThemedButton.tsx` — themed primitives. `ThemedText` supports types: `default`, `title`, `defaultSemiBold`, `subtitle`, `link`, `subtext`.
+Colors come from CSS custom properties, not a TypeScript palette. `components/ui/gluestack-ui-provider/config.ts` defines them via NativeWind's `vars()` for `light` and `dark`, and `tailwind.config.js` exposes them as `rgb(var(--token)/<alpha-value>)` utilities (`bg-primary`, `text-foreground`, `border-border`, `text-destructive`, …).
+
+Read the scheme with **nativewind's** `useColorScheme`, not react-native's — `GluestackUIProvider` drives the theme through NativeWind, so react-native's hook can report a different value than what is actually rendered:
+
+```ts
+import { useColorScheme } from "nativewind";
+const { colorScheme } = useColorScheme();
+```
+
+`app/(drawer)/login.tsx` and `app/(drawer)/dashboard/index.tsx` still import it from `react-native` (both feed `ConnectButton theme={...}`) — switch them when touched.
+
+- `components/ThemedText.tsx` and `components/ThemedButton.tsx` — pre-gluestack primitives. `ThemedText` supports types: `default`, `title`, `defaultSemiBold`, `subtitle`, `subtext`. Being replaced by gluestack components; prefer gluestack for new UI.
+- **20 class usages are currently dead.** The old custom palette (`tint`, `text`, `subtext`, `text-inverted`) was dropped when `tailwind.config.js` was replaced with gluestack's. These classes now generate nothing and render as unstyled: `text-text-danger-dark` ×10, `text-text-danger` ×3, `bg-tint` ×3, `bg-tint/10` ×1, `text-text` ×1, `text-text-dark` ×1, `text-text-inverted` ×1. Map them to `text-destructive`, `bg-primary`, `text-foreground`, `text-primary-foreground` respectively. (`border-border` and `bg-background` still resolve — those names survive in the new config.)
+
+### UI Components (gluestack-ui v4 alpha)
+Components are **vendored source**, not an imported library — the CLI copies files into `components/ui/<name>/`. Edit them freely, but prefer keeping them at upstream defaults so future `add` runs don't surprise you.
+
+Adding components:
+
+```bash
+npx gluestack-ui@4.1.0-alpha.4 add <name> [<name> ...] && rm -f .npmrc
+```
+
+- **Always `rm -f .npmrc` afterwards.** `installDependencies` calls `ensureLegacyPeerDeps()` unconditionally as its first step, which runs `npm config --location=project set legacy-peer-deps=true`. That flag disables npm's auto-installed peers, and `react-native-nitro-modules` exists in this tree *only* as an auto-installed peer of `react-native-quick-crypto` and `react-native-mmkv`. It fires even for components that install nothing.
+- **Batch components into one call** — one clone/pull, one install, one `.npmrc` to delete. Already-present components are filtered out, so re-listing them is a no-op.
+- **Pin the CLI version.** A bare `npx gluestack-ui` resolves to `latest`, which is on the 5.x line. Today that still emits identical files — both `4.1.0-alpha.4` and `5.0.3` hardcode `branchName: 'main-v4-alpha'` for `add`, and neither reassigns it (the `v4-nativewind`/`v4-uniwind`/`main` strings in the 5.x build belong to `commands/upgrade.js` as version labels, not clone targets). But that constant can change in any release, and the failure would be silent rather than loud: a v5 `gluestack-ui-provider/index.tsx` carries no tokens and mounts cleanly while theming nothing. Pinning also avoids a re-download each time `latest` moves, since a prerelease version never satisfies npx's cache check.
+- The pin guards against CLI changes, not branch changes — both versions read the same `main-v4-alpha` branch, cached at `~/.gluestack/cache/gluestack-ui`. Components are vendored, so committing them is what actually freezes them.
+- `--template-only` does **not** skip dependency installation (it only skips the git pull). There is no flag that does.
+
+**7 of the 58 components change the dependency tree.** The CLI installs their declared ranges verbatim, which can move versions backwards:
+
+| Component | Dependency | Effect |
+|---|---|---|
+| `date-time-picker` | `react-native-reanimated@^3.0.0` | **downgrade from 4.1.x — breaks RN 0.81 New Arch** |
+| `image-viewer` | `react-native-gesture-handler@~2.30.0` | moves off SDK 54's `~2.28.0` pin |
+| `calendar` | `date-fns@^3.0.0` | bump from 2.30.0 |
+| `bottomsheet` | `@gorhom/bottom-sheet@^5` | new |
+| `checkbox`, `radio` | `lucide-react-native@^0.510.0` | new |
+| `liquid-glass` | `expo-glass-effect` | new, native → rebuild |
+| `date-time-picker` | `@react-native-community/datetimepicker@^8.4.4` | new, native → rebuild |
+
+For those, follow up with `npx expo install --fix`. The other 51 need nothing.
+
+**`components/ui/gluestack-ui-provider/` must stay on the v4 file set.** Copying it from the repo's `main` branch yields v5 files, which fail differently depending on the file: `index.next.tsx` and `index.uniwind.tsx` break the bundle outright (they import a nonexistent `./config` and the uninstalled `uniwind`), while the v5 `index.tsx` carries no tokens at all and would mount cleanly while theming nothing — a silent failure. The provider is mounted with `mode="system"` in `app/_layout.tsx`; the default is `mode="light"`, which calls `setColorScheme("light")` and pins the whole app to light.
+
+`components/ui/button/index.tsx` produces 4 `tsc --noEmit` errors (the `cssInterop` config keys and an `ActivityIndicator` `size` prop). These are upstream gluestack source, not project code, and don't affect the build — Babel strips types.
 
 ### Path Alias
 `@/` maps to the project root (configured in `tsconfig.json`).
@@ -95,3 +142,7 @@ Route structure:
 - **Android minSdkVersion is 26** (required by `react-native-aes-gcm-crypto`), set in both `app.json > android.minSdkVersion` and the `expo-build-properties` plugin.
 - **iOS OpenSSL fix not yet applied** — before running `npx expo run:ios`, add `extraPods` for `OpenSSL-Universal` in `app.json` under the `expo-build-properties` plugin (version `3.3.2000` for Xcode 16, `3.1.5004` for Xcode 15).
 - **`.env` is gitignored but was previously committed** — it has been removed from tracking (`git rm --cached`), but old secrets remain in git history until that history is rewritten.
+- **`react-aria` and `react-stately` are pinned to exact versions — do not add `^`.** `@gluestack-ui/core` and `@gluestack-ui/utils` import 22 scoped `@react-aria/*` / `@react-stately/*` packages (13 + 9) while declaring only the two umbrella packages, relying on them to pull the scoped ones in. The umbrellas stopped doing that: `react-aria` went from 42 dependencies at 3.47.0 to 9 at 3.48.0, and `react-stately` from 26 at 3.45.0 to 6 at 3.46.0. Any float past those versions breaks the bundle with `Unable to resolve "@react-aria/utils"`. Hence `react-aria: "3.47.0"` and `react-stately: "3.45.0"`, exact.
+- **The nine `@react-stately/*` packages are direct dependencies *and* `overrides`, both exact.** Both halves are required. The `overrides` block stops the 3.10.x wrapper versions (which depend on `react-stately@^3.46.0`) from being selected; declaring them as direct dependencies is what guarantees npm hoists them to the top level of `node_modules` where Metro can resolve them. Without the direct declaration npm nests them under `react-stately/node_modules/` and the bundle fails.
+- **Avoid `--legacy-peer-deps`** — it disables npm's auto-installed peers, and `react-native-nitro-modules` is present only as such a peer (of `react-native-quick-crypto` and `react-native-mmkv`). This is why `.npmrc` must be deleted after every `gluestack-ui add`.
+- **Verify after any dependency change** with `npx expo export --platform android`, which catches resolution failures that `tsc` cannot.

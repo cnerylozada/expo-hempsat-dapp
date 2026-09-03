@@ -1,5 +1,5 @@
 import { ThemedButton } from "@/components/ThemedButton";
-import { ThemedText } from "@/components/ThemedText";
+import { Text } from "@/components/ui/text";
 import { appChain, thirdwebClient, thirdwebWallets } from "@/libs/thirdweb";
 import { useAuth } from "@/providers/AuthProvider";
 import { useState } from "react";
@@ -33,12 +33,8 @@ export default function LoginScreen() {
   return (
     <View className="flex-1 justify-center">
       <View className="items-center mb-16">
-        <ThemedText type="title" className="mb-3 text-center">
-          Welcome
-        </ThemedText>
-        <ThemedText type="subtext" className="text-center">
-          Connect your wallet to get started
-        </ThemedText>
+        <Text>Welcome</Text>
+        <Text>Connect your wallet to get started</Text>
       </View>
 
       <View className="items-center gap-4">
@@ -63,11 +59,7 @@ export default function LoginScreen() {
           />
         )}
 
-        {error && (
-          <ThemedText className="dark:text-text-danger-dark text-center">
-            {error}
-          </ThemedText>
-        )}
+        {error && <Text>{error}</Text>}
       </View>
     </View>
   );
