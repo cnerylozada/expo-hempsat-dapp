@@ -1,5 +1,6 @@
-import { ThemedButton } from "@/components/ThemedButton";
-import { ThemedText } from "@/components/ThemedText";
+import { AppButton } from "@/components/AppButton";
+import { InstructionsCard } from "@/components/InstructionsCard";
+import { Text } from "@/components/ui/text";
 import { queryKeys } from "@/libs/queryKeys";
 import { saveUserIdentification } from "@/server/users";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
@@ -65,32 +66,28 @@ export default function ValidateIDCardScreen() {
 
   return (
     <View>
-      <View className="mb-4 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 p-4 gap-3">
-        <ThemedText type="defaultSemiBold">Before you start</ThemedText>
-        {tips.map((tip, index) => (
-          <View key={index} className="flex-row items-start gap-2">
-            <ThemedText type="subtext">{index + 1}.</ThemedText>
-            <ThemedText type="subtext" className="flex-1">
-              {tip}
-            </ThemedText>
-          </View>
-        ))}
+      <View className="mb-4">
+        <InstructionsCard title="Before you start" items={tips} />
       </View>
 
       {status === "idle" && (
-        <ThemedButton title="Start Verification" onPress={startVerification} />
+        <AppButton
+          text="Start Verification"
+          icon="camera-outline"
+          onPress={startVerification}
+        />
       )}
 
       {status === "scanning" && (
         <View>
           <ActivityIndicator size="small" color="#2563EB" />
-          <ThemedText>Verifying...</ThemedText>
+          <Text>Verifying...</Text>
         </View>
       )}
 
       {status === "approved" && (
         <View>
-          <ThemedText>Verified! Check the console.</ThemedText>
+          <Text>Verified! Check the console.</Text>
         </View>
       )}
     </View>

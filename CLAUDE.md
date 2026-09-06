@@ -95,7 +95,7 @@ import { useColorScheme } from "nativewind";
 const { colorScheme } = useColorScheme();
 ```
 
-`app/(drawer)/login.tsx` and `app/(drawer)/dashboard/index.tsx` still import it from `react-native` (both feed `ConnectButton theme={...}`) — switch them when touched.
+`ConnectButton`'s `theme` prop takes `colorScheme` directly rather than a `colorScheme ?? "dark"` fallback: the prop is optional and thirdweb already defaults to `"dark"`, so a hardcoded fallback only risks contradicting the system scheme.
 
 - `components/ThemedText.tsx` and `components/ThemedButton.tsx` — pre-gluestack primitives. `ThemedText` supports types: `default`, `title`, `defaultSemiBold`, `subtitle`, `subtext`. Being replaced by gluestack components; prefer gluestack for new UI.
 - **20 class usages are currently dead.** The old custom palette (`tint`, `text`, `subtext`, `text-inverted`) was dropped when `tailwind.config.js` was replaced with gluestack's. These classes now generate nothing and render as unstyled: `text-text-danger-dark` ×10, `text-text-danger` ×3, `bg-tint` ×3, `bg-tint/10` ×1, `text-text` ×1, `text-text-dark` ×1, `text-text-inverted` ×1. Map them to `text-destructive`, `bg-primary`, `text-foreground`, `text-primary-foreground` respectively. (`border-border` and `bg-background` still resolve — those names survive in the new config.)

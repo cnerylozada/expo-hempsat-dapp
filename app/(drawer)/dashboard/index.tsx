@@ -1,15 +1,17 @@
+import { AppButton } from "@/components/AppButton";
 import { LoadingScreen } from "@/components/LoadingScreen";
 import { ScreenLayout } from "@/components/ScreenLayout";
-import { ThemedButton } from "@/components/ThemedButton";
-import { ThemedText } from "@/components/ThemedText";
+import { StatusBanner } from "@/components/StatusBanner";
 import { useAuthedQuery } from "@/components/authedRequests";
+import { Text } from "@/components/ui/text";
 import { queryKeys } from "@/libs/queryKeys";
 import { appChain, thirdwebClient, thirdwebWallets } from "@/libs/thirdweb";
 import { useAuth } from "@/providers/AuthProvider";
 import { getMyUser } from "@/server/users";
 import { Link } from "expo-router";
+import { useColorScheme } from "nativewind";
 import { useEffect, useState } from "react";
-import { useColorScheme, View } from "react-native";
+import { View } from "react-native";
 import {
   ConnectButton,
   useActiveAccount,
@@ -19,7 +21,7 @@ import { shortenAddress } from "thirdweb/utils";
 import { getUserEmail } from "thirdweb/wallets/in-app";
 
 const WalletAccount = () => {
-  const theme = useColorScheme();
+  const { colorScheme } = useColorScheme();
 
   const wallet = useActiveWallet();
   const account = useActiveAccount();
@@ -37,7 +39,7 @@ const WalletAccount = () => {
     <View>
       <ConnectButton
         client={thirdwebClient}
-        theme={theme || "dark"}
+        theme={colorScheme}
         wallets={thirdwebWallets}
         chain={appChain}
         onDisconnect={async () => {
@@ -46,14 +48,14 @@ const WalletAccount = () => {
       />
 
       <View className="mt-4">
-        <ThemedText>Connected as {shortenAddress(account.address)}</ThemedText>
-        {email && <ThemedText type="subtext">{email}</ThemedText>}
+        <Text>Connected as {shortenAddress(account.address)}</Text>
+        {email && <Text>{email}</Text>}
       </View>
     </View>
   ) : (
     <ConnectButton
       client={thirdwebClient}
-      theme={theme || "dark"}
+      theme={colorScheme}
       chain={appChain}
     />
   );
@@ -62,10 +64,8 @@ const WalletAccount = () => {
 export default function DashboardScreen() {
   const { token } = useAuth();
 
-  const { data, isLoading, isError, error } = useAuthedQuery(
-    queryKeys.users.myUser,
-    () => getMyUser(token),
-  );
+  const { data, isLoading, isError, error, refetch, isRefetching } =
+    useAuthedQuery(queryKeys.users.myUser, () => getMyUser(token));
 
   if (isLoading) {
     return (
@@ -81,15 +81,22 @@ export default function DashboardScreen() {
         <WalletAccount />
 
         {isError && (
-          <ThemedText className="dark:text-text-danger-dark">
-            Something went wrong: {error.message}
-          </ThemedText>
+          <StatusBanner
+            theme="error"
+            title="Something went wrong"
+            description={error.message}
+            action={{
+              icon: "refresh",
+              label: isRefetching ? "Retrying..." : "Retry",
+              onPress: () => refetch(),
+            }}
+          />
         )}
 
         {!isError && !data?.inquiry_id && (
           <View>
             <Link href={"/(drawer)/dashboard/identification"} asChild>
-              <ThemedButton title="Please identify yourself" />
+              <AppButton text="Please identify yourself" icon="camera-outline" />
             </Link>
           </View>
         )}

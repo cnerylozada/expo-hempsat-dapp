@@ -22,7 +22,12 @@
       },
       "edgeToEdgeEnabled": true,
       "predictiveBackGestureEnabled": false,
-      "package": "com.cnerylozada.hempsat"
+      "package": "com.cnerylozada.hempsat",
+      "config": {
+        "googleMaps": {
+          "apiKey": "AIzaSyCxPGBB6zaZsA2bl0YJF3U16EKIBCi85TE"
+        }
+      }
     },
     "web": {
       "output": "static",
