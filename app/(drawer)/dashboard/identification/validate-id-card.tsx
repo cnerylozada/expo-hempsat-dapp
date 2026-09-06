@@ -66,14 +66,14 @@ export default function ValidateIDCardScreen() {
 
   return (
     <View>
-      <View className="mb-4">
+      <View className="mb-6">
         <InstructionsCard title="Before you start" items={tips} />
       </View>
 
       {status === "idle" && (
         <AppButton
           text="Start Verification"
-          icon="camera-outline"
+          icon="finger-print-outline"
           onPress={startVerification}
         />
       )}

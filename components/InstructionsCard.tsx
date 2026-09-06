@@ -3,8 +3,6 @@ import { Text } from "@/components/ui/text";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import { cssInterop } from "nativewind";
 
-// Icons are not styled by NativeWind unless they opt in, same as gluestack does
-// for its own UIIcon in components/ui/button/index.tsx.
 cssInterop(Ionicons, {
   className: { target: "style", nativeStyleToProp: { color: true } },
 });
@@ -14,15 +12,9 @@ type IconName = React.ComponentProps<typeof Ionicons>["name"];
 export type InstructionsCardProps = {
   title: string;
   items: string[];
-  /** Header icon. Defaults to a generic "info" glyph. */
   icon?: IconName;
 };
 
-/**
- * A numbered list of instructions/tips inside a bordered card, e.g. "Before
- * you start" steps shown ahead of a camera or verification flow. Generic and
- * content-only — pass whatever `title`/`items` fit the screen.
- */
 export function InstructionsCard({
   title,
   items,

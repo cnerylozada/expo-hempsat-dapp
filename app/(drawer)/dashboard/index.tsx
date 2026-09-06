@@ -1,15 +1,18 @@
 import { AppButton } from "@/components/AppButton";
+import { useAuthedQuery } from "@/components/authedRequests";
+import { KycExplainer } from "@/components/identification/KycExplainer";
 import { LoadingScreen } from "@/components/LoadingScreen";
 import { ScreenLayout } from "@/components/ScreenLayout";
 import { StatusBanner } from "@/components/StatusBanner";
-import { useAuthedQuery } from "@/components/authedRequests";
+import { Box } from "@/components/ui/box";
 import { Text } from "@/components/ui/text";
 import { queryKeys } from "@/libs/queryKeys";
 import { appChain, thirdwebClient, thirdwebWallets } from "@/libs/thirdweb";
 import { useAuth } from "@/providers/AuthProvider";
 import { getMyUser } from "@/server/users";
+import Ionicons from "@expo/vector-icons/Ionicons";
 import { Link } from "expo-router";
-import { useColorScheme } from "nativewind";
+import { cssInterop, useColorScheme } from "nativewind";
 import { useEffect, useState } from "react";
 import { View } from "react-native";
 import {
@@ -17,8 +20,11 @@ import {
   useActiveAccount,
   useActiveWallet,
 } from "thirdweb/react";
-import { shortenAddress } from "thirdweb/utils";
 import { getUserEmail } from "thirdweb/wallets/in-app";
+
+cssInterop(Ionicons, {
+  className: { target: "style", nativeStyleToProp: { color: true } },
+});
 
 const WalletAccount = () => {
   const { colorScheme } = useColorScheme();
@@ -36,7 +42,7 @@ const WalletAccount = () => {
   }, [wallet]);
 
   return wallet && account ? (
-    <View>
+    <View className="gap-6">
       <ConnectButton
         client={thirdwebClient}
         theme={colorScheme}
@@ -47,10 +53,16 @@ const WalletAccount = () => {
         }}
       />
 
-      <View className="mt-4">
-        <Text>Connected as {shortenAddress(account.address)}</Text>
-        {email && <Text>{email}</Text>}
-      </View>
+      {email && (
+        <Box className="flex-row items-center gap-3 rounded-xl border border-border bg-card p-3">
+          <Box className="rounded-full bg-primary/10 p-2">
+            <Ionicons name="mail-outline" size={16} className="text-primary" />
+          </Box>
+          <Text size="sm" className="flex-1 text-foreground" numberOfLines={1}>
+            {email}
+          </Text>
+        </Box>
+      )}
     </View>
   ) : (
     <ConnectButton
@@ -67,13 +79,7 @@ export default function DashboardScreen() {
   const { data, isLoading, isError, error, refetch, isRefetching } =
     useAuthedQuery(queryKeys.users.myUser, () => getMyUser(token));
 
-  if (isLoading) {
-    return (
-      <ScreenLayout>
-        <LoadingScreen />
-      </ScreenLayout>
-    );
-  }
+  if (isLoading || isRefetching) return <LoadingScreen />;
 
   return (
     <ScreenLayout>
@@ -94,9 +100,14 @@ export default function DashboardScreen() {
         )}
 
         {!isError && !data?.inquiry_id && (
-          <View>
+          <View className="gap-3">
+            <KycExplainer />
+
             <Link href={"/(drawer)/dashboard/identification"} asChild>
-              <AppButton text="Please identify yourself" icon="camera-outline" />
+              <AppButton
+                text="Please identify yourself"
+                icon="finger-print-outline"
+              />
             </Link>
           </View>
         )}

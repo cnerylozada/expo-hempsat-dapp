@@ -1,7 +1,7 @@
+import { useAuthedQuery } from "@/components/authedRequests";
 import { IDCard } from "@/components/identification/IDCard";
 import { LoadingScreen } from "@/components/LoadingScreen";
-import { ThemedText } from "@/components/ThemedText";
-import { useAuthedQuery } from "@/components/authedRequests";
+import { StatusBanner } from "@/components/StatusBanner";
 import { queryKeys } from "@/libs/queryKeys";
 import { useAuth } from "@/providers/AuthProvider";
 import { getMyUser } from "@/server/users";
@@ -11,14 +11,10 @@ import { View } from "react-native";
 export default function IdentificationScreen() {
   const { token } = useAuth();
 
-  const { data, isLoading, isError, error } = useAuthedQuery(
-    queryKeys.users.myUser,
-    () => getMyUser(token),
-  );
+  const { data, isLoading, isError, error, refetch, isRefetching } =
+    useAuthedQuery(queryKeys.users.myUser, () => getMyUser(token));
 
-  if (isLoading) {
-    return <LoadingScreen />;
-  }
+  if (isLoading || isRefetching) return <LoadingScreen />;
 
   if (!isLoading && !isError && !data?.inquiry_id) {
     return (
@@ -27,11 +23,18 @@ export default function IdentificationScreen() {
   }
 
   return (
-    <View className="flex-1 gap-4">
+    <View className="flex-1 gap-6">
       {isError && (
-        <ThemedText className="dark:text-text-danger-dark">
-          Something went wrong: {error.message}
-        </ThemedText>
+        <StatusBanner
+          theme="error"
+          title="Something went wrong"
+          description={error.message}
+          action={{
+            icon: "refresh",
+            label: isRefetching ? "Retrying..." : "Retry",
+            onPress: () => refetch(),
+          }}
+        />
       )}
 
       {!isError && data?.inquiry_id && (

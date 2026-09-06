@@ -1,5 +1,6 @@
-import { ThemedText } from "@/components/ThemedText";
-import { Image, View } from "react-native";
+import { Box } from "@/components/ui/box";
+import { Text } from "@/components/ui/text";
+import { Image } from "react-native";
 
 type IDCardProps = {
   imageUri: string;
@@ -8,26 +9,46 @@ type IDCardProps = {
   idNumber: string;
 };
 
+const IDField = ({
+  label,
+  value,
+  emphasis = false,
+}: {
+  label: string;
+  value: string;
+  emphasis?: boolean;
+}) => (
+  <Box className="flex-row items-baseline gap-2">
+    <Text
+      size="2xs"
+      className="w-20 uppercase tracking-wide text-muted-foreground"
+    >
+      {label}
+    </Text>
+    <Text size="sm" bold={emphasis} className="flex-1 text-foreground">
+      {value}
+    </Text>
+  </Box>
+);
+
 export const IDCard = ({ imageUri, name, lastName, idNumber }: IDCardProps) => {
   return (
-    <View className="rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden bg-white dark:bg-gray-900">
-      <View className="h-2 bg-tint" />
-      <View className="flex-row items-center gap-4 p-4">
+    <Box className="overflow-hidden rounded-xl border border-border bg-card">
+      <Box className="h-1.5 bg-primary" />
+
+      <Box className="flex-row gap-4 p-4">
         <Image
           source={{ uri: imageUri }}
-          style={{ width: 100 }}
-          className="h-full w-24 rounded-md"
+          className="h-36 w-28 rounded-lg border border-border bg-muted"
           resizeMode="cover"
         />
-        <View className="flex-1 gap-0.5">
-          <ThemedText type="subtext">ID Number</ThemedText>
-          <ThemedText type="defaultSemiBold">{idNumber}</ThemedText>
-          <ThemedText type="subtext">Names</ThemedText>
-          <ThemedText type="defaultSemiBold">{name}</ThemedText>
-          <ThemedText type="subtext">Surnames</ThemedText>
-          <ThemedText type="defaultSemiBold">{lastName}</ThemedText>
-        </View>
-      </View>
-    </View>
+
+        <Box className="flex-1 justify-center gap-1.5">
+          <IDField label="Name" value={name} emphasis />
+          <IDField label="Surname" value={lastName} emphasis />
+          <IDField label="ID Number" value={idNumber} />
+        </Box>
+      </Box>
+    </Box>
   );
 };
