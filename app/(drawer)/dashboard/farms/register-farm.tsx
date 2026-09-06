@@ -1,5 +1,9 @@
-import { ThemedButton } from "@/components/ThemedButton";
-import { ThemedText } from "@/components/ThemedText";
+import { AppButton } from "@/components/AppButton";
+import { InstructionsCard } from "@/components/InstructionsCard";
+import { StatusBanner } from "@/components/StatusBanner";
+import { Badge, BadgeText } from "@/components/ui/badge";
+import { Button, ButtonText } from "@/components/ui/button";
+import { Text } from "@/components/ui/text";
 import { queryKeys } from "@/libs/queryKeys";
 import { usePhoto } from "@/providers/PhotoProvider";
 import { createFarm } from "@/server/farms";
@@ -9,11 +13,18 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import * as Location from "expo-location";
 import { useFocusEffect, useRouter } from "expo-router";
 import * as SecureStore from "expo-secure-store";
+import { cssInterop } from "nativewind";
 import { useCallback, useEffect, useState } from "react";
 import { Controller, useFieldArray, useForm } from "react-hook-form";
 import { Alert, Image, ScrollView, TouchableOpacity, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { z } from "zod";
+
+// Icons are not styled by NativeWind unless they opt in, same as gluestack does
+// for its own UIIcon in components/ui/button/index.tsx.
+cssInterop(Ionicons, {
+  className: { target: "style", nativeStyleToProp: { color: true } },
+});
 
 const MAX_PHOTOS = 3;
 const photoSchema = z
@@ -161,18 +172,19 @@ export default function CreateFarm() {
     <ScrollView
       className="flex-1"
       contentContainerClassName="gap-6"
-      contentContainerStyle={{ paddingBottom: bottom || 16 }}
+      contentContainerStyle={{ paddingBottom: bottom }}
     >
-      <View className="gap-2">
-        <ThemedText type="defaultSemiBold">
-          Upload photos of title deeds
-        </ThemedText>
-        <View>
-          <ThemedText type="subtext">• 1 to {MAX_PHOTOS} photos</ThemedText>
-          <ThemedText type="subtext">• JPG or PNG only</ThemedText>
-          <ThemedText type="subtext">• Size: 50 KB – 5 MB</ThemedText>
-          <ThemedText type="subtext">• Min. dimensions: 600×900 px</ThemedText>
-        </View>
+      <View className="gap-3">
+        <InstructionsCard
+          title="Upload photos of title deeds"
+          icon="images-outline"
+          items={[
+            `1 to ${MAX_PHOTOS} photos`,
+            "JPG or PNG only",
+            "Size: 50 KB – 5 MB",
+            "Min. dimensions: 600×900 px",
+          ]}
+        />
         <Controller
           control={control}
           name="titleDeedPhotoList"
@@ -186,11 +198,34 @@ export default function CreateFarm() {
                 ].filter(Boolean);
 
                 return (
-                  <View key={field.id} className="gap-1">
-                    <ThemedText type="subtext">
-                      {field.width}×{field.height}px ·{" "}
-                      {field.fileSizeInMB.toFixed(3)} MB
-                    </ThemedText>
+                  <View key={field.id} className="gap-2">
+                    <View className="flex-row gap-2">
+                      <Badge variant="outline" className="gap-1">
+                        <Ionicons
+                          name="resize-outline"
+                          size={12}
+                          className="text-foreground"
+                        />
+                        <BadgeText>
+                          {field.width}×{field.height}px
+                        </BadgeText>
+                      </Badge>
+                      <Badge variant="outline" className="gap-1">
+                        <Ionicons
+                          name="document-outline"
+                          size={12}
+                          className="text-foreground"
+                        />
+                        <BadgeText>
+                          {field.fileSizeInMB.toFixed(3)} MB
+                        </BadgeText>
+                      </Badge>
+                    </View>
+                    {errorMessages.map((_) => (
+                      <Text key={_} className="text-destructive">
+                        {_}
+                      </Text>
+                    ))}
                     <View className="relative">
                       <Image
                         source={{ uri: field.uri }}
@@ -203,89 +238,71 @@ export default function CreateFarm() {
                         <Ionicons name="close-circle" size={30} color="white" />
                       </TouchableOpacity>
                     </View>
-                    {errorMessages.map((_) => (
-                      <ThemedText
-                        key={_}
-                        type="subtext"
-                        className="text-text-danger dark:text-text-danger-dark"
-                      >
-                        {_}
-                      </ThemedText>
-                    ))}
                   </View>
                 );
               })}
               {fields.length < MAX_PHOTOS && (
-                <ThemedButton
+                <AppButton
+                  text="Take a photo"
+                  icon="camera-outline"
                   onPress={() => router.push("/camera")}
-                  title="Take a photo"
-                  iconName="camera"
                 />
               )}
             </View>
           )}
         />
         {errors?.titleDeedPhotoList?.message && (
-          <ThemedText
-            type="subtext"
-            className="text-text-danger dark:text-text-danger-dark"
-          >
+          <Text className="text-destructive">
             {errors.titleDeedPhotoList.message}
-          </ThemedText>
+          </Text>
         )}
       </View>
 
-      <View className="gap-2">
-        <ThemedText type="defaultSemiBold">
-          Confirm you are at the farm
-        </ThemedText>
-        <View>
-          <ThemedText type="subtext">
-            • Stand at the center of your farm before sharing your position
-          </ThemedText>
-          <ThemedText type="subtext">
-            • Your position must be within 20m of the location in your photos
-          </ThemedText>
-        </View>
-        <View>
-          <ThemedButton
-            title="Share position"
-            iconName="map"
-            onPress={onSharePosition}
+      <View className="gap-3">
+        <InstructionsCard
+          title="Confirm you are at the farm"
+          icon="location-outline"
+          items={[
+            "Stand at the center of your farm before sharing your position",
+            "Your position must be within 20m of the location in your photos",
+          ]}
+        />
+
+        {getValues("location") && (
+          <StatusBanner
+            theme="success"
+            title={placeName ?? "Position shared"}
+            description={`Latitude: ${getValues("location").latitude.toFixed(5)}, Longitude: ${getValues("location").longitude.toFixed(5)}`}
           />
-        </View>
-        <View>
-          {getValues("location") && (
-            <ThemedText>
-              Latitude: {getValues("location").latitude} Longitud:{" "}
-              {getValues("location").longitude}
-            </ThemedText>
-          )}
-          {placeName && <ThemedText>{placeName}</ThemedText>}
-        </View>
+        )}
+
+        <AppButton
+          text="Share position"
+          icon="locate-outline"
+          onPress={onSharePosition}
+        />
 
         {errors.location?.message && (
-          <ThemedText
-            type="subtext"
-            className="text-text-danger dark:text-text-danger-dark"
-          >
-            {errors.location.message}
-          </ThemedText>
+          <Text className="text-destructive">{errors.location.message}</Text>
         )}
       </View>
 
       {mutation.isError && (
-        <ThemedText className="dark:text-text-danger-dark">
+        <Text className="dark:text-text-danger-dark">
           Something went wrong: {mutation.error.message}
-        </ThemedText>
+        </Text>
       )}
 
-      <ThemedButton
+      {/* <ThemedButton
         onPress={handleSubmit(onSubmit)}
         title="Save"
         loading={mutation.isPending}
         loadingTitle="Saving farm..."
-      />
+      /> */}
+
+      <Button onPress={handleSubmit(onSubmit)}>
+        <ButtonText>Save</ButtonText>
+      </Button>
     </ScrollView>
   );
 }
