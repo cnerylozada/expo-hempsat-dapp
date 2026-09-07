@@ -1,29 +1,23 @@
-import { AppButton } from "@/components/AppButton";
 import { FarmLocationField } from "@/components/farms/FarmLocationField";
-import { InstructionsCard } from "@/components/InstructionsCard";
-import { Badge, BadgeText } from "@/components/ui/badge";
+import {
+  MAX_PHOTOS,
+  TitleDeedPhotosField,
+} from "@/components/farms/TitleDeedPhotosField";
 import { Button, ButtonText } from "@/components/ui/button";
 import { Text } from "@/components/ui/text";
 import { queryKeys } from "@/libs/queryKeys";
 import { usePhoto } from "@/providers/PhotoProvider";
 import { createFarm } from "@/server/farms";
-import Ionicons from "@expo/vector-icons/Ionicons";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useFocusEffect, useRouter } from "expo-router";
 import * as SecureStore from "expo-secure-store";
-import { cssInterop } from "nativewind";
 import { useCallback, useEffect } from "react";
-import { Controller, useFieldArray, useForm } from "react-hook-form";
-import { Image, ScrollView, TouchableOpacity, View } from "react-native";
+import { useFieldArray, useForm } from "react-hook-form";
+import { ScrollView } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { z } from "zod";
 
-cssInterop(Ionicons, {
-  className: { target: "style", nativeStyleToProp: { color: true } },
-});
-
-const MAX_PHOTOS = 3;
 const photoSchema = z
   .object({
     uri: z.string(),
@@ -118,89 +112,11 @@ export default function CreateFarm() {
       contentContainerClassName="gap-6"
       contentContainerStyle={{ paddingBottom: bottom }}
     >
-      <View className="gap-3">
-        <InstructionsCard
-          title="Upload photos of title deeds"
-          icon="images-outline"
-          items={[
-            `1 to ${MAX_PHOTOS} photos`,
-            "JPG or PNG only",
-            "Size: 50 KB – 5 MB",
-            "Min. dimensions: 600×900 px",
-          ]}
-        />
-        <Controller
-          control={control}
-          name="titleDeedPhotoList"
-          render={() => (
-            <View className="gap-4">
-              {fields.map((field, index) => {
-                const itemError = errors.titleDeedPhotoList?.[index];
-                const errorMessages = [
-                  itemError?.message,
-                  itemError?.fileSizeInMB?.message,
-                ].filter(Boolean);
-
-                return (
-                  <View key={field.id} className="gap-2">
-                    <View className="flex-row gap-2">
-                      <Badge variant="outline" className="gap-1">
-                        <Ionicons
-                          name="resize-outline"
-                          size={12}
-                          className="text-foreground"
-                        />
-                        <BadgeText>
-                          {field.width}×{field.height}px
-                        </BadgeText>
-                      </Badge>
-                      <Badge variant="outline" className="gap-1">
-                        <Ionicons
-                          name="document-outline"
-                          size={12}
-                          className="text-foreground"
-                        />
-                        <BadgeText>
-                          {field.fileSizeInMB.toFixed(3)} MB
-                        </BadgeText>
-                      </Badge>
-                    </View>
-                    {errorMessages.map((_) => (
-                      <Text key={_} className="text-destructive">
-                        {_}
-                      </Text>
-                    ))}
-                    <View className="relative">
-                      <Image
-                        source={{ uri: field.uri }}
-                        className="w-full h-44 rounded-lg"
-                      />
-                      <TouchableOpacity
-                        onPress={() => remove(index)}
-                        className="absolute top-1 right-1 bg-black/50 rounded-full"
-                      >
-                        <Ionicons name="close-circle" size={30} color="white" />
-                      </TouchableOpacity>
-                    </View>
-                  </View>
-                );
-              })}
-              {fields.length < MAX_PHOTOS && (
-                <AppButton
-                  text="Take a photo"
-                  icon="camera-outline"
-                  onPress={() => router.push("/camera")}
-                />
-              )}
-            </View>
-          )}
-        />
-        {errors?.titleDeedPhotoList?.message && (
-          <Text className="text-destructive">
-            {errors.titleDeedPhotoList.message}
-          </Text>
-        )}
-      </View>
+      <TitleDeedPhotosField
+        photos={fields}
+        errors={errors.titleDeedPhotoList}
+        onRemovePhoto={remove}
+      />
 
       <FarmLocationField
         value={getValues("location")}
