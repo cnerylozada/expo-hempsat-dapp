@@ -1,9 +1,9 @@
+import { AppButton } from "@/components/AppButton";
 import { FarmLocationField } from "@/components/farms/FarmLocationField";
 import {
   MAX_PHOTOS,
   TitleDeedPhotosField,
 } from "@/components/farms/TitleDeedPhotosField";
-import { Button, ButtonText } from "@/components/ui/button";
 import { Text } from "@/components/ui/text";
 import { queryKeys } from "@/libs/queryKeys";
 import { usePhoto } from "@/providers/PhotoProvider";
@@ -59,7 +59,7 @@ export default function CreateFarm() {
     handleSubmit,
     getValues,
     setValue,
-    formState: { errors },
+    formState: { errors, isValid },
     reset,
   } = useForm<FormValues>({
     resolver: zodResolver(schema),
@@ -132,16 +132,13 @@ export default function CreateFarm() {
         </Text>
       )}
 
-      {/* <ThemedButton
+      <AppButton
+        text="Save"
+        icon="save-outline"
         onPress={handleSubmit(onSubmit)}
-        title="Save"
         loading={mutation.isPending}
-        loadingTitle="Saving farm..."
-      /> */}
-
-      <Button onPress={handleSubmit(onSubmit)}>
-        <ButtonText>Save</ButtonText>
-      </Button>
+        disabled={!isValid}
+      />
     </ScrollView>
   );
 }

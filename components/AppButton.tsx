@@ -64,6 +64,17 @@ const themes: Record<
   },
 };
 
+// A disabled button reads as inert rather than merely faded, so it drops the
+// theme colour entirely instead of relying on Button's `data-[disabled=true]`
+// opacity — that alone would leave a washed-out but still-coloured primary
+// button, which looks like a rendering glitch more than an unavailable action.
+// `opacity-100` neutralises that base rule so these muted tokens land as-is.
+const disabledSurface = {
+  solid: "bg-muted data-[disabled=true]:opacity-100",
+  outline: "bg-transparent border border-border data-[disabled=true]:opacity-100",
+  text: "text-muted-foreground",
+};
+
 export function AppButton({
   text,
   onPress,
@@ -74,13 +85,25 @@ export function AppButton({
   disabled = false,
 }: AppButtonProps) {
   const { solidBg, solidText, outlineBorder, outlineText } = themes[theme];
-  const textClass = outline ? outlineText : solidText;
+
+  // `loading` keeps the theme colour — it is busy, not unavailable.
+  const surfaceClass = disabled
+    ? outline
+      ? disabledSurface.outline
+      : disabledSurface.solid
+    : `${outline ? outlineBorder : solidBg} active:opacity-50`;
+
+  const textClass = disabled
+    ? disabledSurface.text
+    : outline
+      ? outlineText
+      : solidText;
 
   return (
     <Button
       onPress={() => onPress?.()}
       disabled={disabled || loading}
-      className={`${outline ? outlineBorder : solidBg} active:opacity-50`}
+      className={surfaceClass}
       size="lg"
     >
       {loading ? (
