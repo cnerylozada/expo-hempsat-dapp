@@ -1,6 +1,6 @@
 import { AppButton } from "@/components/AppButton";
+import { FarmLocationField } from "@/components/farms/FarmLocationField";
 import { InstructionsCard } from "@/components/InstructionsCard";
-import { StatusBanner } from "@/components/StatusBanner";
 import { Badge, BadgeText } from "@/components/ui/badge";
 import { Button, ButtonText } from "@/components/ui/button";
 import { Text } from "@/components/ui/text";
@@ -10,18 +10,15 @@ import { createFarm } from "@/server/farms";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import * as Location from "expo-location";
 import { useFocusEffect, useRouter } from "expo-router";
 import * as SecureStore from "expo-secure-store";
 import { cssInterop } from "nativewind";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect } from "react";
 import { Controller, useFieldArray, useForm } from "react-hook-form";
-import { Alert, Image, ScrollView, TouchableOpacity, View } from "react-native";
+import { Image, ScrollView, TouchableOpacity, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { z } from "zod";
 
-// Icons are not styled by NativeWind unless they opt in, same as gluestack does
-// for its own UIIcon in components/ui/button/index.tsx.
 cssInterop(Ionicons, {
   className: { target: "style", nativeStyleToProp: { color: true } },
 });
@@ -62,7 +59,6 @@ export default function CreateFarm() {
   const queryClient = useQueryClient();
   const { bottom } = useSafeAreaInsets();
   const { onSetParams, photoList, clearPhotoList } = usePhoto();
-  const [placeName, setPlaceName] = useState<string | null>(null);
 
   const {
     control,
@@ -93,7 +89,6 @@ export default function CreateFarm() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: queryKeys.farms.myFarms });
       reset();
-      setPlaceName(null);
       clearPhotoList();
       router.replace("/(drawer)/dashboard/farms");
     },
@@ -115,57 +110,6 @@ export default function CreateFarm() {
 
   const onSubmit = (data: FormValues) => {
     mutation.mutate(data);
-  };
-
-  const applyLocation = async (coords: {
-    latitude: number;
-    longitude: number;
-  }) => {
-    setValue("location", coords, { shouldValidate: true });
-
-    const [address] = await Location.reverseGeocodeAsync(coords);
-    setPlaceName(
-      address
-        ? [address.city, address.country].filter(Boolean).join(", ")
-        : null,
-    );
-  };
-
-  const onSharePosition = async () => {
-    const { status: currentStatus } =
-      await Location.getForegroundPermissionsAsync();
-
-    if (currentStatus === "granted") {
-      const location = await Location.getCurrentPositionAsync({});
-      await applyLocation({
-        latitude: location.coords.latitude,
-        longitude: location.coords.longitude,
-      });
-      return;
-    }
-
-    if (currentStatus === "denied") {
-      Alert.alert(
-        "Location access denied",
-        "Please enable location access in your device settings to share your position.",
-      );
-      return;
-    }
-
-    const { status } = await Location.requestForegroundPermissionsAsync();
-    if (status !== "granted") {
-      Alert.alert(
-        "Location access denied",
-        "Please enable location access in your device settings to share your position.",
-      );
-      return;
-    }
-
-    const location = await Location.getCurrentPositionAsync({});
-    await applyLocation({
-      latitude: location.coords.latitude,
-      longitude: location.coords.longitude,
-    });
   };
 
   return (
@@ -258,34 +202,13 @@ export default function CreateFarm() {
         )}
       </View>
 
-      <View className="gap-3">
-        <InstructionsCard
-          title="Confirm you are at the farm"
-          icon="location-outline"
-          items={[
-            "Stand at the center of your farm before sharing your position",
-            "Your position must be within 20m of the location in your photos",
-          ]}
-        />
-
-        {getValues("location") && (
-          <StatusBanner
-            theme="success"
-            title={placeName ?? "Position shared"}
-            description={`Latitude: ${getValues("location").latitude.toFixed(5)}, Longitude: ${getValues("location").longitude.toFixed(5)}`}
-          />
-        )}
-
-        <AppButton
-          text="Share position"
-          icon="locate-outline"
-          onPress={onSharePosition}
-        />
-
-        {errors.location?.message && (
-          <Text className="text-destructive">{errors.location.message}</Text>
-        )}
-      </View>
+      <FarmLocationField
+        value={getValues("location")}
+        onChange={(coords) =>
+          setValue("location", coords, { shouldValidate: true })
+        }
+        errorMessage={errors.location?.message}
+      />
 
       {mutation.isError && (
         <Text className="dark:text-text-danger-dark">
