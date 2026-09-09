@@ -33,6 +33,8 @@ export type BoundaryDrawingPanelProps = {
   /** Raw m² — formatted here so the caller only ever deals in numbers. */
   area: number;
   canConfirm: boolean;
+  /** A polygon needs at least 3 points to enclose any area. */
+  canFinish: boolean;
   onConfirm: () => void;
   onReset: () => void;
   onDone: () => void;
@@ -62,6 +64,7 @@ export const BoundaryDrawingPanel = ({
   pointCount,
   area,
   canConfirm,
+  canFinish,
   onConfirm,
   onReset,
   onDone,
@@ -71,7 +74,7 @@ export const BoundaryDrawingPanel = ({
   return (
     // `edgeToEdgeEnabled` draws behind the system bar, so this has to clear
     // it itself or the device's nav buttons sit on top of it.
-    <View className="absolute inset-x-3 gap-3" style={{ bottom: bottom + 8 }}>
+    <View className="absolute inset-x-3 gap-3" style={{ bottom: bottom + 12 }}>
       <TouchableOpacity
         onPress={onCycleMapType}
         accessibilityRole="button"
@@ -126,6 +129,7 @@ export const BoundaryDrawingPanel = ({
           text="Done"
           icon="flag-outline"
           theme="secondary"
+          disabled={!canFinish}
           onPress={onDone}
         />
       </Box>

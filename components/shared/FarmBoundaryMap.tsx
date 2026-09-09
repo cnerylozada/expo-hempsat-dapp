@@ -3,7 +3,6 @@ import {
   MAP_TYPES,
 } from "@/components/shared/BoundaryDrawingPanel";
 import {
-  LatLng,
   LOCATION_OFF_MESSAGE,
   LOCATION_OFF_TITLE,
   PERMISSION_DENIED_MESSAGE,
@@ -18,11 +17,13 @@ import { cssInterop } from "nativewind";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Alert, TouchableOpacity, View } from "react-native";
 import MapView, {
+  LatLng,
   Marker,
   Polygon,
   Polyline,
   PROVIDER_GOOGLE,
 } from "react-native-maps";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 // Icons are not styled by NativeWind unless they opt in, same as gluestack does
 // for its own UIIcon in components/ui/button/index.tsx.
@@ -36,7 +37,12 @@ type FarmPolygon = {
 };
 
 export type FarmBoundaryMapProps = {
+  /** Points already drawn, e.g. when reopening to edit a boundary. */
+  initialVertices?: LatLng[];
+  /** Back button, or the location-off alert's OK — leaves without saving. */
   onExit: () => void;
+  /** Done, once there are at least 3 points — leaves *with* the polygon. */
+  onDone: (vertices: LatLng[]) => void;
 };
 
 const MOCK_FARM_POLYGONS: FarmPolygon[] = [
@@ -83,18 +89,23 @@ const INITIAL_ZOOM = 17;
 const fetchFarmPolygons = async (): Promise<FarmPolygon[]> =>
   Promise.resolve(MOCK_FARM_POLYGONS);
 
-export const FarmBoundaryMap = ({ onExit }: FarmBoundaryMapProps) => {
+export const FarmBoundaryMap = ({
+  initialVertices = [],
+  onExit,
+  onDone,
+}: FarmBoundaryMapProps) => {
   const { data: polygons = [] } = useQuery({
     queryKey: ["farms", "polygons"],
     queryFn: fetchFarmPolygons,
   });
 
-  const [vertices, setVertices] = useState<LatLng[]>([]);
+  const [vertices, setVertices] = useState<LatLng[]>(initialVertices);
   const [pendingPoint, setPendingPoint] = useState<LatLng | null>(null);
   const [canShowUserLocation, setCanShowUserLocation] = useState(false);
   const [mapTypeIndex, setMapTypeIndex] = useState(0);
 
   const mapRef = useRef<MapView>(null);
+  const { top } = useSafeAreaInsets();
   const mapType = MAP_TYPES[mapTypeIndex];
   const area = useMemo(() => polygonAreaInSquareMeters(vertices), [vertices]);
 
@@ -173,8 +184,7 @@ export const FarmBoundaryMap = ({ onExit }: FarmBoundaryMapProps) => {
   };
 
   const handleDone = () => {
-    // TEMP: mock — nothing to save yet, this just proves out the drawing flow.
-    console.log("Done pressed — polygon:", vertices);
+    onDone(vertices);
   };
 
   return (
@@ -234,9 +244,7 @@ export const FarmBoundaryMap = ({ onExit }: FarmBoundaryMapProps) => {
         )}
       </MapView>
 
-      {/* Back button floats absolute on the left so it doesn't push the title
-          off-center; the title row centers within the full inset width. */}
-      <View className="absolute inset-x-3 top-3">
+      <View className="absolute inset-x-3" style={{ top: top + 12 }}>
         <TouchableOpacity
           onPress={onExit}
           className="absolute left-0 z-10 rounded-full bg-black/50 p-2"
@@ -259,6 +267,7 @@ export const FarmBoundaryMap = ({ onExit }: FarmBoundaryMapProps) => {
         pointCount={vertices.length}
         area={area}
         canConfirm={!!pendingPoint}
+        canFinish={vertices.length >= 3}
         onConfirm={handleConfirm}
         onReset={handleReset}
         onDone={handleDone}

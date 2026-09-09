@@ -15,7 +15,10 @@ const photoSchema = z
     message: "Too small (min 600×900px)",
   });
 
-export const schema = z.object({
+export const registerFarmSchema = z.object({
+  name: z
+    .string({ message: "Farm name is required" })
+    .min(20, "Farm name must be at least 20 characters"),
   titleDeedPhotoList: z
     .array(photoSchema)
     .min(1, "At least 1 photo is required")
@@ -27,4 +30,13 @@ export const schema = z.object({
     },
     { message: "Location is required" },
   ),
+  boundaries: z
+    .array(
+      z.object({
+        latitude: z.number().min(-90).max(90),
+        longitude: z.number().min(-180).max(180),
+      }),
+      { message: "Farm boundary is required" },
+    )
+    .min(3, "Draw at least 3 points to define your farm boundary"),
 });

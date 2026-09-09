@@ -1,10 +1,19 @@
 import { AppButton } from "@/components/AppButton";
+import { FarmBoundaryField } from "@/components/farms/FarmBoundaryField";
 import { FarmLocationField } from "@/components/farms/FarmLocationField";
-import { schema } from "@/components/farms/schemas";
+import { registerFarmSchema } from "@/components/farms/schemas";
 import {
   MAX_PHOTOS,
   TitleDeedPhotosField,
 } from "@/components/farms/TitleDeedPhotosField";
+import {
+  FormControl,
+  FormControlError,
+  FormControlErrorText,
+  FormControlLabel,
+  FormControlLabelText,
+} from "@/components/ui/form-control";
+import { Input, InputField } from "@/components/ui/input";
 import { Text } from "@/components/ui/text";
 import { queryKeys } from "@/libs/queryKeys";
 import { usePhoto } from "@/providers/PhotoProvider";
@@ -14,12 +23,12 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useFocusEffect, useRouter } from "expo-router";
 import * as SecureStore from "expo-secure-store";
 import { useCallback, useEffect } from "react";
-import { useFieldArray, useForm } from "react-hook-form";
+import { Controller, useFieldArray, useForm } from "react-hook-form";
 import { ScrollView } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { z } from "zod";
 
-type FormValues = z.infer<typeof schema>;
+type FormValues = z.infer<typeof registerFarmSchema>;
 
 export default function CreateFarm() {
   const router = useRouter();
@@ -32,33 +41,22 @@ export default function CreateFarm() {
     handleSubmit,
     getValues,
     setValue,
-    formState: { errors, isValid },
+    formState: { errors },
     reset,
   } = useForm<FormValues>({
-    resolver: zodResolver(schema),
+    resolver: zodResolver(registerFarmSchema),
     mode: "all",
     defaultValues: {
+      name: "",
       titleDeedPhotoList: [],
       location: undefined,
+      boundaries: [],
     },
   });
 
   const { fields, append, remove } = useFieldArray({
     control,
     name: "titleDeedPhotoList",
-  });
-
-  const mutation = useMutation({
-    mutationFn: async (data: FormValues) => {
-      const token = await SecureStore.getItemAsync("jwt");
-      return createFarm(token, data);
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: queryKeys.farms.myFarms });
-      reset();
-      clearPhotoList();
-      router.replace("/(drawer)/dashboard/farms");
-    },
   });
 
   useEffect(() => {
@@ -75,6 +73,19 @@ export default function CreateFarm() {
     }, [photoList]),
   );
 
+  const mutation = useMutation({
+    mutationFn: async (data: FormValues) => {
+      const token = await SecureStore.getItemAsync("jwt");
+      return createFarm(token, data);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: queryKeys.farms.myFarms });
+      reset();
+      clearPhotoList();
+      router.replace("/(drawer)/dashboard/farms");
+    },
+  });
+
   const onSubmit = (data: FormValues) => {
     mutation.mutate(data);
   };
@@ -85,6 +96,33 @@ export default function CreateFarm() {
       contentContainerClassName="gap-6"
       contentContainerStyle={{ paddingBottom: bottom }}
     >
+      <Controller
+        control={control}
+        name="name"
+        render={({ field: { value, onChange, onBlur } }) => (
+          <FormControl isInvalid={!!errors.name}>
+            <FormControlLabel>
+              <FormControlLabelText>Farm name</FormControlLabelText>
+            </FormControlLabel>
+            <Input>
+              <InputField
+                placeholder="e.g. Green Valley Farm"
+                value={value}
+                onChangeText={onChange}
+                onBlur={onBlur}
+              />
+            </Input>
+            {errors.name && (
+              <FormControlError>
+                <FormControlErrorText>
+                  {errors.name.message}
+                </FormControlErrorText>
+              </FormControlError>
+            )}
+          </FormControl>
+        )}
+      />
+
       <TitleDeedPhotosField
         photos={fields}
         errors={errors.titleDeedPhotoList}
@@ -99,6 +137,14 @@ export default function CreateFarm() {
         errorMessage={errors.location?.message}
       />
 
+      <FarmBoundaryField
+        value={getValues("boundaries")}
+        onChange={(boundaries) =>
+          setValue("boundaries", boundaries, { shouldValidate: true })
+        }
+        errorMessage={errors.boundaries?.message}
+      />
+
       {mutation.isError && (
         <Text className="dark:text-text-danger-dark">
           Something went wrong: {mutation.error.message}
@@ -110,7 +156,6 @@ export default function CreateFarm() {
         icon="save-outline"
         onPress={handleSubmit(onSubmit)}
         loading={mutation.isPending}
-        disabled={!isValid}
       />
     </ScrollView>
   );

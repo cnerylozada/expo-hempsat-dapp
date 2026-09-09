@@ -1,9 +1,5 @@
-export type LatLng = { latitude: number; longitude: number };
+import { LatLng } from "react-native-maps";
 
-// Copy for the `Alert.alert(...)` prompts shown when the device can't give us
-// a position. Shared so FarmLocationField and FarmBoundaryMap can't drift apart.
-
-// The device's location toggle is off — no app permission can work around it.
 export const LOCATION_OFF_TITLE = "Location is turned off";
 export const LOCATION_OFF_MESSAGE =
   "Turn location on in your device settings to continue.";
