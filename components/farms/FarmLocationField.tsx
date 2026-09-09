@@ -1,5 +1,9 @@
 import { AppButton } from "@/components/AppButton";
 import { InstructionsCard } from "@/components/InstructionsCard";
+import {
+  PERMISSION_DENIED_MESSAGE,
+  PERMISSION_DENIED_TITLE,
+} from "@/components/shared/utils";
 import { StatusBanner } from "@/components/StatusBanner";
 import { Box } from "@/components/ui/box";
 import { Text } from "@/components/ui/text";
@@ -23,10 +27,6 @@ const TIPS = [
   "Stand at the center of your farm before sharing your position",
   "Your position must be within 20m of the location in your photos",
 ];
-
-const PERMISSION_DENIED_TITLE = "Location access denied";
-const PERMISSION_DENIED_MESSAGE =
-  "Please enable location access in your device settings to share your position.";
 
 export function FarmLocationField({
   value,

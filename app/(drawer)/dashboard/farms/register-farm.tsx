@@ -1,5 +1,6 @@
 import { AppButton } from "@/components/AppButton";
 import { FarmLocationField } from "@/components/farms/FarmLocationField";
+import { schema } from "@/components/farms/schemas";
 import {
   MAX_PHOTOS,
   TitleDeedPhotosField,
@@ -17,34 +18,6 @@ import { useFieldArray, useForm } from "react-hook-form";
 import { ScrollView } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { z } from "zod";
-
-const photoSchema = z
-  .object({
-    uri: z.string(),
-    fileSizeInMB: z
-      .number()
-      .min(0.05, "File too small (min 50KB)")
-      .max(5, "File too large (max 5MB)"),
-    width: z.number(),
-    height: z.number(),
-  })
-  .refine((_) => _.width >= 600 && _.height >= 900, {
-    message: "Too small (min 600×900px)",
-  });
-
-const schema = z.object({
-  titleDeedPhotoList: z
-    .array(photoSchema)
-    .min(1, "At least 1 photo is required")
-    .max(MAX_PHOTOS, `At most ${MAX_PHOTOS} photos allowed`),
-  location: z.object(
-    {
-      latitude: z.number().min(-90).max(90),
-      longitude: z.number().min(-180).max(180),
-    },
-    { message: "Location is required" },
-  ),
-});
 
 type FormValues = z.infer<typeof schema>;
 
