@@ -10,7 +10,6 @@ export default function IdenfificationLayout() {
         headerLeft: (props) => <StackHeaderLeft {...props} />,
       }}
     >
-      <Stack.Screen name="index" options={{ title: "My ID card" }} />
       <Stack.Screen
         name="validate-id-card"
         options={{ title: "Validate your ID card" }}

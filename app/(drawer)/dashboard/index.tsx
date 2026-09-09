@@ -1,11 +1,12 @@
 import { AppButton } from "@/components/AppButton";
 import { useAuthedQuery } from "@/components/authedRequests";
+import { IdentityCardSheet } from "@/components/identification/IdentityCardSheet";
 import { KycExplainer } from "@/components/identification/KycExplainer";
+import { InfoCard } from "@/components/InfoCard";
 import { LoadingScreen } from "@/components/LoadingScreen";
 import { ScreenLayout } from "@/components/ScreenLayout";
 import { StatusBanner } from "@/components/StatusBanner";
-import { Box } from "@/components/ui/box";
-import { Text } from "@/components/ui/text";
+import { BottomSheet, BottomSheetRef } from "@/components/ui/bottomsheet";
 import { queryKeys } from "@/libs/queryKeys";
 import { appChain, thirdwebClient, thirdwebWallets } from "@/libs/thirdweb";
 import { useAuth } from "@/providers/AuthProvider";
@@ -13,7 +14,7 @@ import { getMyUser } from "@/server/users";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import { Link } from "expo-router";
 import { cssInterop, useColorScheme } from "nativewind";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { View } from "react-native";
 import {
   ConnectButton,
@@ -53,16 +54,7 @@ const WalletAccount = () => {
         }}
       />
 
-      {email && (
-        <Box className="flex-row items-center gap-3 rounded-xl border border-border bg-card p-3">
-          <Box className="rounded-full bg-primary/10 p-2">
-            <Ionicons name="mail-outline" size={16} className="text-primary" />
-          </Box>
-          <Text size="sm" className="flex-1 text-foreground" numberOfLines={1}>
-            {email}
-          </Text>
-        </Box>
-      )}
+      {email && <InfoCard icon="mail-outline" label={email} />}
     </View>
   ) : (
     <ConnectButton
@@ -75,6 +67,7 @@ const WalletAccount = () => {
 
 export default function DashboardScreen() {
   const { token } = useAuth();
+  const bottomSheetRef = useRef<BottomSheetRef>(null);
 
   const { data, isLoading, isError, error, refetch, isRefetching } =
     useAuthedQuery(queryKeys.users.myUser, () => getMyUser(token));
@@ -82,36 +75,57 @@ export default function DashboardScreen() {
   if (isLoading || isRefetching) return <LoadingScreen />;
 
   return (
-    <ScreenLayout>
-      <View className="gap-y-6">
-        <WalletAccount />
+    // Context provider only — renders no view of its own, so the trigger and
+    // the sheet can live in different parts of the tree and still share state.
+    <BottomSheet ref={bottomSheetRef}>
+      <ScreenLayout>
+        <View className="gap-y-6">
+          <WalletAccount />
 
-        {isError && (
-          <StatusBanner
-            theme="error"
-            title="Something went wrong"
-            description={error.message}
-            action={{
-              icon: "refresh",
-              label: isRefetching ? "Retrying..." : "Retry",
-              onPress: () => refetch(),
-            }}
-          />
-        )}
+          {isError && (
+            <StatusBanner
+              theme="error"
+              title="Something went wrong"
+              description={error.message}
+              action={{
+                icon: "refresh",
+                label: isRefetching ? "Retrying..." : "Retry",
+                onPress: () => refetch(),
+              }}
+            />
+          )}
 
-        {!isError && !data?.inquiry_id && (
-          <View className="gap-3">
-            <KycExplainer />
-
-            <Link href={"/(drawer)/dashboard/identification"} asChild>
-              <AppButton
-                text="Please identify yourself"
-                icon="finger-print-outline"
+          {!isError &&
+            (data?.inquiry_id ? (
+              <InfoCard
+                icon="card-outline"
+                label="View my ID"
+                onPress={() => bottomSheetRef.current?.open()}
               />
-            </Link>
-          </View>
-        )}
-      </View>
-    </ScreenLayout>
+            ) : (
+              <View className="gap-3">
+                <KycExplainer />
+
+                <Link
+                  href={"/(drawer)/dashboard/identification/validate-id-card"}
+                  asChild
+                >
+                  <AppButton
+                    text="Please identify yourself"
+                    icon="finger-print-outline"
+                  />
+                </Link>
+              </View>
+            ))}
+        </View>
+      </ScreenLayout>
+
+      {!isError && data?.inquiry_id && (
+        <IdentityCardSheet
+          user={data}
+          onClose={() => bottomSheetRef.current?.close()}
+        />
+      )}
+    </BottomSheet>
   );
 }

@@ -1,10 +1,14 @@
 import { AppButton } from "@/components/AppButton";
+import { useAuthedQuery } from "@/components/authedRequests";
 import { InstructionsCard } from "@/components/InstructionsCard";
+import { LoadingScreen } from "@/components/LoadingScreen";
+import { StatusBanner } from "@/components/StatusBanner";
 import { Text } from "@/components/ui/text";
 import { queryKeys } from "@/libs/queryKeys";
-import { saveUserIdentification } from "@/server/users";
+import { useAuth } from "@/providers/AuthProvider";
+import { getMyUser, saveUserIdentification } from "@/server/users";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { useRouter } from "expo-router";
+import { Redirect, useRouter } from "expo-router";
 import * as SecureStore from "expo-secure-store";
 import { useState } from "react";
 import { ActivityIndicator, View } from "react-native";
@@ -22,6 +26,11 @@ const tips = [
 ];
 
 export default function ValidateIDCardScreen() {
+  const { token } = useAuth();
+
+  const { data, isLoading, isError, error, refetch, isRefetching } =
+    useAuthedQuery(queryKeys.users.myUser, () => getMyUser(token));
+
   const [status, setStatus] = useState<Status>("idle");
   const router = useRouter();
   const queryClient = useQueryClient();
@@ -36,7 +45,7 @@ export default function ValidateIDCardScreen() {
         queryKey: queryKeys.users.myUser,
         refetchType: "all",
       });
-      router.replace("/(drawer)/dashboard/identification");
+      router.replace("/(drawer)/dashboard");
     },
   });
 
@@ -63,6 +72,29 @@ export default function ValidateIDCardScreen() {
       .build()
       .start();
   };
+
+  // Guard order matters: `data` is undefined while the query is in flight, so
+  // checking `inquiry_id` first would flash this screen before redirecting.
+  if (isLoading || isRefetching) return <LoadingScreen />;
+
+  if (isError) {
+    return (
+      <StatusBanner
+        theme="error"
+        title="Something went wrong"
+        description={error.message}
+        action={{
+          icon: "refresh",
+          label: "Retry",
+          onPress: () => refetch(),
+        }}
+      />
+    );
+  }
+
+  // Already verified — there is nothing to do here, and re-running Persona
+  // would just overwrite a good inquiry_id.
+  if (data?.inquiry_id) return <Redirect href="/(drawer)/dashboard" />;
 
   return (
     <View>
