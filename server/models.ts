@@ -1,3 +1,7 @@
+import type { registerFarmSchema } from "@/components/farms/schemas";
+import { LatLng } from "react-native-maps";
+import type { z } from "zod";
+
 export interface IUser {
   id: string;
   inquiry_id: string | null;
@@ -8,25 +12,17 @@ export interface IUser {
 }
 
 export interface IFarm {
+  name: string;
   country: string;
   id: string;
-  latitude: number;
-  location: string;
-  longitude: number;
   user_id: string;
+  parcel_id: string;
+  address: string;
+  boundaries: LatLng[];
+  created_at: string;
 }
 
-export interface ITitleDeedPhoto {
-  uri: string;
-  width: number;
-  height: number;
-  fileSizeInMB: number;
-}
-
-export interface ICreateFarmInput {
-  location: { latitude: number; longitude: number };
-  titleDeedPhotoList: ITitleDeedPhoto[];
-}
+export type CreateFarmInput = z.infer<typeof registerFarmSchema>;
 
 export interface IForecast {
   date: Date;

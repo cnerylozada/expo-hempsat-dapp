@@ -1,6 +1,15 @@
+import { FieldRow } from "@/components/FieldRow";
 import { Box } from "@/components/ui/box";
-import { Text } from "@/components/ui/text";
+import Ionicons from "@expo/vector-icons/Ionicons";
+import { cssInterop } from "nativewind";
+import { useEffect, useState } from "react";
 import { Image } from "react-native";
+
+// Icons are not styled by NativeWind unless they opt in, same as gluestack does
+// for its own UIIcon in components/ui/button/index.tsx.
+cssInterop(Ionicons, {
+  className: { target: "style", nativeStyleToProp: { color: true } },
+});
 
 type IDCardProps = {
   imageUri: string;
@@ -9,44 +18,42 @@ type IDCardProps = {
   idNumber: string;
 };
 
-const IDField = ({
-  label,
-  value,
-  emphasis = false,
-}: {
-  label: string;
-  value: string;
-  emphasis?: boolean;
-}) => (
-  <Box className="flex-row items-baseline gap-2">
-    <Text
-      size="2xs"
-      className="w-20 uppercase tracking-wide text-muted-foreground"
-    >
-      {label}
-    </Text>
-    <Text size="sm" bold={emphasis} className="flex-1 text-foreground">
-      {value}
-    </Text>
-  </Box>
-);
-
 export const IDCard = ({ imageUri, name, lastName, idNumber }: IDCardProps) => {
+  // `imageUri` can be a non-empty URL that still fails to load — Persona's
+  // file links carry a short-lived access token, so a stored `avatar_url`
+  // reliably expires. `<Image>` fails silently otherwise; `onError` is what
+  // actually tells us the load didn't work.
+  const [failedToLoad, setFailedToLoad] = useState(false);
+  useEffect(() => setFailedToLoad(false), [imageUri]);
+
+  const showFallback = !imageUri || failedToLoad;
+
   return (
     <Box className="overflow-hidden rounded-xl border border-border bg-card">
       <Box className="h-1.5 bg-primary" />
 
       <Box className="flex-row gap-4 p-4">
-        <Image
-          source={{ uri: imageUri }}
-          className="h-36 w-28 rounded-lg border border-border bg-muted"
-          resizeMode="cover"
-        />
+        <Box className="h-36 w-28 items-center justify-center rounded-lg border border-border bg-muted">
+          {showFallback ? (
+            <Ionicons
+              name="person-circle-outline"
+              size={48}
+              className="text-muted-foreground"
+            />
+          ) : (
+            <Image
+              source={{ uri: imageUri }}
+              className="h-full w-full rounded-lg"
+              resizeMode="cover"
+              onError={() => setFailedToLoad(true)}
+            />
+          )}
+        </Box>
 
         <Box className="flex-1 justify-center gap-1.5">
-          <IDField label="Name" value={name} emphasis />
-          <IDField label="Surname" value={lastName} emphasis />
-          <IDField label="ID Number" value={idNumber} />
+          <FieldRow label="Name" value={name} emphasis />
+          <FieldRow label="Surname" value={lastName} emphasis />
+          <FieldRow label="ID Number" value={idNumber} />
         </Box>
       </Box>
     </Box>

@@ -8,12 +8,11 @@ import { useRouter } from "expo-router";
 import { cssInterop } from "nativewind";
 import type { FieldErrors } from "react-hook-form";
 import { Image, TouchableOpacity } from "react-native";
+import { MAX_PHOTOS } from "./utils";
 
 cssInterop(Ionicons, {
   className: { target: "style", nativeStyleToProp: { color: true } },
 });
-
-export const MAX_PHOTOS = 3;
 
 type TitleDeedPhoto = {
   id: string;

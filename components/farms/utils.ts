@@ -45,3 +45,5 @@ export const getDayLabel = (date: Date, index: number) => {
     timeZone: "UTC",
   });
 };
+
+export const MAX_PHOTOS = 3;

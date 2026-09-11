@@ -1,5 +1,5 @@
-import { MAX_PHOTOS } from "@/components/farms/TitleDeedPhotosField";
 import { z } from "zod";
+import { MAX_PHOTOS } from "./utils";
 
 const photoSchema = z
   .object({

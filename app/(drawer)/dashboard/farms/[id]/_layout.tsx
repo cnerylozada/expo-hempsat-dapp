@@ -21,10 +21,10 @@ export default function Layout() {
   );
 
   useEffect(() => {
-    if (data?.location) {
-      navigation.setOptions({ title: data.location });
+    if (data?.name) {
+      navigation.setOptions({ title: data.name });
     }
-  }, [data?.location, navigation]);
+  }, [data?.name, navigation]);
 
   if (isLoading) {
     return <LoadingScreen />;

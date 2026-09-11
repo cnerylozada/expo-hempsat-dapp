@@ -58,7 +58,7 @@ export default function FarmsScreen() {
                 asChild
                 href={`/(drawer)/dashboard/farms/${item.id}`}
               >
-                <FarmCard {...item} />
+                <FarmCard farmItem={item} />
               </Link>
             )}
           />

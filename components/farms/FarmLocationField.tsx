@@ -10,16 +10,12 @@ import { Text } from "@/components/ui/text";
 import * as Location from "expo-location";
 import { useState } from "react";
 import { Alert } from "react-native";
-
-type Coordinates = {
-  latitude: number;
-  longitude: number;
-};
+import { LatLng } from "react-native-maps";
 
 export type FarmLocationFieldProps = {
   /** Coordinates captured so far — omit until the farmer shares a position. */
-  value?: Coordinates;
-  onChange: (coords: Coordinates) => void;
+  value?: LatLng;
+  onChange: (coords: LatLng) => void;
   errorMessage?: string;
 };
 

@@ -1,11 +1,11 @@
 import { WeatherForecastCard } from "@/components/farms/WeatherForecastCard";
+import { LoadingScreen } from "@/components/LoadingScreen";
 import { ThemedText } from "@/components/ThemedText";
 import { queryKeys } from "@/libs/queryKeys";
 import { IFarm } from "@/server/models";
 import { fetchFiveDayForecast } from "@/server/weather-metrics";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useGlobalSearchParams } from "expo-router";
-import { LoadingScreen } from "@/components/LoadingScreen";
 import { View } from "react-native";
 
 export default function FarmConditions() {
@@ -22,15 +22,16 @@ export default function FarmConditions() {
     queryKey: queryKeys.weather.forecast,
     queryFn: () => {
       if (!farm) throw new Error("Farm not found");
-      return fetchFiveDayForecast(farm.latitude, farm.longitude);
+      return fetchFiveDayForecast(
+        farm.location.latitude,
+        farm.location.longitude,
+      );
     },
     enabled: !!farm,
   });
 
   if (isForecastLoading) {
-    return (
-      <LoadingScreen />
-    );
+    return <LoadingScreen />;
   }
 
   return (
