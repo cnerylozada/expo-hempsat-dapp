@@ -11,7 +11,7 @@ export interface IUser {
   avatar_url: string | null;
 }
 
-export interface IFarm {
+export interface IRawFarm {
   name: string;
   country: string;
   id: string;
@@ -20,6 +20,10 @@ export interface IFarm {
   address: string;
   boundaries: LatLng[];
   created_at: string;
+}
+
+export interface IFarm extends Omit<IRawFarm, "created_at"> {
+  created_at: Date;
 }
 
 export type CreateFarmInput = z.infer<typeof registerFarmSchema>;

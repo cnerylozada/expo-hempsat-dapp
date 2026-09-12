@@ -1,5 +1,5 @@
 import { throwIfNotOk } from "@/server/http";
-import { CreateFarmInput, IFarm } from "@/server/models";
+import { CreateFarmInput, IFarm, IRawFarm } from "@/server/models";
 
 export const getMyFarmList = async (token: string | null) => {
   const response = await fetch(`${process.env.EXPO_PUBLIC_API_URL}/farms`, {
@@ -9,11 +9,15 @@ export const getMyFarmList = async (token: string | null) => {
 
   await throwIfNotOk(response);
 
-  const farmList: IFarm[] = await response.json();
+  const rawFarmList: IRawFarm[] = await response.json();
+  const farmList: IFarm[] = rawFarmList.map((farm) => ({
+    ...farm,
+    created_at: new Date(farm.created_at),
+  }));
+
   return farmList.sort(
     (current, nextItem) =>
-      new Date(nextItem.created_at).getTime() -
-      new Date(current.created_at).getTime(),
+      nextItem.created_at.getTime() - current.created_at.getTime(),
   );
 };
 
@@ -28,8 +32,8 @@ export const getMyFarmById = async (token: string | null, id: string) => {
 
   await throwIfNotOk(response);
 
-  const farm: IFarm = await response.json();
-  return farm;
+  const rawFarm: IRawFarm = await response.json();
+  return { ...rawFarm, created_at: new Date(rawFarm.created_at) };
 };
 
 export const createFarm = async (

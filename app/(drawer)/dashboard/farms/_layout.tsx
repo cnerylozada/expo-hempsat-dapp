@@ -9,7 +9,7 @@ export default function FarmsLayout() {
       }}
     >
       <Stack.Screen name="index" options={{ title: "My farms" }} />
-      <Stack.Screen name="[id]" />
+      <Stack.Screen name="[farmId]" />
       <Stack.Screen
         name="register-farm"
         options={{ title: "Register your farm" }}
