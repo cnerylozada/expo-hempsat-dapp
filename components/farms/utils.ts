@@ -47,3 +47,10 @@ export const getDayLabel = (date: Date, index: number) => {
 };
 
 export const MAX_PHOTOS = 3;
+
+export const formatDate = (date: Date) =>
+  date.toLocaleDateString("en-US", {
+    year: "numeric",
+    month: "short",
+    day: "numeric",
+  });

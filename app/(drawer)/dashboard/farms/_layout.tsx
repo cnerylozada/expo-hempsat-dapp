@@ -14,6 +14,10 @@ export default function FarmsLayout() {
         name="register-farm"
         options={{ title: "Register your farm" }}
       />
+      <Stack.Screen
+        name="register-area"
+        options={{ title: "Register your area" }}
+      />
     </Stack>
   );
 }

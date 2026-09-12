@@ -35,3 +35,16 @@ export interface IForecast {
   weatherCode: number;
   humidity: number;
 }
+
+export interface IRawFarmArea {
+  id: string;
+  name: string;
+  description: string;
+  farm_id: string;
+  boundaries: LatLng[];
+  created_at: string;
+}
+
+export interface IFarmArea extends Omit<IRawFarmArea, "created_at"> {
+  created_at: Date;
+}
