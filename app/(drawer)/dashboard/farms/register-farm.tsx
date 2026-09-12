@@ -5,6 +5,7 @@ import { FarmLocationField } from "@/components/farms/FarmLocationField";
 import { registerFarmSchema } from "@/components/farms/schemas";
 import { TitleDeedPhotosField } from "@/components/farms/TitleDeedPhotosField";
 import { MAX_PHOTOS } from "@/components/farms/utils";
+import { ScreenLayout } from "@/components/ScreenLayout";
 import { StatusBanner } from "@/components/StatusBanner";
 import {
   FormControl,
@@ -86,74 +87,76 @@ export default function CreateFarm() {
   };
 
   return (
-    <ScrollView
-      className="flex-1"
-      contentContainerClassName="gap-6"
-      contentContainerStyle={{ paddingBottom: bottom }}
-    >
-      <Controller
-        control={control}
-        name="name"
-        render={({ field: { value, onChange, onBlur } }) => (
-          <FormControl isInvalid={!!errors.name}>
-            <FormControlLabel>
-              <FormControlLabelText>Farm name</FormControlLabelText>
-            </FormControlLabel>
-            <Input>
-              <InputField
-                placeholder="e.g. Green Valley Farm"
-                value={value}
-                onChangeText={onChange}
-                onBlur={onBlur}
-              />
-            </Input>
-            {errors.name && (
-              <FormControlError>
-                <FormControlErrorText>
-                  {errors.name.message}
-                </FormControlErrorText>
-              </FormControlError>
-            )}
-          </FormControl>
-        )}
-      />
-
-      <TitleDeedPhotosField
-        photos={fields}
-        errors={errors.titleDeedPhotoList}
-        onRemovePhoto={remove}
-      />
-
-      <FarmLocationField
-        value={getValues("location")}
-        onChange={(coords) =>
-          setValue("location", coords, { shouldValidate: true })
-        }
-        errorMessage={errors.location?.message}
-      />
-
-      <FarmBoundaryField
-        value={getValues("boundaries")}
-        onChange={(boundaries) =>
-          setValue("boundaries", boundaries, { shouldValidate: true })
-        }
-        errorMessage={errors.boundaries?.message}
-      />
-
-      {mutation.isError && (
-        <StatusBanner
-          theme="error"
-          title="Something went wrong"
-          description={mutation.error.message}
+    <ScreenLayout>
+      <ScrollView
+        className="flex-1"
+        contentContainerClassName="gap-6"
+        contentContainerStyle={{ paddingBottom: bottom }}
+      >
+        <Controller
+          control={control}
+          name="name"
+          render={({ field: { value, onChange, onBlur } }) => (
+            <FormControl isInvalid={!!errors.name}>
+              <FormControlLabel>
+                <FormControlLabelText>Farm name</FormControlLabelText>
+              </FormControlLabel>
+              <Input>
+                <InputField
+                  placeholder="e.g. Green Valley Farm"
+                  value={value}
+                  onChangeText={onChange}
+                  onBlur={onBlur}
+                />
+              </Input>
+              {errors.name && (
+                <FormControlError>
+                  <FormControlErrorText>
+                    {errors.name.message}
+                  </FormControlErrorText>
+                </FormControlError>
+              )}
+            </FormControl>
+          )}
         />
-      )}
 
-      <AppButton
-        text="Save"
-        icon="save-outline"
-        onPress={handleSubmit(onSubmit)}
-        loading={mutation.isPending}
-      />
-    </ScrollView>
+        <TitleDeedPhotosField
+          photos={fields}
+          errors={errors.titleDeedPhotoList}
+          onRemovePhoto={remove}
+        />
+
+        <FarmLocationField
+          value={getValues("location")}
+          onChange={(coords) =>
+            setValue("location", coords, { shouldValidate: true })
+          }
+          errorMessage={errors.location?.message}
+        />
+
+        <FarmBoundaryField
+          value={getValues("boundaries")}
+          onChange={(boundaries) =>
+            setValue("boundaries", boundaries, { shouldValidate: true })
+          }
+          errorMessage={errors.boundaries?.message}
+        />
+
+        {mutation.isError && (
+          <StatusBanner
+            theme="error"
+            title="Something went wrong"
+            description={mutation.error.message}
+          />
+        )}
+
+        <AppButton
+          text="Save"
+          icon="save-outline"
+          onPress={handleSubmit(onSubmit)}
+          loading={mutation.isPending}
+        />
+      </ScrollView>
+    </ScreenLayout>
   );
 }

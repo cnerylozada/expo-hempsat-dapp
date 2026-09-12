@@ -4,8 +4,6 @@ import { Text } from "@/components/ui/text";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import { cssInterop } from "nativewind";
 
-// Icons are not styled by NativeWind unless they opt in, same as gluestack does
-// for its own UIIcon in components/ui/button/index.tsx.
 cssInterop(Ionicons, {
   className: { target: "style", nativeStyleToProp: { color: true } },
 });
@@ -15,7 +13,6 @@ type IconName = React.ComponentProps<typeof Ionicons>["name"];
 export type InfoCardProps = {
   icon: IconName;
   label: string;
-  /** Omit for a read-only row; passing it makes the whole card tappable. */
   onPress?: () => void;
 };
 

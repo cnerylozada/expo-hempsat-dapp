@@ -1,5 +1,5 @@
 import { AppButton } from "@/components/AppButton";
-import { useAuthedQuery } from "@/components/authedRequests";
+import { useAuthedMutation, useAuthedQuery } from "@/components/authedRequests";
 import { InstructionsCard } from "@/components/InstructionsCard";
 import { LoadingScreen } from "@/components/LoadingScreen";
 import { StatusBanner } from "@/components/StatusBanner";
@@ -7,9 +7,8 @@ import { Text } from "@/components/ui/text";
 import { queryKeys } from "@/libs/queryKeys";
 import { useAuth } from "@/providers/AuthProvider";
 import { getMyUser, saveUserIdentification } from "@/server/users";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useQueryClient } from "@tanstack/react-query";
 import { Redirect, useRouter } from "expo-router";
-import * as SecureStore from "expo-secure-store";
 import { useState } from "react";
 import { ActivityIndicator, View } from "react-native";
 import Inquiry, { Environment } from "react-native-persona";
@@ -35,11 +34,8 @@ export default function ValidateIDCardScreen() {
   const router = useRouter();
   const queryClient = useQueryClient();
 
-  const mutation = useMutation({
-    mutationFn: async (id: string) => {
-      const token = await SecureStore.getItemAsync("jwt");
-      return saveUserIdentification(token, id);
-    },
+  const mutation = useAuthedMutation({
+    mutationFn: (id: string) => saveUserIdentification(token, id),
     onSuccess: async () => {
       await queryClient.invalidateQueries({
         queryKey: queryKeys.users.myUser,

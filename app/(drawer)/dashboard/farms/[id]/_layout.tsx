@@ -1,4 +1,5 @@
 import { LoadingScreen } from "@/components/LoadingScreen";
+import { ScreenLayout } from "@/components/ScreenLayout";
 import { ThemedText } from "@/components/ThemedText";
 import { useAuthedQuery } from "@/components/authedRequests";
 import { queryKeys } from "@/libs/queryKeys";
@@ -41,7 +42,12 @@ export default function Layout() {
   }
 
   return (
-    <Tabs screenOptions={{ headerShown: false }}>
+    <Tabs
+      screenLayout={ScreenLayout}
+      screenOptions={{
+        headerShown: false,
+      }}
+    >
       <Tabs.Screen
         name="index"
         options={{

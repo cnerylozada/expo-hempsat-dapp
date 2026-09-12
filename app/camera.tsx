@@ -1,5 +1,5 @@
-import { ThemedButton } from "@/components/ThemedButton";
-import { ThemedText } from "@/components/ThemedText";
+import { AppButton } from "@/components/AppButton";
+import { Text } from "@/components/ui/text";
 import { IPhotoItem, usePhoto } from "@/providers/PhotoProvider";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import { CameraView, useCameraPermissions } from "expo-camera";
@@ -158,10 +158,14 @@ export default function CameraScreen() {
     return (
       <View className="flex-1 justify-center">
         <View className="p-3 border rounded-md dark:border-border-info-dark">
-          <ThemedText className="mb-2">
+          <Text className="mb-2">
             We need your permission to access your camera and gallery
-          </ThemedText>
-          <ThemedButton onPress={onRequestAccess} title="Grant permission" />
+          </Text>
+          <AppButton
+            onPress={onRequestAccess}
+            text="Grant permission"
+            icon="lock-open-outline"
+          />
         </View>
       </View>
     );

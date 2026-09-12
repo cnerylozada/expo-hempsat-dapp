@@ -1,11 +1,9 @@
-import { ScreenLayout } from "@/components/ScreenLayout";
 import { StackHeaderLeft } from "@/components/StackHeaderLeft";
 import { Stack } from "expo-router";
 
 export default function FarmsLayout() {
   return (
     <Stack
-      screenLayout={ScreenLayout}
       screenOptions={{
         headerLeft: (props) => <StackHeaderLeft {...props} />,
       }}
