@@ -2,20 +2,18 @@ import {
   BoundaryDrawingPanel,
   MAP_TYPES,
 } from "@/components/shared/BoundaryDrawingPanel";
+import { MapHeader } from "@/components/shared/MapHeader";
 import {
+  BOUNDARY_COLOR,
   LOCATION_OFF_MESSAGE,
   LOCATION_OFF_TITLE,
   PERMISSION_DENIED_MESSAGE,
   PERMISSION_DENIED_TITLE,
   polygonAreaInSquareMeters,
 } from "@/components/shared/utils";
-import { Text } from "@/components/ui/text";
-import Ionicons from "@expo/vector-icons/Ionicons";
-import { useQuery } from "@tanstack/react-query";
 import * as Location from "expo-location";
-import { cssInterop } from "nativewind";
 import { useEffect, useMemo, useRef, useState } from "react";
-import { Alert, TouchableOpacity, View } from "react-native";
+import { Alert, View } from "react-native";
 import MapView, {
   LatLng,
   Marker,
@@ -23,89 +21,26 @@ import MapView, {
   Polyline,
   PROVIDER_GOOGLE,
 } from "react-native-maps";
-import { useSafeAreaInsets } from "react-native-safe-area-context";
-
-// Icons are not styled by NativeWind unless they opt in, same as gluestack does
-// for its own UIIcon in components/ui/button/index.tsx.
-cssInterop(Ionicons, {
-  className: { target: "style", nativeStyleToProp: { color: true } },
-});
-
-type FarmPolygon = {
-  id: string;
-  coordinates: LatLng[];
-};
 
 export type FarmBoundaryMapProps = {
-  /** Points already drawn, e.g. when reopening to edit a boundary. */
   initialVertices?: LatLng[];
-  /** Back button, or the location-off alert's OK — leaves without saving. */
   onExit: () => void;
-  /** Done, once there are at least 3 points — leaves *with* the polygon. */
   onDone: (vertices: LatLng[]) => void;
 };
 
-const MOCK_FARM_POLYGONS: FarmPolygon[] = [
-  {
-    // ~3km north
-    id: "polygon-1",
-    coordinates: [
-      { latitude: -12.0824, longitude: -77.0148 },
-      { latitude: -12.0824, longitude: -77.0134 },
-      { latitude: -12.0838, longitude: -77.0134 },
-      { latitude: -12.0838, longitude: -77.0148 },
-    ],
-  },
-  {
-    // ~3km east
-    id: "polygon-2",
-    coordinates: [
-      { latitude: -12.1094, longitude: -76.9857 },
-      { latitude: -12.1094, longitude: -76.9871 },
-      { latitude: -12.1108, longitude: -76.9871 },
-      { latitude: -12.1108, longitude: -76.9857 },
-    ],
-  },
-  {
-    // ~3km south
-    id: "polygon-3",
-    coordinates: [
-      { latitude: -12.1364, longitude: -77.0134 },
-      { latitude: -12.1364, longitude: -77.0148 },
-      { latitude: -12.1378, longitude: -77.0148 },
-      { latitude: -12.1378, longitude: -77.0134 },
-    ],
-  },
-];
-
-const POLYGON_COLORS = ["#e63946", "#2a9d8f", "#e9c46a"];
-
-const DRAWING_COLOR = "#3366aa";
-
-// Google Maps zoom: 0 is the whole world, ~20 is building-level. Close enough
-// in that long-pressing to place a corner is precise.
 const INITIAL_ZOOM = 17;
-
-const fetchFarmPolygons = async (): Promise<FarmPolygon[]> =>
-  Promise.resolve(MOCK_FARM_POLYGONS);
 
 export const FarmBoundaryMap = ({
   initialVertices = [],
   onExit,
   onDone,
 }: FarmBoundaryMapProps) => {
-  const { data: polygons = [] } = useQuery({
-    queryKey: ["farms", "polygons"],
-    queryFn: fetchFarmPolygons,
-  });
-
   const [vertices, setVertices] = useState<LatLng[]>(initialVertices);
   const [pendingPoint, setPendingPoint] = useState<LatLng | null>(null);
   const [canShowUserLocation, setCanShowUserLocation] = useState(false);
   const [mapTypeIndex, setMapTypeIndex] = useState(0);
 
   const mapRef = useRef<MapView>(null);
-  const { top } = useSafeAreaInsets();
   const mapType = MAP_TYPES[mapTypeIndex];
   const area = useMemo(() => polygonAreaInSquareMeters(vertices), [vertices]);
 
@@ -197,19 +132,6 @@ export const FarmBoundaryMap = ({
         showsUserLocation={canShowUserLocation}
         onLongPress={(e) => setPendingPoint(e.nativeEvent.coordinate)}
       >
-        {polygons.map((polygon, index) => {
-          const color = POLYGON_COLORS[index % POLYGON_COLORS.length];
-          return (
-            <Polygon
-              key={polygon.id}
-              coordinates={polygon.coordinates}
-              strokeColor={color}
-              fillColor={`${color}40`}
-              strokeWidth={2}
-            />
-          );
-        })}
-
         {vertices.map((vertex, index) => (
           <Marker
             key={index}
@@ -229,7 +151,7 @@ export const FarmBoundaryMap = ({
         {vertices.length === 2 && (
           <Polyline
             coordinates={vertices}
-            strokeColor={DRAWING_COLOR}
+            strokeColor={BOUNDARY_COLOR}
             strokeWidth={2}
           />
         )}
@@ -237,29 +159,14 @@ export const FarmBoundaryMap = ({
         {vertices.length >= 3 && (
           <Polygon
             coordinates={vertices}
-            strokeColor={DRAWING_COLOR}
-            fillColor={`${DRAWING_COLOR}40`}
+            strokeColor={BOUNDARY_COLOR}
+            fillColor={`${BOUNDARY_COLOR}40`}
             strokeWidth={2}
           />
         )}
       </MapView>
 
-      <View className="absolute inset-x-3" style={{ top: top + 12 }}>
-        <TouchableOpacity
-          onPress={onExit}
-          className="absolute left-0 z-10 rounded-full bg-black/50 p-2"
-        >
-          <Ionicons name="arrow-back" size={24} color="white" />
-        </TouchableOpacity>
-
-        <View className="flex-row justify-center">
-          <View className="rounded-full bg-black/50 px-3 py-2">
-            <Text bold size="sm" className="text-white">
-              Draw your farm boundary
-            </Text>
-          </View>
-        </View>
-      </View>
+      <MapHeader title="Draw your farm boundary" onBack={onExit} />
 
       <BoundaryDrawingPanel
         mapType={mapType}

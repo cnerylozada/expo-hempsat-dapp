@@ -1,4 +1,5 @@
 import { SectionTitle } from "@/components/SectionTitle";
+import { FarmBoundaryViewer } from "@/components/farms/FarmBoundaryViewer";
 import { FarmInfoCard } from "@/components/farms/FarmInfoCard";
 import { queryKeys } from "@/libs/queryKeys";
 import { IFarm } from "@/server/models";
@@ -20,6 +21,7 @@ export default function MyFarm() {
       <View className="gap-3">
         <SectionTitle title="MyFarm" icon="flower" />
         <FarmInfoCard farm={farm} />
+        <FarmBoundaryViewer boundaries={farm.boundaries} />
       </View>
       <View>
         <SectionTitle title="Areas defined in this farm" icon="flower" />
