@@ -3,6 +3,7 @@ import { AreaCard } from "@/components/areas/AreaCard";
 import { useAuthedQuery } from "@/components/authedRequests";
 import { FarmBoundaryViewer } from "@/components/farms/FarmBoundaryViewer";
 import { FarmInfoCard } from "@/components/farms/FarmInfoCard";
+import { LoadingScreen } from "@/components/LoadingScreen";
 import { SectionTitle } from "@/components/SectionTitle";
 import { StatusBanner } from "@/components/StatusBanner";
 import { queryKeys } from "@/libs/queryKeys";
@@ -11,7 +12,7 @@ import { getAreasByFarmId } from "@/server/areas";
 import { IFarm } from "@/server/models";
 import { useQueryClient } from "@tanstack/react-query";
 import { Link, useGlobalSearchParams } from "expo-router";
-import { ActivityIndicator, View } from "react-native";
+import { View } from "react-native";
 
 export default function MyFarm() {
   const { farmId } = useGlobalSearchParams<{ farmId: string }>();
@@ -21,25 +22,19 @@ export default function MyFarm() {
     queryKeys.farms.farmById(farmId),
   );
 
-  const {
-    data: areaList,
-    isLoading: isAreaListLoading,
-    isRefetching: isAreaListRefetching,
-    isError: isAreaListError,
-    error: areaListError,
-    refetch: refetchAreaList,
-  } = useAuthedQuery(queryKeys.areas.byFarmId(farmId), () =>
-    getAreasByFarmId(token, farmId),
-  );
+  const { data, isLoading, isRefetching, isError, error, refetch } =
+    useAuthedQuery(queryKeys.areas.byFarmId(farmId), () =>
+      getAreasByFarmId(token, farmId),
+    );
 
-  if (!farm) return null;
+  if (!farm || isLoading || isRefetching) return <LoadingScreen />;
 
   return (
     <View className="flex-1 gap-6">
       <View className="gap-3">
         <SectionTitle title="MyFarm" icon="flower" />
         <FarmInfoCard farm={farm} />
-        <FarmBoundaryViewer boundaries={farm.boundaries} />
+        <FarmBoundaryViewer boundaries={farm.boundaries} areaList={data} />
       </View>
 
       <View className="gap-3">
@@ -55,28 +50,21 @@ export default function MyFarm() {
           <AppButton text="Register new area" icon="add-circle-outline" />
         </Link>
 
-        {(isAreaListLoading || isAreaListRefetching) && (
-          <View className="items-center">
-            <ActivityIndicator size="large" />
-          </View>
-        )}
-
-        {!isAreaListLoading && isAreaListError && (
+        {isError && (
           <StatusBanner
             theme="error"
             title="Something went wrong"
-            description={areaListError.message}
+            description={error.message}
             action={{
               icon: "refresh",
               label: "Retry",
-              onPress: () => refetchAreaList(),
+              onPress: () => refetch(),
             }}
           />
         )}
 
-        {!isAreaListLoading &&
-          !isAreaListError &&
-          (areaList?.length === 0 ? (
+        {!isError &&
+          (data?.length === 0 ? (
             <StatusBanner
               theme="warning"
               title="No areas defined yet"
@@ -84,7 +72,7 @@ export default function MyFarm() {
             />
           ) : (
             <View className="gap-3">
-              {areaList?.map((area) => (
+              {data?.map((area) => (
                 <AreaCard key={area.id} farmItem={area} />
               ))}
             </View>

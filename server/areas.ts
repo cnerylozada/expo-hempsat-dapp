@@ -1,5 +1,5 @@
 import { throwIfNotOk } from "@/server/http";
-import { IFarmArea, IRawFarmArea } from "@/server/models";
+import { CreateAreaInput, IFarmArea, IRawFarmArea } from "@/server/models";
 
 export const getAreasByFarmId = async (
   token: string | null,
@@ -25,4 +25,24 @@ export const getAreasByFarmId = async (
     (current, nextItem) =>
       nextItem.created_at.getTime() - current.created_at.getTime(),
   );
+};
+
+export const addNewAreaInFarm = async (
+  token: string | null,
+  farmId: string,
+  areaBody: CreateAreaInput,
+) => {
+  const response = await fetch(
+    `${process.env.EXPO_PUBLIC_API_URL}/areas/${farmId}`,
+    {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(areaBody),
+    },
+  );
+
+  await throwIfNotOk(response);
 };

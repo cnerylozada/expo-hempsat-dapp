@@ -18,7 +18,7 @@ export type MapHeaderProps = {
 
 // Floats over a full-screen MapView: a back button on the left and a
 // centered title pill, both clear of the status bar. Shared by
-// FarmBoundaryMap (drawing a boundary) and FarmBoundaryViewer (viewing one).
+// BoundaryDrawingMap (drawing a boundary) and FarmBoundaryViewer (viewing one).
 export const MapHeader = ({ title, onBack }: MapHeaderProps) => {
   const { top } = useSafeAreaInsets();
 

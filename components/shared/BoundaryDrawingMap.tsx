@@ -22,19 +22,34 @@ import MapView, {
   PROVIDER_GOOGLE,
 } from "react-native-maps";
 
-export type FarmBoundaryMapProps = {
+export type BoundaryDrawingMapProps = {
   initialVertices?: LatLng[];
   onExit: () => void;
   onDone: (vertices: LatLng[]) => void;
+  title: string;
+  /** Outer polygon the new boundary must stay inside (e.g. the farm, when
+   * drawing one of its areas). Reference only — never edited here. */
+  farmScope?: LatLng[];
+  /** Boundaries already drawn inside `farmScope` that the new one must not
+   * overlap (e.g. the farm's existing areas). Reference only. */
+  defaultAreas?: LatLng[][];
 };
 
 const INITIAL_ZOOM = 17;
 
-export const FarmBoundaryMap = ({
+// Both muted on purpose: they're context, never the shape being edited, so
+// they must read as clearly distinct from BOUNDARY_COLOR.
+const FARM_SCOPE_COLOR = "#6b7280";
+const DEFAULT_AREA_COLOR = "#f59e0b";
+
+export const BoundaryDrawingMap = ({
   initialVertices = [],
   onExit,
   onDone,
-}: FarmBoundaryMapProps) => {
+  title,
+  farmScope = [],
+  defaultAreas = [],
+}: BoundaryDrawingMapProps) => {
   const [vertices, setVertices] = useState<LatLng[]>(initialVertices);
   const [pendingPoint, setPendingPoint] = useState<LatLng | null>(null);
   const [canShowUserLocation, setCanShowUserLocation] = useState(false);
@@ -132,6 +147,24 @@ export const FarmBoundaryMap = ({
         showsUserLocation={canShowUserLocation}
         onLongPress={(e) => setPendingPoint(e.nativeEvent.coordinate)}
       >
+        {farmScope.length >= 3 && (
+          <Polygon
+            coordinates={farmScope}
+            strokeColor={FARM_SCOPE_COLOR}
+            fillColor="transparent"
+            strokeWidth={2}
+          />
+        )}
+
+        {defaultAreas.map((area, index) => (
+          <Polygon
+            key={index}
+            coordinates={area}
+            strokeColor={DEFAULT_AREA_COLOR}
+            fillColor={`${DEFAULT_AREA_COLOR}30`}
+            strokeWidth={1}
+          />
+        ))}
         {vertices.map((vertex, index) => (
           <Marker
             key={index}
@@ -166,7 +199,7 @@ export const FarmBoundaryMap = ({
         )}
       </MapView>
 
-      <MapHeader title="Draw your farm boundary" onBack={onExit} />
+      <MapHeader title={title} onBack={onExit} />
 
       <BoundaryDrawingPanel
         mapType={mapType}

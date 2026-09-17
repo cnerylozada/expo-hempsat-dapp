@@ -1,3 +1,4 @@
+import type { registerAreaSchema } from "@/components/areas/schemas";
 import type { registerFarmSchema } from "@/components/farms/schemas";
 import { LatLng } from "react-native-maps";
 import type { z } from "zod";
@@ -48,3 +49,5 @@ export interface IRawFarmArea {
 export interface IFarmArea extends Omit<IRawFarmArea, "created_at"> {
   created_at: Date;
 }
+
+export type CreateAreaInput = z.infer<typeof registerAreaSchema>;

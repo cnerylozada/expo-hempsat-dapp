@@ -10,7 +10,7 @@ export const PERMISSION_DENIED_MESSAGE =
   "Please enable location access in your device settings.";
 
 // The one color a farm boundary polygon is drawn in, whether it's being
-// drawn (FarmBoundaryMap) or just displayed (FarmBoundaryViewer).
+// drawn (BoundaryDrawingMap) or just displayed (FarmBoundaryViewer).
 export const BOUNDARY_COLOR = "#3366aa";
 
 const EARTH_RADIUS_METERS = 6378137;
