@@ -1,7 +1,8 @@
 import { AppButton } from "@/components/AppButton";
 import { AreaBoundaryField } from "@/components/areas/AreaBoundaryField";
 import { registerAreaSchema } from "@/components/areas/schemas";
-import { useAuthedMutation } from "@/components/authedRequests";
+import { useAuthedMutation, useAuthedQuery } from "@/components/authedRequests";
+import { LoadingScreen } from "@/components/LoadingScreen";
 import { ScreenLayout } from "@/components/ScreenLayout";
 import { StatusBanner } from "@/components/StatusBanner";
 import {
@@ -14,7 +15,7 @@ import {
 import { Input, InputField } from "@/components/ui/input";
 import { queryKeys } from "@/libs/queryKeys";
 import { useAuth } from "@/providers/AuthProvider";
-import { addNewAreaInFarm } from "@/server/areas";
+import { addNewAreaInFarm, getAreasByFarmId } from "@/server/areas";
 import { CreateAreaInput } from "@/server/models";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useQueryClient } from "@tanstack/react-query";
@@ -27,6 +28,17 @@ export default function RegisterAreaForm() {
   const { token } = useAuth();
   const router = useRouter();
   const queryClient = useQueryClient();
+
+  const {
+    data: existingAreaList,
+    isLoading,
+    isRefetching,
+    isError,
+    error,
+    refetch,
+  } = useAuthedQuery(queryKeys.areas.byFarmId(farmId), () =>
+    getAreasByFarmId(token, farmId),
+  );
 
   const {
     control,
@@ -59,6 +71,24 @@ export default function RegisterAreaForm() {
   const onSubmit = (data: CreateAreaInput) => {
     mutation.mutate(data);
   };
+
+  if (isLoading || isRefetching) return <LoadingScreen />;
+
+  if (isError)
+    return (
+      <ScreenLayout>
+        <StatusBanner
+          theme="error"
+          title="Something went wrong"
+          description={error.message}
+          action={{
+            icon: "refresh",
+            label: "Retry",
+            onPress: () => refetch(),
+          }}
+        />
+      </ScreenLayout>
+    );
 
   return (
     <ScreenLayout>
@@ -119,14 +149,17 @@ export default function RegisterAreaForm() {
           )}
         />
 
-        <AreaBoundaryField
-          value={getValues("boundaries")}
-          onChange={(boundaries) =>
-            setValue("boundaries", boundaries, { shouldValidate: true })
-          }
-          errorMessage={errors.boundaries?.message}
-          farmId={farmId}
-        />
+        {!isError && existingAreaList && (
+          <AreaBoundaryField
+            value={getValues("boundaries")}
+            onChange={(boundaries) =>
+              setValue("boundaries", boundaries, { shouldValidate: true })
+            }
+            errorMessage={errors.boundaries?.message}
+            farmId={farmId}
+            existingAreaList={existingAreaList}
+          />
+        )}
 
         {mutation.isError && (
           <StatusBanner

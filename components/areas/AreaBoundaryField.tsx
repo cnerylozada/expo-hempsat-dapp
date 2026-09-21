@@ -11,6 +11,7 @@ import { Text } from "@/components/ui/text";
 import { queryKeys } from "@/libs/queryKeys";
 import { useAuth } from "@/providers/AuthProvider";
 import { getMyFarmById } from "@/server/farms";
+import { IFarmArea } from "@/server/models";
 import { useState } from "react";
 import { Modal } from "react-native";
 import { LatLng } from "react-native-maps";
@@ -21,6 +22,7 @@ export type AreaBoundaryFieldProps = {
   onChange: (boundaries: LatLng[]) => void;
   errorMessage?: string;
   farmId: string;
+  existingAreaList: IFarmArea[];
 };
 
 const TIPS = [
@@ -36,12 +38,10 @@ export function AreaBoundaryField({
   onChange,
   errorMessage,
   farmId,
+  existingAreaList,
 }: AreaBoundaryFieldProps) {
   const { token } = useAuth();
 
-  // Only its boundary is needed here — reference outline for the map, not
-  // a full loading/error state of its own (the surrounding form already has
-  // one, for the area being registered).
   const { data: farm } = useAuthedQuery(queryKeys.farms.farmById(farmId), () =>
     getMyFarmById(token, farmId),
   );
@@ -84,6 +84,7 @@ export function AreaBoundaryField({
         <BoundaryDrawingMap
           title="Draw your area boundary"
           farmScope={farm?.boundaries}
+          defaultAreas={existingAreaList.map((area) => area.boundaries)}
           initialVertices={value}
           onExit={() => setIsDrawing(false)}
           onDone={(boundaries) => {
