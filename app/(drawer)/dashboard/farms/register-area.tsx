@@ -1,6 +1,7 @@
 import { AppButton } from "@/components/AppButton";
 import { AreaBoundaryField } from "@/components/areas/AreaBoundaryField";
 import { registerAreaSchema } from "@/components/areas/schemas";
+import { TillagePracticeField } from "@/components/areas/TillagePracticeField";
 import { useAuthedMutation, useAuthedQuery } from "@/components/authedRequests";
 import { LoadingScreen } from "@/components/LoadingScreen";
 import { ScreenLayout } from "@/components/ScreenLayout";
@@ -146,6 +147,18 @@ export default function RegisterAreaForm() {
                 </FormControlError>
               )}
             </FormControl>
+          )}
+        />
+
+        <Controller
+          control={control}
+          name="tillagePractice"
+          render={({ field: { value, onChange } }) => (
+            <TillagePracticeField
+              value={value}
+              onChange={onChange}
+              errorMessage={errors.tillagePractice?.message}
+            />
           )}
         />
 

@@ -1,12 +1,52 @@
 import { z } from "zod";
 
+// constants/tillage.ts
+export const TILLAGE_PRACTICES = {
+  conventional: {
+    label: "Conventional tillage",
+    hint: "Regular soil disturbance",
+  },
+  reduced: {
+    label: "Reduced tillage",
+    hint: "Some disturbance, less frequent",
+  },
+  no_till: { label: "No-till", hint: "Already practicing minimal disturbance" },
+  native_fallow: { label: "Native / fallow", hint: "Never cultivated" },
+} as const;
+export type TillagePractice = keyof typeof TILLAGE_PRACTICES;
+export const tillagePracticeEnum = z.enum(
+  Object.keys(TILLAGE_PRACTICES) as [TillagePractice, ...TillagePractice[]],
+);
+
+export const CROPS = {
+  hemp: "Hemp",
+  maize: "Maize",
+  beans: "Beans",
+  potato: "Potato",
+  quinoa: "Quinoa",
+  coffee: "Coffee",
+  cacao: "Cacao",
+  fallow: "Fallow",
+} as const;
+export type Crop = keyof typeof CROPS;
+export const commonCrops = Object.keys(CROPS) as [Crop, ...Crop[]];
+
 export const registerAreaSchema = z.object({
   name: z
     .string({ message: "Area name is required" })
-    .min(20, "Area name must be at least 20 characters"),
+    .min(10, "Area name must be at least 10 characters"),
   description: z
     .string({ message: "Description is required" })
     .min(30, "Description must be at least 30 characters"),
+  tillagePractice: tillagePracticeEnum,
+  currentCrop: z.enum(commonCrops),
+  yearsUnderPractice: z
+    .int({ message: "Years under practice must be a whole number" })
+    .min(0, "Years under practice can't be negative"),
+  monthsUnderPractice: z
+    .int({ message: "Months under practice must be a whole number" })
+    .min(0, "Months under practice can't be negative")
+    .max(11, "Months under practice must be 11 or less"),
   boundaries: z
     .array(
       z.object({
