@@ -17,6 +17,9 @@ export type TillagePractice = keyof typeof TILLAGE_PRACTICES;
 export const tillagePracticeEnum = z.enum(
   Object.keys(TILLAGE_PRACTICES) as [TillagePractice, ...TillagePractice[]],
 );
+export const tillagePracticeOptions = (
+  Object.keys(TILLAGE_PRACTICES) as TillagePractice[]
+).map((practice) => ({ value: practice, ...TILLAGE_PRACTICES[practice] }));
 
 export const CROPS = {
   hemp: "Hemp",
@@ -30,6 +33,10 @@ export const CROPS = {
 } as const;
 export type Crop = keyof typeof CROPS;
 export const commonCrops = Object.keys(CROPS) as [Crop, ...Crop[]];
+export const cropOptions = commonCrops.map((crop) => ({
+  value: crop,
+  label: CROPS[crop],
+}));
 
 export const registerAreaSchema = z.object({
   name: z

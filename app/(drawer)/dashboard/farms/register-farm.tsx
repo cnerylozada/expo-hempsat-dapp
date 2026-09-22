@@ -1,4 +1,5 @@
 import { AppButton } from "@/components/AppButton";
+import { AppTextInput } from "@/components/AppTextInput";
 import { useAuthedMutation } from "@/components/authedRequests";
 import { FarmBoundaryField } from "@/components/farms/FarmBoundaryField";
 import { FarmLocationField } from "@/components/farms/FarmLocationField";
@@ -7,14 +8,6 @@ import { TitleDeedPhotosField } from "@/components/farms/TitleDeedPhotosField";
 import { MAX_PHOTOS } from "@/components/farms/utils";
 import { ScreenLayout } from "@/components/ScreenLayout";
 import { StatusBanner } from "@/components/StatusBanner";
-import {
-  FormControl,
-  FormControlError,
-  FormControlErrorText,
-  FormControlLabel,
-  FormControlLabelText,
-} from "@/components/ui/form-control";
-import { Input, InputField } from "@/components/ui/input";
 import { queryKeys } from "@/libs/queryKeys";
 import { useAuth } from "@/providers/AuthProvider";
 import { usePhoto } from "@/providers/PhotoProvider";
@@ -97,26 +90,14 @@ export default function CreateFarm() {
           control={control}
           name="name"
           render={({ field: { value, onChange, onBlur } }) => (
-            <FormControl isInvalid={!!errors.name}>
-              <FormControlLabel>
-                <FormControlLabelText>Farm name</FormControlLabelText>
-              </FormControlLabel>
-              <Input>
-                <InputField
-                  placeholder="e.g. Green Valley Farm"
-                  value={value}
-                  onChangeText={onChange}
-                  onBlur={onBlur}
-                />
-              </Input>
-              {errors.name && (
-                <FormControlError>
-                  <FormControlErrorText>
-                    {errors.name.message}
-                  </FormControlErrorText>
-                </FormControlError>
-              )}
-            </FormControl>
+            <AppTextInput
+              label="Farm name"
+              placeholder="e.g. Green Valley Farm"
+              value={value}
+              onChangeText={onChange}
+              onBlur={onBlur}
+              errorMessage={errors.name?.message}
+            />
           )}
         />
 

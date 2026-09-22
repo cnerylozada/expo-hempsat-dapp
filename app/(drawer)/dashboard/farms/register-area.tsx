@@ -1,19 +1,18 @@
 import { AppButton } from "@/components/AppButton";
+import { AppRadioGroup } from "@/components/AppRadioGroup";
+import { AppSelect } from "@/components/AppSelect";
+import { AppTextInput } from "@/components/AppTextInput";
 import { AreaBoundaryField } from "@/components/areas/AreaBoundaryField";
-import { registerAreaSchema } from "@/components/areas/schemas";
-import { TillagePracticeField } from "@/components/areas/TillagePracticeField";
+import {
+  cropOptions,
+  registerAreaSchema,
+  tillagePracticeOptions,
+} from "@/components/areas/schemas";
+import { TimeUnderPracticeField } from "@/components/areas/TimeUnderPracticeField";
 import { useAuthedMutation, useAuthedQuery } from "@/components/authedRequests";
 import { LoadingScreen } from "@/components/LoadingScreen";
 import { ScreenLayout } from "@/components/ScreenLayout";
 import { StatusBanner } from "@/components/StatusBanner";
-import {
-  FormControl,
-  FormControlError,
-  FormControlErrorText,
-  FormControlLabel,
-  FormControlLabelText,
-} from "@/components/ui/form-control";
-import { Input, InputField } from "@/components/ui/input";
 import { queryKeys } from "@/libs/queryKeys";
 import { useAuth } from "@/providers/AuthProvider";
 import { addNewAreaInFarm, getAreasByFarmId } from "@/server/areas";
@@ -98,26 +97,14 @@ export default function RegisterAreaForm() {
           control={control}
           name="name"
           render={({ field: { value, onChange, onBlur } }) => (
-            <FormControl isInvalid={!!errors.name}>
-              <FormControlLabel>
-                <FormControlLabelText>Area name</FormControlLabelText>
-              </FormControlLabel>
-              <Input>
-                <InputField
-                  placeholder="e.g. North paddock"
-                  value={value}
-                  onChangeText={onChange}
-                  onBlur={onBlur}
-                />
-              </Input>
-              {errors.name && (
-                <FormControlError>
-                  <FormControlErrorText>
-                    {errors.name.message}
-                  </FormControlErrorText>
-                </FormControlError>
-              )}
-            </FormControl>
+            <AppTextInput
+              label="Area name"
+              placeholder="e.g. North paddock"
+              value={value}
+              onChangeText={onChange}
+              onBlur={onBlur}
+              errorMessage={errors.name?.message}
+            />
           )}
         />
 
@@ -125,28 +112,15 @@ export default function RegisterAreaForm() {
           control={control}
           name="description"
           render={({ field: { value, onChange, onBlur } }) => (
-            <FormControl isInvalid={!!errors.description}>
-              <FormControlLabel>
-                <FormControlLabelText>Description</FormControlLabelText>
-              </FormControlLabel>
-              <Input className="h-24 items-start py-2">
-                <InputField
-                  placeholder="What makes this area distinct — crop, soil, irrigation zone..."
-                  value={value}
-                  onChangeText={onChange}
-                  onBlur={onBlur}
-                  multiline
-                  textAlignVertical="top"
-                />
-              </Input>
-              {errors.description && (
-                <FormControlError>
-                  <FormControlErrorText>
-                    {errors.description.message}
-                  </FormControlErrorText>
-                </FormControlError>
-              )}
-            </FormControl>
+            <AppTextInput
+              label="Description"
+              placeholder="What makes this area distinct — crop, soil, irrigation zone..."
+              value={value}
+              onChangeText={onChange}
+              onBlur={onBlur}
+              errorMessage={errors.description?.message}
+              multiline
+            />
           )}
         />
 
@@ -154,10 +128,50 @@ export default function RegisterAreaForm() {
           control={control}
           name="tillagePractice"
           render={({ field: { value, onChange } }) => (
-            <TillagePracticeField
+            <AppRadioGroup
+              label="Current tillage practice"
+              description="This sets which regenerative actions this area is eligible to start tracking."
+              options={tillagePracticeOptions}
               value={value}
               onChange={onChange}
               errorMessage={errors.tillagePractice?.message}
+            />
+          )}
+        />
+
+        <Controller
+          control={control}
+          name="currentCrop"
+          render={({ field: { value, onChange } }) => (
+            <AppSelect
+              label="Current / most recent crop"
+              description="What is growing now, or what was last harvested here."
+              placeholder="Select a crop"
+              options={cropOptions}
+              value={value}
+              onChange={onChange}
+              errorMessage={errors.currentCrop?.message}
+            />
+          )}
+        />
+
+        <Controller
+          control={control}
+          name="yearsUnderPractice"
+          render={({ field: yearsField }) => (
+            <Controller
+              control={control}
+              name="monthsUnderPractice"
+              render={({ field: monthsField }) => (
+                <TimeUnderPracticeField
+                  yearsValue={yearsField.value}
+                  monthsValue={monthsField.value}
+                  onChangeYears={yearsField.onChange}
+                  onChangeMonths={monthsField.onChange}
+                  yearsErrorMessage={errors.yearsUnderPractice?.message}
+                  monthsErrorMessage={errors.monthsUnderPractice?.message}
+                />
+              )}
             />
           )}
         />
