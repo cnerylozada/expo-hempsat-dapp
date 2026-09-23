@@ -15,7 +15,7 @@ import { IFarmArea } from "@/server/models";
 import { useState } from "react";
 import { Modal } from "react-native";
 import { LatLng } from "react-native-maps";
-import { useAuthedQuery } from "../authedRequests";
+import { useAuthedQuery } from "@/components/authedRequests";
 
 export type AreaBoundaryFieldProps = {
   value: LatLng[];
