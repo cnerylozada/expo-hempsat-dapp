@@ -1,6 +1,5 @@
 import { z } from "zod";
 
-// constants/tillage.ts
 export const TILLAGE_PRACTICES = {
   conventional: {
     label: "Conventional tillage",

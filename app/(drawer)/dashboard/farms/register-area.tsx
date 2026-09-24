@@ -2,13 +2,18 @@ import { AppButton } from "@/components/AppButton";
 import { AppRadioGroup } from "@/components/AppRadioGroup";
 import { AppSelect } from "@/components/AppSelect";
 import { AppTextInput } from "@/components/AppTextInput";
-import { AreaBoundaryField } from "@/components/areas/AreaBoundaryField";
+import { AreaBoundaryField } from "@/components/areas/register-area/AreaBoundaryField";
+import { signAreaAttestation } from "@/components/areas/register-area/attestation";
 import {
   cropOptions,
   registerAreaSchema,
   tillagePracticeOptions,
-} from "@/components/areas/schemas";
-import { TimeUnderPracticeField } from "@/components/areas/TimeUnderPracticeField";
+} from "@/components/areas/register-area/schema";
+import {
+  SignAndSaveAreaModal,
+  SignAndSaveStep,
+} from "@/components/areas/register-area/SignAndSaveAreaModal";
+import { TimeUnderPracticeField } from "@/components/areas/register-area/TimeUnderPracticeField";
 import { useAuthedMutation, useAuthedQuery } from "@/components/authedRequests";
 import { LoadingScreen } from "@/components/LoadingScreen";
 import { ScreenLayout } from "@/components/ScreenLayout";
@@ -20,14 +25,19 @@ import { CreateAreaInput } from "@/server/models";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useQueryClient } from "@tanstack/react-query";
 import { useLocalSearchParams, useRouter } from "expo-router";
+import { useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { ScrollView } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { useActiveAccount } from "thirdweb/react";
 
 export default function RegisterAreaForm() {
   const { farmId } = useLocalSearchParams<{ farmId: string }>();
   const { token } = useAuth();
   const router = useRouter();
   const queryClient = useQueryClient();
+  const { bottom } = useSafeAreaInsets();
+  const account = useActiveAccount();
 
   const {
     data: existingAreaList,
@@ -53,6 +63,10 @@ export default function RegisterAreaForm() {
     defaultValues: { name: "", description: "", boundaries: [] },
   });
 
+  const [isConfirmOpen, setIsConfirmOpen] = useState(false);
+  const [step, setStep] = useState<SignAndSaveStep>("idle");
+  const [signError, setSignError] = useState<string | null>(null);
+
   const mutation = useAuthedMutation({
     mutationFn: (data: CreateAreaInput) =>
       addNewAreaInFarm(token, farmId, data),
@@ -61,6 +75,7 @@ export default function RegisterAreaForm() {
         queryKey: queryKeys.areas.byFarmId(farmId),
       });
       reset();
+      setIsConfirmOpen(false);
       // `[farmId]` is already on the stack (this screen was pushed from it) —
       // dismissTo pops back to that existing entry instead of `replace`,
       // which would push a second copy on top of it.
@@ -68,8 +83,39 @@ export default function RegisterAreaForm() {
     },
   });
 
-  const onSubmit = (data: CreateAreaInput) => {
-    mutation.mutate(data);
+  const signArea = async (area: CreateAreaInput) => {
+    if (!account) throw new Error("Connect your wallet to sign this area.");
+    const signature = await signAreaAttestation(account, {
+      name: area.name,
+      description: area.description,
+    });
+    console.log("signature", signature);
+    return signature;
+  };
+
+  const clearErrors = () => {
+    mutation.reset();
+    setSignError(null);
+  };
+
+  const signAndSave = async (area: CreateAreaInput) => {
+    clearErrors();
+    setStep("signing");
+    let signature: string;
+    try {
+      signature = await signArea(area);
+    } catch (error) {
+      setSignError(
+        error instanceof Error
+          ? error.message
+          : "The signature could not be completed.",
+      );
+      setStep("idle");
+      return;
+    }
+
+    setStep("saving");
+    mutation.mutate({ ...area, signature }, { onError: () => setStep("idle") });
   };
 
   if (isLoading || isRefetching) return <LoadingScreen />;
@@ -92,7 +138,11 @@ export default function RegisterAreaForm() {
 
   return (
     <ScreenLayout>
-      <ScrollView className="flex-1" contentContainerClassName="gap-6">
+      <ScrollView
+        className="flex-1"
+        contentContainerClassName="gap-6"
+        contentContainerStyle={{ paddingBottom: bottom }}
+      >
         <Controller
           control={control}
           name="name"
@@ -188,21 +238,26 @@ export default function RegisterAreaForm() {
           />
         )}
 
-        {mutation.isError && (
-          <StatusBanner
-            theme="error"
-            title="Something went wrong"
-            description={mutation.error.message}
-          />
-        )}
-
         <AppButton
-          text="Save"
-          icon="save-outline"
-          onPress={handleSubmit(onSubmit)}
-          loading={mutation.isPending}
+          text="Review and save"
+          icon="checkmark-circle-outline"
+          onPress={handleSubmit(() => {
+            clearErrors();
+            setIsConfirmOpen(true);
+          })}
         />
       </ScrollView>
+
+      <SignAndSaveAreaModal
+        isOpen={isConfirmOpen}
+        onClose={() => {
+          if (step === "idle") setIsConfirmOpen(false);
+        }}
+        onSignAndSave={handleSubmit(signAndSave)}
+        step={step}
+        signError={signError}
+        saveError={mutation.error?.message}
+      />
     </ScreenLayout>
   );
 }

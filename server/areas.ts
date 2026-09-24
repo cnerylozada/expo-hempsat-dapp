@@ -40,7 +40,11 @@ export const addNewAreaInFarm = async (
         Authorization: `Bearer ${token}`,
         "Content-Type": "application/json",
       },
-      body: JSON.stringify(areaBody),
+      body: JSON.stringify({
+        ...areaBody,
+        monthsUnderPractice:
+          areaBody.yearsUnderPractice * 12 + areaBody.monthsUnderPractice,
+      }),
     },
   );
 
