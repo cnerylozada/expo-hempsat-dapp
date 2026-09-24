@@ -1,11 +1,11 @@
-import { AppButton } from "@/components/AppButton";
+import { AppButton } from "@/components/shared/AppButton";
 import { AreaCard } from "@/components/areas/AreaCard";
 import { useAuthedQuery } from "@/components/authedRequests";
 import { FarmBoundaryViewer } from "@/components/farms/FarmBoundaryViewer";
 import { FarmInfoCard } from "@/components/farms/FarmInfoCard";
 import { LoadingScreen } from "@/components/LoadingScreen";
-import { SectionTitle } from "@/components/SectionTitle";
-import { StatusBanner } from "@/components/StatusBanner";
+import { SectionTitle } from "@/components/shared/SectionTitle";
+import { StatusBanner } from "@/components/shared/StatusBanner";
 import { queryKeys } from "@/libs/queryKeys";
 import { useAuth } from "@/providers/AuthProvider";
 import { getAreasByFarmId } from "@/server/areas";

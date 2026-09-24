@@ -1,4 +1,4 @@
-import { AppButton } from "@/components/AppButton";
+import { AppButton } from "@/components/shared/AppButton";
 import { formatArea } from "@/components/shared/utils";
 import { Box } from "@/components/ui/box";
 import { Text } from "@/components/ui/text";

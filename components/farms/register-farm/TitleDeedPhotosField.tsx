@@ -1,5 +1,5 @@
-import { AppButton } from "@/components/AppButton";
-import { InstructionsCard } from "@/components/InstructionsCard";
+import { AppButton } from "@/components/shared/AppButton";
+import { InstructionsCard } from "@/components/shared/InstructionsCard";
 import { Badge, BadgeText } from "@/components/ui/badge";
 import { Box } from "@/components/ui/box";
 import { Text } from "@/components/ui/text";
@@ -8,7 +8,7 @@ import { useRouter } from "expo-router";
 import { cssInterop } from "nativewind";
 import type { FieldErrors } from "react-hook-form";
 import { Image, TouchableOpacity } from "react-native";
-import { MAX_PHOTOS } from "./utils";
+import { MAX_TITLE_DEED_PHOTOS } from "./schemas";
 
 cssInterop(Ionicons, {
   className: { target: "style", nativeStyleToProp: { color: true } },
@@ -43,7 +43,7 @@ export function TitleDeedPhotosField({
         title="Upload photos of title deeds"
         icon="images-outline"
         items={[
-          `1 to ${MAX_PHOTOS} photos`,
+          `1 to ${MAX_TITLE_DEED_PHOTOS} photos`,
           "JPG or PNG only",
           "Size: 50 KB – 5 MB",
           "Min. dimensions: 600×900 px",
@@ -103,7 +103,7 @@ export function TitleDeedPhotosField({
           );
         })}
 
-        {photos.length < MAX_PHOTOS && (
+        {photos.length < MAX_TITLE_DEED_PHOTOS && (
           <AppButton
             text="Take a photo"
             icon="camera-outline"

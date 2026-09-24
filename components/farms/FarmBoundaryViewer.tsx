@@ -1,4 +1,4 @@
-import { AppButton } from "@/components/AppButton";
+import { AppButton } from "@/components/shared/AppButton";
 import { MapHeader } from "@/components/shared/MapHeader";
 import { BOUNDARY_COLOR } from "@/components/shared/utils";
 import { IFarmArea } from "@/server/models";

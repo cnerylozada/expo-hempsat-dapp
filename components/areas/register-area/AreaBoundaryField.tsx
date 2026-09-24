@@ -1,11 +1,11 @@
-import { AppButton } from "@/components/AppButton";
-import { InstructionsCard } from "@/components/InstructionsCard";
+import { AppButton } from "@/components/shared/AppButton";
+import { InstructionsCard } from "@/components/shared/InstructionsCard";
 import { BoundaryDrawingMap } from "@/components/shared/BoundaryDrawingMap";
 import {
   formatArea,
   polygonAreaInSquareMeters,
 } from "@/components/shared/utils";
-import { StatusBanner } from "@/components/StatusBanner";
+import { StatusBanner } from "@/components/shared/StatusBanner";
 import { Box } from "@/components/ui/box";
 import { Text } from "@/components/ui/text";
 import { queryKeys } from "@/libs/queryKeys";

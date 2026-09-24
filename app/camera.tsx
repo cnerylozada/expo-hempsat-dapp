@@ -1,4 +1,4 @@
-import { AppButton } from "@/components/AppButton";
+import { AppButton } from "@/components/shared/AppButton";
 import { Text } from "@/components/ui/text";
 import { IPhotoItem, usePhoto } from "@/providers/PhotoProvider";
 import Ionicons from "@expo/vector-icons/Ionicons";

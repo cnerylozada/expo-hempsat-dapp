@@ -1,9 +1,9 @@
-import { AppButton } from "@/components/AppButton";
+import { AppButton } from "@/components/shared/AppButton";
 import { useAuthedQuery } from "@/components/authedRequests";
 import { FarmCard } from "@/components/farms/FarmCard";
 import { LoadingScreen } from "@/components/LoadingScreen";
 import { ScreenLayout } from "@/components/ScreenLayout";
-import { StatusBanner } from "@/components/StatusBanner";
+import { StatusBanner } from "@/components/shared/StatusBanner";
 import { queryKeys } from "@/libs/queryKeys";
 import { useAuth } from "@/providers/AuthProvider";
 import { getMyFarmList } from "@/server/farms";
