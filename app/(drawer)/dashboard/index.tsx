@@ -1,4 +1,4 @@
-import { AppButton } from "@/components/AppButton";
+import { AppButton } from "@/components/shared/AppButton";
 import { useAuthedQuery } from "@/components/authedRequests";
 import { IdentityCardSheet } from "@/components/identification/IdentityCardSheet";
 import { KycExplainer } from "@/components/identification/KycExplainer";

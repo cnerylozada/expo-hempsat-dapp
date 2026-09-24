@@ -1,14 +1,14 @@
-import { AppButton } from "@/components/AppButton";
-import { AppRadioGroup } from "@/components/AppRadioGroup";
-import { AppSelect } from "@/components/AppSelect";
-import { AppTextInput } from "@/components/AppTextInput";
+import { AppButton } from "@/components/shared/AppButton";
+import { AppRadioGroup } from "@/components/shared/AppRadioGroup";
+import { AppSelect } from "@/components/shared/AppSelect";
+import { AppTextInput } from "@/components/shared/AppTextInput";
 import { AreaBoundaryField } from "@/components/areas/register-area/AreaBoundaryField";
 import { signAreaAttestation } from "@/components/areas/register-area/attestation";
 import {
   cropOptions,
   registerAreaSchema,
   tillagePracticeOptions,
-} from "@/components/areas/register-area/schema";
+} from "@/components/areas/register-area/schemas";
 import {
   SignAndSaveAreaModal,
   SignAndSaveStep,

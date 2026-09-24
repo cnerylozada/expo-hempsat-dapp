@@ -1,4 +1,4 @@
-import { AppButton } from "@/components/AppButton";
+import { AppButton } from "@/components/shared/AppButton";
 import { InstructionsCard } from "@/components/InstructionsCard";
 import { BoundaryDrawingMap } from "@/components/shared/BoundaryDrawingMap";
 import {

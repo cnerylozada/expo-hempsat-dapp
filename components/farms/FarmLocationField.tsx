@@ -1,4 +1,4 @@
-import { AppButton } from "@/components/AppButton";
+import { AppButton } from "@/components/shared/AppButton";
 import { InstructionsCard } from "@/components/InstructionsCard";
 import {
   PERMISSION_DENIED_MESSAGE,

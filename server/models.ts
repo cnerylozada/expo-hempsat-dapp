@@ -1,4 +1,4 @@
-import type { registerAreaSchema } from "@/components/areas/register-area/schema";
+import type { registerAreaSchema } from "@/components/areas/register-area/schemas";
 import type { registerFarmSchema } from "@/components/farms/schemas";
 import { LatLng } from "react-native-maps";
 import type { z } from "zod";

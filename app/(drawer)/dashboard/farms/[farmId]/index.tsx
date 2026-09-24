@@ -1,4 +1,4 @@
-import { AppButton } from "@/components/AppButton";
+import { AppButton } from "@/components/shared/AppButton";
 import { AreaCard } from "@/components/areas/AreaCard";
 import { useAuthedQuery } from "@/components/authedRequests";
 import { FarmBoundaryViewer } from "@/components/farms/FarmBoundaryViewer";

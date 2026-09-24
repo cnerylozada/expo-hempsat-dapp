@@ -1,12 +1,12 @@
-import { AppButton } from "@/components/AppButton";
-import { AppTextInput } from "@/components/AppTextInput";
 import { useAuthedMutation } from "@/components/authedRequests";
 import { FarmBoundaryField } from "@/components/farms/FarmBoundaryField";
 import { FarmLocationField } from "@/components/farms/FarmLocationField";
 import { registerFarmSchema } from "@/components/farms/schemas";
 import { TitleDeedPhotosField } from "@/components/farms/TitleDeedPhotosField";
-import { MAX_PHOTOS } from "@/components/farms/utils";
+import { MAX_TITLE_DEED_PHOTOS } from "@/components/farms/utils";
 import { ScreenLayout } from "@/components/ScreenLayout";
+import { AppButton } from "@/components/shared/AppButton";
+import { AppTextInput } from "@/components/shared/AppTextInput";
 import { StatusBanner } from "@/components/StatusBanner";
 import { queryKeys } from "@/libs/queryKeys";
 import { useAuth } from "@/providers/AuthProvider";
@@ -52,13 +52,14 @@ export default function CreateFarm() {
   });
 
   useEffect(() => {
-    onSetParams({ max_files: MAX_PHOTOS });
+    onSetParams({ max_files: MAX_TITLE_DEED_PHOTOS });
   }, []);
 
   useFocusEffect(
     useCallback(() => {
       if (photoList.length > 0) {
-        const remaining = MAX_PHOTOS - getValues("titleDeedPhotoList").length;
+        const remaining =
+          MAX_TITLE_DEED_PHOTOS - getValues("titleDeedPhotoList").length;
         photoList.slice(0, remaining).forEach((photo) => append(photo));
         clearPhotoList();
       }

@@ -1,4 +1,4 @@
-import { AppButton } from "@/components/AppButton";
+import { AppButton } from "@/components/shared/AppButton";
 import { useAuthedQuery } from "@/components/authedRequests";
 import { FarmCard } from "@/components/farms/FarmCard";
 import { LoadingScreen } from "@/components/LoadingScreen";

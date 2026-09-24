@@ -1,3 +1,4 @@
+import { photoShape } from "@/components/shared/schemas";
 import { z } from "zod";
 
 export const TILLAGE_PRACTICES = {
@@ -37,6 +38,14 @@ export const cropOptions = commonCrops.map((crop) => ({
   label: CROPS[crop],
 }));
 
+const MAX_AREA_PHOTOS = 3;
+
+const areaPhotoSchema = photoShape.refine(
+  (_) =>
+    Math.min(_.width, _.height) >= 600 && Math.max(_.width, _.height) >= 900,
+  { message: "Too small (min 600×900px)" },
+);
+
 export const registerAreaSchema = z.object({
   name: z
     .string({ message: "Area name is required" })
@@ -46,6 +55,10 @@ export const registerAreaSchema = z.object({
     .min(30, "Description must be at least 30 characters"),
   tillagePractice: tillagePracticeEnum,
   currentCrop: z.enum(commonCrops),
+  photoList: z
+    .array(areaPhotoSchema)
+    .min(1, "At least 1 photo is required")
+    .max(MAX_AREA_PHOTOS, `At most ${MAX_AREA_PHOTOS} photos allowed`),
   yearsUnderPractice: z
     .int({ message: "Years under practice must be a whole number" })
     .min(0, "Years under practice can't be negative"),

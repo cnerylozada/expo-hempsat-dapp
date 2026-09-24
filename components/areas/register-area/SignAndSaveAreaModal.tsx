@@ -1,5 +1,5 @@
-import { AppButton } from "@/components/AppButton";
-import { AppModal } from "@/components/AppModal";
+import { AppButton } from "@/components/shared/AppButton";
+import { AppModal } from "@/components/shared/AppModal";
 import { StatusBanner } from "@/components/StatusBanner";
 
 /** Which half of "sign, then save" is running — drives the button's message. */

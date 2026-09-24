@@ -1,4 +1,4 @@
-import { AppNumberInput } from "@/components/AppNumberInput";
+import { AppNumberInput } from "@/components/shared/AppNumberInput";
 import { Box } from "@/components/ui/box";
 import { Text } from "@/components/ui/text";
 
