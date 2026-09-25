@@ -1,4 +1,4 @@
-import { FieldRow } from "@/components/FieldRow";
+import { FieldRow } from "@/components/shared/FieldRow";
 import { Box } from "@/components/ui/box";
 import { Pressable } from "@/components/ui/pressable";
 import { IFarm } from "@/server/models";

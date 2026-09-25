@@ -1,8 +1,8 @@
 import { AppButton } from "@/components/shared/AppButton";
 import { useAuthedMutation, useAuthedQuery } from "@/components/authedRequests";
-import { InstructionsCard } from "@/components/InstructionsCard";
+import { InstructionsCard } from "@/components/shared/InstructionsCard";
 import { LoadingScreen } from "@/components/LoadingScreen";
-import { StatusBanner } from "@/components/StatusBanner";
+import { StatusBanner } from "@/components/shared/StatusBanner";
 import { Text } from "@/components/ui/text";
 import { queryKeys } from "@/libs/queryKeys";
 import { useAuth } from "@/providers/AuthProvider";

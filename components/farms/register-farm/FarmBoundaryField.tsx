@@ -1,11 +1,11 @@
 import { AppButton } from "@/components/shared/AppButton";
-import { InstructionsCard } from "@/components/InstructionsCard";
 import { BoundaryDrawingMap } from "@/components/shared/BoundaryDrawingMap";
+import { InstructionsCard } from "@/components/shared/InstructionsCard";
+import { StatusBanner } from "@/components/shared/StatusBanner";
 import {
   formatArea,
   polygonAreaInSquareMeters,
 } from "@/components/shared/utils";
-import { StatusBanner } from "@/components/StatusBanner";
 import { Box } from "@/components/ui/box";
 import { Text } from "@/components/ui/text";
 import { useState } from "react";

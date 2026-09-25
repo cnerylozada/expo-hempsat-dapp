@@ -1,6 +1,7 @@
 import { photoShape } from "@/components/shared/schemas";
 import { z } from "zod";
-import { MAX_TITLE_DEED_PHOTOS } from "./utils";
+
+export const MAX_TITLE_DEED_PHOTOS = 3;
 
 const titleDeedPhotoSchema = photoShape.refine(
   (_) => _.width >= 600 && _.height >= 900,

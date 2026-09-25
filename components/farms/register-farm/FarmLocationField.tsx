@@ -1,10 +1,10 @@
 import { AppButton } from "@/components/shared/AppButton";
-import { InstructionsCard } from "@/components/InstructionsCard";
+import { InstructionsCard } from "@/components/shared/InstructionsCard";
+import { StatusBanner } from "@/components/shared/StatusBanner";
 import {
   PERMISSION_DENIED_MESSAGE,
   PERMISSION_DENIED_TITLE,
 } from "@/components/shared/utils";
-import { StatusBanner } from "@/components/StatusBanner";
 import { Box } from "@/components/ui/box";
 import { Text } from "@/components/ui/text";
 import * as Location from "expo-location";

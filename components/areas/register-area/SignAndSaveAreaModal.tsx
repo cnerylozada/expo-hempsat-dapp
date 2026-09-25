@@ -1,6 +1,6 @@
 import { AppButton } from "@/components/shared/AppButton";
 import { AppModal } from "@/components/shared/AppModal";
-import { StatusBanner } from "@/components/StatusBanner";
+import { StatusBanner } from "@/components/shared/StatusBanner";
 
 /** Which half of "sign, then save" is running — drives the button's message. */
 export type SignAndSaveStep = "idle" | "signing" | "saving";

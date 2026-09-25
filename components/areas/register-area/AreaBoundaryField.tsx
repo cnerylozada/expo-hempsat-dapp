@@ -1,11 +1,12 @@
+import { useAuthedQuery } from "@/components/authedRequests";
 import { AppButton } from "@/components/shared/AppButton";
-import { InstructionsCard } from "@/components/InstructionsCard";
 import { BoundaryDrawingMap } from "@/components/shared/BoundaryDrawingMap";
+import { InstructionsCard } from "@/components/shared/InstructionsCard";
+import { StatusBanner } from "@/components/shared/StatusBanner";
 import {
   formatArea,
   polygonAreaInSquareMeters,
 } from "@/components/shared/utils";
-import { StatusBanner } from "@/components/StatusBanner";
 import { Box } from "@/components/ui/box";
 import { Text } from "@/components/ui/text";
 import { queryKeys } from "@/libs/queryKeys";
@@ -15,7 +16,6 @@ import { IFarmArea } from "@/server/models";
 import { useState } from "react";
 import { Modal } from "react-native";
 import { LatLng } from "react-native-maps";
-import { useAuthedQuery } from "@/components/authedRequests";
 
 export type AreaBoundaryFieldProps = {
   value: LatLng[];

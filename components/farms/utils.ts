@@ -46,8 +46,6 @@ export const getDayLabel = (date: Date, index: number) => {
   });
 };
 
-export const MAX_TITLE_DEED_PHOTOS = 3;
-
 export const formatDate = (date: Date) =>
   date.toLocaleDateString("en-US", {
     year: "numeric",

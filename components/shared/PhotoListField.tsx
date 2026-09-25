@@ -1,5 +1,5 @@
-import { InstructionsCard } from "@/components/InstructionsCard";
 import { AppButton } from "@/components/shared/AppButton";
+import { InstructionsCard } from "@/components/shared/InstructionsCard";
 import { Badge, BadgeText } from "@/components/ui/badge";
 import { Box } from "@/components/ui/box";
 import { Text } from "@/components/ui/text";
@@ -8,13 +8,12 @@ import { useRouter } from "expo-router";
 import { cssInterop } from "nativewind";
 import type { FieldErrors } from "react-hook-form";
 import { Image, TouchableOpacity } from "react-native";
-import { MAX_TITLE_DEED_PHOTOS } from "./utils";
 
 cssInterop(Ionicons, {
   className: { target: "style", nativeStyleToProp: { color: true } },
 });
 
-type TitleDeedPhoto = {
+type PhotoListItem = {
   id: string;
   uri: string;
   width: number;
@@ -22,28 +21,32 @@ type TitleDeedPhoto = {
   fileSizeInMB: number;
 };
 
-type PhotoListErrors = FieldErrors<{ photos: TitleDeedPhoto[] }>["photos"];
+type PhotoListErrors = FieldErrors<{ photos: PhotoListItem[] }>["photos"];
 
-export type TitleDeedPhotosFieldProps = {
-  photos: TitleDeedPhoto[];
+export type PhotoListFieldProps = {
+  photos: PhotoListItem[];
+  maxPhotos: number;
   errors?: PhotoListErrors;
   onRemovePhoto: (index: number) => void;
+  label: string;
 };
 
-export function TitleDeedPhotosField({
+export function PhotoListField({
   photos,
+  maxPhotos,
   errors,
   onRemovePhoto,
-}: TitleDeedPhotosFieldProps) {
+  label,
+}: PhotoListFieldProps) {
   const router = useRouter();
 
   return (
     <Box className="gap-3">
       <InstructionsCard
-        title="Upload photos of title deeds"
+        title={label}
         icon="images-outline"
         items={[
-          `1 to ${MAX_TITLE_DEED_PHOTOS} photos`,
+          `1 to ${maxPhotos} photos`,
           "JPG or PNG only",
           "Size: 50 KB – 5 MB",
           "Min. dimensions: 600×900 px",
@@ -103,7 +106,7 @@ export function TitleDeedPhotosField({
           );
         })}
 
-        {photos.length < MAX_TITLE_DEED_PHOTOS && (
+        {photos.length < maxPhotos && (
           <AppButton
             text="Take a photo"
             icon="camera-outline"

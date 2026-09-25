@@ -1,4 +1,4 @@
-import { StatusBanner } from "@/components/StatusBanner";
+import { StatusBanner } from "@/components/shared/StatusBanner";
 import { Box } from "@/components/ui/box";
 import { Text } from "@/components/ui/text";
 import { appChain, thirdwebClient, thirdwebWallets } from "@/libs/thirdweb";

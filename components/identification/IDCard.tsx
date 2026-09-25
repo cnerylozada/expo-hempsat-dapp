@@ -1,4 +1,4 @@
-import { FieldRow } from "@/components/FieldRow";
+import { FieldRow } from "@/components/shared/FieldRow";
 import { Box } from "@/components/ui/box";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import { cssInterop } from "nativewind";
