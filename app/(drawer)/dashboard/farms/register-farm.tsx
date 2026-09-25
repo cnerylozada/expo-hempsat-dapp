@@ -5,11 +5,12 @@ import {
   MAX_TITLE_DEED_PHOTOS,
   registerFarmSchema,
 } from "@/components/farms/register-farm/schemas";
-import { TitleDeedPhotosField } from "@/components/farms/register-farm/TitleDeedPhotosField";
 import { ScreenLayout } from "@/components/ScreenLayout";
 import { AppButton } from "@/components/shared/AppButton";
 import { AppTextInput } from "@/components/shared/AppTextInput";
+import { PhotoListField } from "@/components/shared/PhotoListField";
 import { StatusBanner } from "@/components/shared/StatusBanner";
+import { useCameraPhotos } from "@/components/shared/useCameraPhotos";
 import { queryKeys } from "@/libs/queryKeys";
 import { useAuth } from "@/providers/AuthProvider";
 import { usePhoto } from "@/providers/PhotoProvider";
@@ -17,8 +18,7 @@ import { createFarm } from "@/server/farms";
 import { CreateFarmInput } from "@/server/models";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useQueryClient } from "@tanstack/react-query";
-import { useFocusEffect, useRouter } from "expo-router";
-import { useCallback, useEffect } from "react";
+import { useRouter } from "expo-router";
 import { Controller, useFieldArray, useForm } from "react-hook-form";
 import { ScrollView } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -28,7 +28,7 @@ export default function CreateFarm() {
   const router = useRouter();
   const queryClient = useQueryClient();
   const { bottom } = useSafeAreaInsets();
-  const { onSetParams, photoList, clearPhotoList } = usePhoto();
+  const { clearPhotoList } = usePhoto();
 
   const {
     control,
@@ -53,20 +53,11 @@ export default function CreateFarm() {
     name: "titleDeedPhotoList",
   });
 
-  useEffect(() => {
-    onSetParams({ max_files: MAX_TITLE_DEED_PHOTOS });
-  }, []);
-
-  useFocusEffect(
-    useCallback(() => {
-      if (photoList.length > 0) {
-        const remaining =
-          MAX_TITLE_DEED_PHOTOS - getValues("titleDeedPhotoList").length;
-        photoList.slice(0, remaining).forEach((photo) => append(photo));
-        clearPhotoList();
-      }
-    }, [photoList]),
-  );
+  useCameraPhotos({
+    maxPhotos: MAX_TITLE_DEED_PHOTOS,
+    getPhotoCount: () => getValues("titleDeedPhotoList").length,
+    onAddPhotos: append,
+  });
 
   const mutation = useAuthedMutation({
     mutationFn: (data: CreateFarmInput) => createFarm(token, data),
@@ -104,8 +95,10 @@ export default function CreateFarm() {
           )}
         />
 
-        <TitleDeedPhotosField
+        <PhotoListField
+          label="Upload photos of title deeds"
           photos={fields}
+          maxPhotos={MAX_TITLE_DEED_PHOTOS}
           errors={errors.titleDeedPhotoList}
           onRemovePhoto={remove}
         />
