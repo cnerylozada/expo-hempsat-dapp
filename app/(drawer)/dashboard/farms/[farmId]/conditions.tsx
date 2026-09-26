@@ -1,47 +1,88 @@
-import { Text } from "@/components/ui/text";
+import { useAuthedQuery } from "@/components/authedRequests";
+import { WeatherForecastCard } from "@/components/farms/WeatherForecastCard";
+import { LoadingScreen } from "@/components/LoadingScreen";
+import { SectionTitle } from "@/components/shared/SectionTitle";
+import { StatusBanner } from "@/components/shared/StatusBanner";
+import { polygonCenter } from "@/components/shared/utils";
 import { queryKeys } from "@/libs/queryKeys";
-import { IFarm } from "@/server/models";
-import { useQueryClient } from "@tanstack/react-query";
+import { useAuth } from "@/providers/AuthProvider";
+import { getMyFarmById } from "@/server/farms";
+import { fetchFiveDayForecast } from "@/server/weather-metrics";
+import { useQuery } from "@tanstack/react-query";
 import { useGlobalSearchParams } from "expo-router";
 import { View } from "react-native";
 
 export default function FarmConditions() {
-  const { id } = useGlobalSearchParams<{ id: string }>();
-  const queryClient = useQueryClient();
-  const farm = queryClient.getQueryData<IFarm>(queryKeys.farms.farmById(id));
+  const { farmId } = useGlobalSearchParams<{ farmId: string }>();
+  const { token } = useAuth();
 
-  // const {
-  //   data: forecast,
-  //   isLoading: isForecastLoading,
-  //   isError: isForecastError,
-  //   error: forecastError,
-  // } = useQuery({
-  //   queryKey: queryKeys.weather.forecast,
-  //   queryFn: () => {
-  //     if (!farm) throw new Error("Farm not found");
-  //     return fetchFiveDayForecast(
-  //       farm.location.latitude,
-  //       farm.location.longitude,
-  //     );
-  //   },
-  //   enabled: !!farm,
-  // });
+  const {
+    data: farm,
+    isLoading: isFarmLoading,
+    isError: isFarmError,
+    error: farmError,
+    refetch: refetchFarm,
+    isRefetching: isFarmRefetching,
+  } = useAuthedQuery(queryKeys.farms.farmById(farmId), () =>
+    getMyFarmById(token, farmId),
+  );
 
-  // if (isForecastLoading) {
-  //   return <LoadingScreen />;
-  // }
+  const center = farm ? polygonCenter(farm.boundaries) : null;
+
+  const {
+    data: forecast,
+    isLoading: isForecastLoading,
+    isError: isForecastError,
+    error: forecastError,
+    refetch: refetchForecast,
+    isRefetching: isForecastRefetching,
+  } = useQuery({
+    queryKey: queryKeys.weather.forecast,
+    queryFn: () => {
+      if (!center) throw new Error("Farm not found");
+      return fetchFiveDayForecast(center.latitude, center.longitude);
+    },
+    enabled: !!center,
+  });
+
+  if (
+    isFarmLoading ||
+    isFarmRefetching ||
+    isForecastLoading ||
+    isForecastRefetching
+  )
+    return <LoadingScreen />;
 
   return (
-    <View className="flex-1">
-      {/* {isForecastError && (
-        <ThemedText className="dark:text-text-danger-dark">
-          Could not load forecast: {forecastError.message}
-        </ThemedText>
+    <View className="flex-1 gap-3">
+      <SectionTitle title="5-day forecast" icon="partly-sunny-outline" />
+
+      {isFarmError && (
+        <StatusBanner
+          theme="error"
+          title="Something went wrong"
+          description={farmError.message}
+          action={{
+            icon: "refresh",
+            label: "Retry",
+            onPress: () => refetchFarm(),
+          }}
+        />
       )}
-      {!isForecastError && forecast && (
-        <WeatherForecastCard forecastList={forecast} />
-      )} */}
-      <Text>asdds</Text>
+      {isForecastError ? (
+        <StatusBanner
+          theme="error"
+          title="Could not load forecast"
+          description={forecastError.message}
+          action={{
+            icon: "refresh",
+            label: "Retry",
+            onPress: () => refetchForecast(),
+          }}
+        />
+      ) : (
+        forecast && <WeatherForecastCard forecastList={forecast} />
+      )}
     </View>
   );
 }

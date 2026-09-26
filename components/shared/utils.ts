@@ -48,6 +48,20 @@ export function polygonAreaInSquareMeters(points: LatLng[]): number {
 }
 
 /**
+ * Average of a polygon's vertices, or null with no points. Not a true
+ * centroid, but for a farm-sized polygon it lands well inside the shape — enough
+ * to pick the point a weather forecast is fetched for.
+ */
+export function polygonCenter(points: LatLng[]): LatLng | null {
+  if (points.length === 0) return null;
+
+  return {
+    latitude: points.reduce((sum, p) => sum + p.latitude, 0) / points.length,
+    longitude: points.reduce((sum, p) => sum + p.longitude, 0) / points.length,
+  };
+}
+
+/**
  * Farms are measured in hectares once they're any real size; m² only stays
  * readable for the small end.
  */
