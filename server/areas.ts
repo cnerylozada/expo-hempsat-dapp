@@ -1,5 +1,6 @@
 import { throwIfNotOk } from "@/server/http";
 import { CreateAreaInput, IFarmArea, IRawFarmArea } from "@/server/models";
+import { appendPhotos } from "@/server/utils";
 
 export const getAreasByFarmId = async (
   token: string | null,
@@ -32,19 +33,26 @@ export const addNewAreaInFarm = async (
   farmId: string,
   areaBody: CreateAreaInput,
 ) => {
+  const formData = new FormData();
+  formData.append("name", areaBody.name);
+  formData.append("description", areaBody.description);
+  formData.append("tillagePractice", areaBody.tillagePractice);
+  formData.append("currentCrop", areaBody.currentCrop);
+  formData.append(
+    "monthsUnderPractice",
+    String(areaBody.yearsUnderPractice * 12 + areaBody.monthsUnderPractice),
+  );
+  formData.append("boundaries", JSON.stringify(areaBody.boundaries));
+  formData.append("signature", areaBody.signature!);
+
+  appendPhotos(formData, "images", areaBody.photoList, "area");
+
   const response = await fetch(
     `${process.env.EXPO_PUBLIC_API_URL}/areas/${farmId}`,
     {
       method: "POST",
-      headers: {
-        Authorization: `Bearer ${token}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        ...areaBody,
-        monthsUnderPractice:
-          areaBody.yearsUnderPractice * 12 + areaBody.monthsUnderPractice,
-      }),
+      headers: { Authorization: `Bearer ${token}` },
+      body: formData,
     },
   );
 

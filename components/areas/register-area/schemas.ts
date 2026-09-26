@@ -38,7 +38,7 @@ export const cropOptions = commonCrops.map((crop) => ({
   label: CROPS[crop],
 }));
 
-const MAX_AREA_PHOTOS = 3;
+export const MAX_AREA_PHOTOS = 3;
 
 const areaPhotoSchema = photoShape.refine(
   (_) =>

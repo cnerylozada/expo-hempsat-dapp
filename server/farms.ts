@@ -1,5 +1,6 @@
 import { throwIfNotOk } from "@/server/http";
 import { CreateFarmInput, IFarm, IRawFarm } from "@/server/models";
+import { appendPhotos } from "@/server/utils";
 
 export const getMyFarmList = async (token: string | null) => {
   const response = await fetch(`${process.env.EXPO_PUBLIC_API_URL}/farms`, {
@@ -44,14 +45,7 @@ export const createFarm = async (
   formData.append("name", String(farmBody.name));
   formData.append("boundaries", JSON.stringify(farmBody.boundaries));
 
-  farmBody.titleDeedPhotoList.forEach((photo, index) => {
-    const extension = photo.uri.split(".").pop() ?? "jpg";
-    formData.append("images", {
-      uri: photo.uri,
-      name: `title-deed-${index}.${extension}`,
-      type: extension === "png" ? "image/png" : "image/jpeg",
-    } as unknown as Blob);
-  });
+  appendPhotos(formData, "images", farmBody.titleDeedPhotoList, "title-deed");
 
   const response = await fetch(`${process.env.EXPO_PUBLIC_API_URL}/farms`, {
     method: "POST",

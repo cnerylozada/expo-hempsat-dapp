@@ -1,11 +1,8 @@
-import { AppButton } from "@/components/shared/AppButton";
-import { AppRadioGroup } from "@/components/shared/AppRadioGroup";
-import { AppSelect } from "@/components/shared/AppSelect";
-import { AppTextInput } from "@/components/shared/AppTextInput";
 import { AreaBoundaryField } from "@/components/areas/register-area/AreaBoundaryField";
 import { signAreaAttestation } from "@/components/areas/register-area/attestation";
 import {
   cropOptions,
+  MAX_AREA_PHOTOS,
   registerAreaSchema,
   tillagePracticeOptions,
 } from "@/components/areas/register-area/schemas";
@@ -17,7 +14,13 @@ import { TimeUnderPracticeField } from "@/components/areas/register-area/TimeUnd
 import { useAuthedMutation, useAuthedQuery } from "@/components/authedRequests";
 import { LoadingScreen } from "@/components/LoadingScreen";
 import { ScreenLayout } from "@/components/ScreenLayout";
+import { AppButton } from "@/components/shared/AppButton";
+import { AppRadioGroup } from "@/components/shared/AppRadioGroup";
+import { AppSelect } from "@/components/shared/AppSelect";
+import { AppTextInput } from "@/components/shared/AppTextInput";
+import { PhotoListField } from "@/components/shared/PhotoListField";
 import { StatusBanner } from "@/components/shared/StatusBanner";
+import { useCameraPhotos } from "@/components/shared/useCameraPhotos";
 import { queryKeys } from "@/libs/queryKeys";
 import { useAuth } from "@/providers/AuthProvider";
 import { addNewAreaInFarm, getAreasByFarmId } from "@/server/areas";
@@ -26,7 +29,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useQueryClient } from "@tanstack/react-query";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { useState } from "react";
-import { Controller, useForm } from "react-hook-form";
+import { Controller, useFieldArray, useForm } from "react-hook-form";
 import { ScrollView } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useActiveAccount } from "thirdweb/react";
@@ -60,7 +63,18 @@ export default function RegisterAreaForm() {
   } = useForm<CreateAreaInput>({
     resolver: zodResolver(registerAreaSchema),
     mode: "all",
-    defaultValues: { name: "", description: "", boundaries: [] },
+    defaultValues: { name: "", description: "", photoList: [], boundaries: [] },
+  });
+
+  const { fields, append, remove } = useFieldArray({
+    control,
+    name: "photoList",
+  });
+
+  useCameraPhotos({
+    maxPhotos: MAX_AREA_PHOTOS,
+    getPhotoCount: () => getValues("photoList").length,
+    onAddPhotos: append,
   });
 
   const [isConfirmOpen, setIsConfirmOpen] = useState(false);
@@ -89,7 +103,6 @@ export default function RegisterAreaForm() {
       name: area.name,
       description: area.description,
     });
-    console.log("signature", signature);
     return signature;
   };
 
@@ -203,6 +216,14 @@ export default function RegisterAreaForm() {
               errorMessage={errors.currentCrop?.message}
             />
           )}
+        />
+
+        <PhotoListField
+          label="Upload photos of this area"
+          photos={fields}
+          maxPhotos={MAX_AREA_PHOTOS}
+          errors={errors.photoList}
+          onRemovePhoto={remove}
         />
 
         <Controller
