@@ -11,7 +11,6 @@ cssInterop(Ionicons, {
 });
 
 export type MapHeaderProps = {
-  /** Short label for what the map is for right now, e.g. "Draw your farm boundary". */
   title: string;
   onBack: () => void;
 };

@@ -1,5 +1,11 @@
 import { throwIfNotOk } from "@/server/http";
-import { CreateAreaInput, IFarmArea, IRawFarmArea } from "@/server/models";
+import {
+  CreateAreaInput,
+  IAreaDetail,
+  IAreaSummary,
+  IRawAreaDetail,
+  IRawAreaSummary,
+} from "@/server/models";
 import { appendPhotos } from "@/server/utils";
 
 export const getAreasByFarmId = async (
@@ -16,16 +22,47 @@ export const getAreasByFarmId = async (
 
   await throwIfNotOk(response);
 
-  const rawFarmAreaList: IRawFarmArea[] = await response.json();
-  const farmAreaList: IFarmArea[] = rawFarmAreaList.map((rawFarmArea) => ({
+  const rawFarmAreaList: IRawAreaSummary[] = await response.json();
+  const farmAreaList: IAreaSummary[] = rawFarmAreaList.map((rawFarmArea) => ({
     ...rawFarmArea,
-    created_at: new Date(rawFarmArea.created_at),
+    createdAt: new Date(rawFarmArea.created_at),
   }));
 
   return farmAreaList.sort(
     (current, nextItem) =>
-      nextItem.created_at.getTime() - current.created_at.getTime(),
+      nextItem.createdAt.getTime() - current.createdAt.getTime(),
   );
+};
+
+export const getAreaById = async (
+  token: string | null,
+  farmId: string,
+  areaId: string,
+) => {
+  const response = await fetch(
+    `${process.env.EXPO_PUBLIC_API_URL}/areas/${farmId}/${areaId}`,
+    {
+      method: "GET",
+      headers: { Authorization: `Bearer ${token}` },
+    },
+  );
+
+  await throwIfNotOk(response);
+
+  const rawAreaDetail: IRawAreaDetail = await response.json();
+  const areaDetail: IAreaDetail = {
+    id: rawAreaDetail.id,
+    name: rawAreaDetail.name,
+    description: rawAreaDetail.description,
+    boundaries: rawAreaDetail.boundaries,
+    photos: rawAreaDetail.photos,
+    tillagePractice: rawAreaDetail.tillage_practice,
+    currentCrop: rawAreaDetail.current_crop,
+    monthsUnderPractice: rawAreaDetail.months_under_practice,
+    attestationSignature: rawAreaDetail.attestation_signature,
+    createdAt: new Date(rawAreaDetail.created_at),
+  };
+  return areaDetail;
 };
 
 export const addNewAreaInFarm = async (
@@ -43,7 +80,7 @@ export const addNewAreaInFarm = async (
     String(areaBody.yearsUnderPractice * 12 + areaBody.monthsUnderPractice),
   );
   formData.append("boundaries", JSON.stringify(areaBody.boundaries));
-  formData.append("signature", areaBody.signature!);
+  formData.append("attestationSignature", areaBody.attestationSignature!);
 
   appendPhotos(formData, "images", areaBody.photoList, "area");
 

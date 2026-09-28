@@ -11,7 +11,7 @@ const titleDeedPhotoSchema = photoShape.refine(
 export const registerFarmSchema = z.object({
   name: z
     .string({ message: "Farm name is required" })
-    .min(20, "Farm name must be at least 20 characters"),
+    .min(10, "Farm name must be at least 10 characters"),
   titleDeedPhotoList: z
     .array(titleDeedPhotoSchema)
     .min(1, "At least 1 photo is required")

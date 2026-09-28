@@ -1,10 +1,10 @@
-import { AppButton } from "@/components/shared/AppButton";
 import { useAuthedQuery } from "@/components/authedRequests";
 import { IdentityCardSheet } from "@/components/identification/IdentityCardSheet";
 import { KycExplainer } from "@/components/identification/KycExplainer";
-import { InfoCard } from "@/components/shared/InfoCard";
 import { LoadingScreen } from "@/components/LoadingScreen";
 import { ScreenLayout } from "@/components/ScreenLayout";
+import { AppButton } from "@/components/shared/AppButton";
+import { InfoCard } from "@/components/shared/InfoCard";
 import { StatusBanner } from "@/components/shared/StatusBanner";
 import { BottomSheet, BottomSheetRef } from "@/components/ui/bottomsheet";
 import { queryKeys } from "@/libs/queryKeys";

@@ -77,5 +77,5 @@ export const registerAreaSchema = z.object({
     .min(3),
   // No input of its own: filled in by signAndSave right before the mutation,
   // so it is always absent while the user is editing the form.
-  signature: z.string().optional(),
+  attestationSignature: z.string().optional(),
 });

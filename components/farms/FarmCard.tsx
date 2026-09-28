@@ -22,7 +22,7 @@ export const FarmCard = ({
   farmItem: IFarm;
   onPress?: () => void;
 }) => {
-  const { name, country, address, parcel_id } = farmItem;
+  const { name, country, address, parcelId } = farmItem;
   return (
     <Pressable
       onPress={onPress}
@@ -37,7 +37,7 @@ export const FarmCard = ({
       <Box className="flex-row items-center gap-4 p-4">
         <Box className="flex-1 gap-1.5">
           <FieldRow label="Name" value={name} emphasis truncate />
-          <FieldRow label="Parcel ID" value={parcel_id} emphasis />
+          <FieldRow label="Parcel ID" value={parcelId} emphasis />
           <FieldRow label="Address" value={address} truncate />
           <FieldRow label="Country" value={country} />
         </Box>

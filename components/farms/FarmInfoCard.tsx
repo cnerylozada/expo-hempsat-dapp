@@ -18,6 +18,6 @@ export const FarmInfoCard = ({ farm }: FarmInfoCardProps) => (
     <FieldRow label="Name" value={farm.name} emphasis />
     <FieldRow label="Country" value={farm.country} />
     <FieldRow label="Address" value={farm.address} truncate />
-    <FieldRow label="Registered" value={formatDate(farm.created_at)} />
+    <FieldRow label="Registered" value={formatDate(farm.createdAt)} />
   </Box>
 );

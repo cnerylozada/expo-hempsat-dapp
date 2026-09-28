@@ -9,11 +9,11 @@ import {
 import { Box } from "@/components/ui/box";
 import { Text } from "@/components/ui/text";
 import { useState } from "react";
-import { Modal } from "react-native";
+import { Modal, View } from "react-native";
 import { LatLng } from "react-native-maps";
 
 export type FarmBoundaryFieldProps = {
-  value: LatLng[];
+  boundaries: LatLng[];
   onChange: (boundaries: LatLng[]) => void;
   errorMessage?: string;
 };
@@ -26,13 +26,11 @@ const TIPS = [
 ];
 
 export function FarmBoundaryField({
-  value,
+  boundaries,
   onChange,
   errorMessage,
 }: FarmBoundaryFieldProps) {
   const [isDrawing, setIsDrawing] = useState(false);
-
-  const hasBoundary = value.length >= 3;
 
   return (
     <Box className="gap-3">
@@ -42,23 +40,27 @@ export function FarmBoundaryField({
         items={TIPS}
       />
 
-      {hasBoundary && (
+      {boundaries.length >= 3 && (
         <StatusBanner
           theme="success"
           title="Boundary set"
-          description={`Number of points: ${value.length}, Area: ${formatArea(polygonAreaInSquareMeters(value))}`}
+          description={`Number of points: ${boundaries.length}, Area: ${formatArea(polygonAreaInSquareMeters(boundaries))}`}
         />
       )}
 
-      <AppButton
-        text={"Draw farm boundary"}
-        icon="map-outline"
-        onPress={() => setIsDrawing(true)}
-      />
+      <View className="gap-1">
+        <AppButton
+          text={"Draw farm boundary"}
+          icon="map-outline"
+          onPress={() => setIsDrawing(true)}
+        />
 
-      {errorMessage && (
-        <Text className="text-sm text-destructive">{errorMessage}</Text>
-      )}
+        {errorMessage && (
+          <Text className="text-xs font-body text-destructive">
+            {errorMessage}
+          </Text>
+        )}
+      </View>
 
       <Modal
         visible={isDrawing}
@@ -67,7 +69,7 @@ export function FarmBoundaryField({
       >
         <BoundaryDrawingMap
           title="Draw your farm boundary"
-          initialVertices={value}
+          defaultVertices={boundaries}
           onExit={() => setIsDrawing(false)}
           onDone={(boundaries) => {
             onChange(boundaries);

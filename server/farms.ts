@@ -13,12 +13,13 @@ export const getMyFarmList = async (token: string | null) => {
   const rawFarmList: IRawFarm[] = await response.json();
   const farmList: IFarm[] = rawFarmList.map((farm) => ({
     ...farm,
-    created_at: new Date(farm.created_at),
+    createdAt: new Date(farm.created_at),
+    parcelId: farm.parcel_id,
   }));
 
   return farmList.sort(
     (current, nextItem) =>
-      nextItem.created_at.getTime() - current.created_at.getTime(),
+      nextItem.createdAt.getTime() - current.createdAt.getTime(),
   );
 };
 
@@ -34,7 +35,12 @@ export const getMyFarmById = async (token: string | null, id: string) => {
   await throwIfNotOk(response);
 
   const rawFarm: IRawFarm = await response.json();
-  return { ...rawFarm, created_at: new Date(rawFarm.created_at) };
+  const farm: IFarm = {
+    ...rawFarm,
+    createdAt: new Date(rawFarm.created_at),
+    parcelId: rawFarm.parcel_id,
+  };
+  return farm;
 };
 
 export const createFarm = async (

@@ -18,12 +18,11 @@ import MapView, {
   LatLng,
   Marker,
   Polygon,
-  Polyline,
   PROVIDER_GOOGLE,
 } from "react-native-maps";
 
 export type BoundaryDrawingMapProps = {
-  initialVertices?: LatLng[];
+  defaultVertices?: LatLng[];
   onExit: () => void;
   onDone: (vertices: LatLng[]) => void;
   title: string;
@@ -43,21 +42,24 @@ const FARM_SCOPE_COLOR = "#6b7280";
 const DEFAULT_AREA_COLOR = "#f59e0b";
 
 export const BoundaryDrawingMap = ({
-  initialVertices = [],
+  defaultVertices = [],
   onExit,
   onDone,
   title,
   farmScope = [],
   defaultAreas = [],
 }: BoundaryDrawingMapProps) => {
-  const [vertices, setVertices] = useState<LatLng[]>(initialVertices);
+  const [vertices, setVertices] = useState<LatLng[]>(defaultVertices);
   const [pendingPoint, setPendingPoint] = useState<LatLng | null>(null);
   const [canShowUserLocation, setCanShowUserLocation] = useState(false);
   const [mapTypeIndex, setMapTypeIndex] = useState(0);
 
   const mapRef = useRef<MapView>(null);
   const mapType = MAP_TYPES[mapTypeIndex];
-  const area = useMemo(() => polygonAreaInSquareMeters(vertices), [vertices]);
+  const areaInSquareMeters = useMemo(
+    () => polygonAreaInSquareMeters(vertices),
+    [vertices],
+  );
 
   const cycleMapType = () =>
     setMapTypeIndex((index) => (index + 1) % MAP_TYPES.length);
@@ -128,15 +130,6 @@ export const BoundaryDrawingMap = ({
     setPendingPoint(null);
   };
 
-  const handleReset = () => {
-    setVertices([]);
-    setPendingPoint(null);
-  };
-
-  const handleDone = () => {
-    onDone(vertices);
-  };
-
   return (
     <View className="flex-1">
       <MapView
@@ -165,6 +158,7 @@ export const BoundaryDrawingMap = ({
             strokeWidth={1}
           />
         ))}
+
         {vertices.map((vertex, index) => (
           <Marker
             key={index}
@@ -172,7 +166,6 @@ export const BoundaryDrawingMap = ({
             title={`Point ${index + 1}`}
           />
         ))}
-
         {pendingPoint && (
           <Marker
             coordinate={pendingPoint}
@@ -180,16 +173,7 @@ export const BoundaryDrawingMap = ({
             title="Unconfirmed"
           />
         )}
-
-        {vertices.length === 2 && (
-          <Polyline
-            coordinates={vertices}
-            strokeColor={BOUNDARY_COLOR}
-            strokeWidth={2}
-          />
-        )}
-
-        {vertices.length >= 3 && (
+        {vertices.length >= 2 && (
           <Polygon
             coordinates={vertices}
             strokeColor={BOUNDARY_COLOR}
@@ -205,12 +189,17 @@ export const BoundaryDrawingMap = ({
         mapType={mapType}
         onCycleMapType={cycleMapType}
         pointCount={vertices.length}
-        area={area}
+        areaInSquareMeters={areaInSquareMeters}
         canConfirm={!!pendingPoint}
         canFinish={vertices.length >= 3}
         onConfirm={handleConfirm}
-        onReset={handleReset}
-        onDone={handleDone}
+        onReset={() => {
+          setVertices([]);
+          setPendingPoint(null);
+        }}
+        onDone={() => {
+          onDone(vertices);
+        }}
       />
     </View>
   );

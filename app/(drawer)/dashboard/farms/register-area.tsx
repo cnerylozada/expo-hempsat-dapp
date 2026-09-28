@@ -57,7 +57,6 @@ export default function RegisterAreaForm() {
     control,
     handleSubmit,
     getValues,
-    setValue,
     formState: { errors },
     reset,
   } = useForm<CreateAreaInput>({
@@ -93,17 +92,19 @@ export default function RegisterAreaForm() {
       // `[farmId]` is already on the stack (this screen was pushed from it) —
       // dismissTo pops back to that existing entry instead of `replace`,
       // which would push a second copy on top of it.
-      router.dismissTo(`/(drawer)/dashboard/farms/${farmId}`);
+      router.dismissTo({
+        pathname: "/(drawer)/dashboard/farms/[farmId]/(tabs)",
+        params: { farmId },
+      });
     },
   });
 
   const signArea = async (area: CreateAreaInput) => {
     if (!account) throw new Error("Connect your wallet to sign this area.");
-    const signature = await signAreaAttestation(account, {
+    return signAreaAttestation(account, {
       name: area.name,
       description: area.description,
     });
-    return signature;
   };
 
   const clearErrors = () => {
@@ -114,9 +115,9 @@ export default function RegisterAreaForm() {
   const signAndSave = async (area: CreateAreaInput) => {
     clearErrors();
     setStep("signing");
-    let signature: string;
+    let attestationSignature: string;
     try {
-      signature = await signArea(area);
+      attestationSignature = await signArea(area);
     } catch (error) {
       setSignError(
         error instanceof Error
@@ -128,7 +129,10 @@ export default function RegisterAreaForm() {
     }
 
     setStep("saving");
-    mutation.mutate({ ...area, signature }, { onError: () => setStep("idle") });
+    mutation.mutate(
+      { ...area, attestationSignature },
+      { onError: () => setStep("idle") },
+    );
   };
 
   if (isLoading || isRefetching) return <LoadingScreen />;
@@ -248,14 +252,18 @@ export default function RegisterAreaForm() {
         />
 
         {!isError && existingAreaList && (
-          <AreaBoundaryField
-            value={getValues("boundaries")}
-            onChange={(boundaries) =>
-              setValue("boundaries", boundaries, { shouldValidate: true })
-            }
-            errorMessage={errors.boundaries?.message}
-            farmId={farmId}
-            existingAreaList={existingAreaList}
+          <Controller
+            control={control}
+            name="boundaries"
+            render={({ field: { value, onChange } }) => (
+              <AreaBoundaryField
+                boundaries={value}
+                onChange={onChange}
+                errorMessage={errors.boundaries?.message}
+                farmId={farmId}
+                existingAreaList={existingAreaList}
+              />
+            )}
           />
         )}
 

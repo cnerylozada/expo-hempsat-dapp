@@ -31,7 +31,7 @@ export type BoundaryDrawingPanelProps = {
   onCycleMapType: () => void;
   pointCount: number;
   /** Raw m² — formatted here so the caller only ever deals in numbers. */
-  area: number;
+  areaInSquareMeters: number;
   canConfirm: boolean;
   /** A polygon needs at least 3 points to enclose any area. */
   canFinish: boolean;
@@ -62,7 +62,7 @@ export const BoundaryDrawingPanel = ({
   mapType,
   onCycleMapType,
   pointCount,
-  area,
+  areaInSquareMeters,
   canConfirm,
   canFinish,
   onConfirm,
@@ -101,7 +101,7 @@ export const BoundaryDrawingPanel = ({
             label="Area"
             // Below 3 points there is no area yet — "0 m²" would read as a
             // measurement rather than "not enough points".
-            value={pointCount > 2 ? formatArea(area) : "—"}
+            value={pointCount > 2 ? formatArea(areaInSquareMeters) : "—"}
           />
         </Box>
 

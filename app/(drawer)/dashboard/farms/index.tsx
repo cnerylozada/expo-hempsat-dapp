@@ -1,8 +1,8 @@
-import { AppButton } from "@/components/shared/AppButton";
 import { useAuthedQuery } from "@/components/authedRequests";
 import { FarmCard } from "@/components/farms/FarmCard";
 import { LoadingScreen } from "@/components/LoadingScreen";
 import { ScreenLayout } from "@/components/ScreenLayout";
+import { AppButton } from "@/components/shared/AppButton";
 import { StatusBanner } from "@/components/shared/StatusBanner";
 import { queryKeys } from "@/libs/queryKeys";
 import { useAuth } from "@/providers/AuthProvider";
@@ -58,7 +58,10 @@ export default function FarmsScreen() {
                 <Link
                   key={item.id}
                   asChild
-                  href={`/(drawer)/dashboard/farms/${item.id}`}
+                  href={{
+                    pathname: "/(drawer)/dashboard/farms/[farmId]/(tabs)",
+                    params: { farmId: item.id },
+                  }}
                 >
                   <FarmCard farmItem={item} />
                 </Link>

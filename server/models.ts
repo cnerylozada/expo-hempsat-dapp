@@ -12,22 +12,22 @@ export interface IUser {
   avatar_url: string | null;
 }
 
+export type CreateFarmInput = z.infer<typeof registerFarmSchema>;
+
 export interface IRawFarm {
   name: string;
   country: string;
   id: string;
-  user_id: string;
   parcel_id: string;
   address: string;
   boundaries: LatLng[];
   created_at: string;
 }
 
-export interface IFarm extends Omit<IRawFarm, "created_at"> {
-  created_at: Date;
+export interface IFarm extends Omit<IRawFarm, "created_at" | "parcel_id"> {
+  createdAt: Date;
+  parcelId: string;
 }
-
-export type CreateFarmInput = z.infer<typeof registerFarmSchema>;
 
 export interface IForecast {
   date: Date;
@@ -37,17 +37,41 @@ export interface IForecast {
   humidity: number;
 }
 
-export interface IRawFarmArea {
+export interface IRawAreaSummary {
   id: string;
   name: string;
   description: string;
-  farm_id: string;
   boundaries: LatLng[];
   created_at: string;
 }
 
-export interface IFarmArea extends Omit<IRawFarmArea, "created_at"> {
-  created_at: Date;
+export interface IAreaSummary extends Omit<IRawAreaSummary, "created_at"> {
+  createdAt: Date;
 }
 
 export type CreateAreaInput = z.infer<typeof registerAreaSchema>;
+
+export interface IRawAreaDetail extends Pick<
+  CreateAreaInput,
+  "name" | "description" | "boundaries"
+> {
+  id: string;
+  created_at: string;
+  tillage_practice: CreateAreaInput["tillagePractice"];
+  current_crop: CreateAreaInput["currentCrop"];
+  months_under_practice: number;
+  attestation_signature: string;
+  photos: string[];
+}
+
+export interface IAreaDetail
+  extends
+    Pick<CreateAreaInput, "name" | "description" | "boundaries">,
+    Pick<IRawAreaDetail, "photos"> {
+  id: string;
+  createdAt: Date;
+  tillagePractice: CreateAreaInput["tillagePractice"];
+  currentCrop: CreateAreaInput["currentCrop"];
+  monthsUnderPractice: number;
+  attestationSignature: string;
+}

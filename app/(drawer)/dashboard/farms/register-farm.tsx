@@ -33,9 +33,9 @@ export default function CreateFarm() {
   const {
     control,
     handleSubmit,
+    formState: { errors },
     getValues,
     setValue,
-    formState: { errors },
     reset,
   } = useForm<CreateFarmInput>({
     resolver: zodResolver(registerFarmSchema),
@@ -111,12 +111,16 @@ export default function CreateFarm() {
           errorMessage={errors.location?.message}
         />
 
-        <FarmBoundaryField
-          value={getValues("boundaries")}
-          onChange={(boundaries) =>
-            setValue("boundaries", boundaries, { shouldValidate: true })
-          }
-          errorMessage={errors.boundaries?.message}
+        <Controller
+          control={control}
+          name="boundaries"
+          render={({ field: { value, onChange } }) => (
+            <FarmBoundaryField
+              boundaries={value}
+              onChange={onChange}
+              errorMessage={errors.boundaries?.message}
+            />
+          )}
         />
 
         {mutation.isError && (

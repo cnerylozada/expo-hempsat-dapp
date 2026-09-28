@@ -12,17 +12,17 @@ import { Text } from "@/components/ui/text";
 import { queryKeys } from "@/libs/queryKeys";
 import { useAuth } from "@/providers/AuthProvider";
 import { getMyFarmById } from "@/server/farms";
-import { IFarmArea } from "@/server/models";
+import { IAreaSummary } from "@/server/models";
 import { useState } from "react";
-import { Modal } from "react-native";
+import { Modal, View } from "react-native";
 import { LatLng } from "react-native-maps";
 
 export type AreaBoundaryFieldProps = {
-  value: LatLng[];
+  boundaries: LatLng[];
   onChange: (boundaries: LatLng[]) => void;
   errorMessage?: string;
   farmId: string;
-  existingAreaList: IFarmArea[];
+  existingAreaList: IAreaSummary[];
 };
 
 const TIPS = [
@@ -34,7 +34,7 @@ const TIPS = [
 ];
 
 export function AreaBoundaryField({
-  value,
+  boundaries,
   onChange,
   errorMessage,
   farmId,
@@ -48,7 +48,7 @@ export function AreaBoundaryField({
 
   const [isDrawing, setIsDrawing] = useState(false);
 
-  const hasBoundary = value.length >= 3;
+  const hasBoundary = boundaries.length >= 3;
 
   return (
     <Box className="gap-3">
@@ -62,19 +62,23 @@ export function AreaBoundaryField({
         <StatusBanner
           theme="success"
           title="Boundary set"
-          description={`Number of points: ${value.length}, Area: ${formatArea(polygonAreaInSquareMeters(value))}`}
+          description={`Number of points: ${boundaries.length}, Area: ${formatArea(polygonAreaInSquareMeters(boundaries))}`}
         />
       )}
 
-      <AppButton
-        text={"Draw area boundary"}
-        icon="map-outline"
-        onPress={() => setIsDrawing(true)}
-      />
+      <View className="gap-1">
+        <AppButton
+          text={"Draw area boundary"}
+          icon="map-outline"
+          onPress={() => setIsDrawing(true)}
+        />
 
-      {errorMessage && (
-        <Text className="text-sm text-destructive">{errorMessage}</Text>
-      )}
+        {errorMessage && (
+          <Text className="text-xs font-body text-destructive">
+            {errorMessage}
+          </Text>
+        )}
+      </View>
 
       <Modal
         visible={isDrawing}
@@ -85,10 +89,10 @@ export function AreaBoundaryField({
           title="Draw your area boundary"
           farmScope={farm?.boundaries}
           defaultAreas={existingAreaList.map((area) => area.boundaries)}
-          initialVertices={value}
+          defaultVertices={boundaries}
           onExit={() => setIsDrawing(false)}
-          onDone={(boundaries) => {
-            onChange(boundaries);
+          onDone={(vertices) => {
+            onChange(vertices);
             setIsDrawing(false);
           }}
         />

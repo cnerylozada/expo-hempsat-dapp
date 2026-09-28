@@ -1,14 +1,14 @@
 import { AppButton } from "@/components/shared/AppButton";
 import { MapHeader } from "@/components/shared/MapHeader";
 import { BOUNDARY_COLOR } from "@/components/shared/utils";
-import { IFarmArea } from "@/server/models";
+import { IAreaSummary } from "@/server/models";
 import { useRef, useState } from "react";
 import { Modal, View } from "react-native";
 import MapView, { LatLng, Polygon, PROVIDER_GOOGLE } from "react-native-maps";
 
 export type FarmBoundaryViewerProps = {
   boundaries: LatLng[];
-  areaList?: IFarmArea[];
+  areaList?: IAreaSummary[];
 };
 
 const EDGE_PADDING = { top: 80, right: 40, bottom: 40, left: 40 };
