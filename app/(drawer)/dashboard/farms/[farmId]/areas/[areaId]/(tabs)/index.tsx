@@ -6,6 +6,7 @@ import { useAuthedQuery } from "@/components/authedRequests";
 import { formatDate } from "@/components/farms/utils";
 import { LoadingScreen } from "@/components/LoadingScreen";
 import { FieldRow } from "@/components/shared/FieldRow";
+import { PhotoGallery } from "@/components/shared/PhotoGallery";
 import { SectionTitle } from "@/components/shared/SectionTitle";
 import { StatusBanner } from "@/components/shared/StatusBanner";
 import { Box } from "@/components/ui/box";
@@ -13,7 +14,7 @@ import { queryKeys } from "@/libs/queryKeys";
 import { useAuth } from "@/providers/AuthProvider";
 import { getAreaById } from "@/server/areas";
 import { useGlobalSearchParams } from "expo-router";
-import { Image, ScrollView } from "react-native";
+import { ScrollView } from "react-native";
 
 const plural = (count: number, unit: string) =>
   `${count} ${unit}${count === 1 ? "" : "s"}`;
@@ -45,7 +46,6 @@ export default function AreaDetail() {
   } = useAuthedQuery(queryKeys.areas.byId(farmId, areaId), () =>
     getAreaById(token, farmId, areaId),
   );
-  console.log("area", area?.photos[0]);
 
   if (isLoading || isRefetching) return <LoadingScreen />;
 
@@ -85,13 +85,7 @@ export default function AreaDetail() {
             {area.photos.length > 0 && (
               <>
                 <SectionTitle title="Photos" icon="images-outline" />
-                {area.photos.map((uri) => (
-                  <Image
-                    key={uri}
-                    source={{ uri }}
-                    className="h-44 w-full rounded-lg"
-                  />
-                ))}
+                <PhotoGallery uris={area.photos} />
               </>
             )}
           </>
