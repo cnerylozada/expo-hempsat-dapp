@@ -13,7 +13,7 @@ export default function AreaLayout() {
       <Tabs.Screen
         name="index"
         options={{
-          title: "Area",
+          title: "My Area",
           tabBarIcon: ({ color }) => (
             <Ionicons size={28} name="leaf-outline" color={color} />
           ),

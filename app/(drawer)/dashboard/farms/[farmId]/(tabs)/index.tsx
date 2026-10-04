@@ -13,13 +13,11 @@ import { getMyFarmById } from "@/server/farms";
 import { Link, useGlobalSearchParams, useNavigation } from "expo-router";
 import { useEffect } from "react";
 import { FlatList, View } from "react-native";
-import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 export default function MyFarm() {
   const { farmId } = useGlobalSearchParams<{ farmId: string }>();
   const { token } = useAuth();
   const navigation = useNavigation("/(drawer)/dashboard/farms");
-  const { bottom } = useSafeAreaInsets();
 
   const {
     data: farm,

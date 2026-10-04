@@ -13,7 +13,8 @@ import { Box } from "@/components/ui/box";
 import { queryKeys } from "@/libs/queryKeys";
 import { useAuth } from "@/providers/AuthProvider";
 import { getAreaById } from "@/server/areas";
-import { useGlobalSearchParams } from "expo-router";
+import { useGlobalSearchParams, useNavigation } from "expo-router";
+import { useEffect } from "react";
 import { ScrollView } from "react-native";
 
 const plural = (count: number, unit: string) =>
@@ -35,6 +36,9 @@ export default function AreaDetail() {
     areaId: string;
   }>();
   const { token } = useAuth();
+  const navigation = useNavigation(
+    "/(drawer)/dashboard/farms/[farmId]/areas/[areaId]",
+  );
 
   const {
     data: area,
@@ -47,11 +51,17 @@ export default function AreaDetail() {
     getAreaById(token, farmId, areaId),
   );
 
+  useEffect(() => {
+    if (area?.name) {
+      navigation.setOptions({ title: area.name });
+    }
+  }, [area?.name, navigation]);
+
   if (isLoading || isRefetching) return <LoadingScreen />;
 
   return (
     <ScrollView className="flex-1" contentContainerClassName="gap-3">
-      <SectionTitle title="Area" icon="leaf-outline" />
+      <SectionTitle title="Details" icon="leaf-outline" />
 
       {isError ? (
         <StatusBanner

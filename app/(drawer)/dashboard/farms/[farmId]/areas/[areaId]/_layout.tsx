@@ -8,7 +8,7 @@ export default function AreaLayout() {
         headerLeft: (props) => <StackHeaderLeft {...props} />,
       }}
     >
-      <Stack.Screen name="(tabs)" options={{ title: "Area" }} />
+      <Stack.Screen name="(tabs)" />
       <Stack.Screen
         name="practices"
         // The nested practices Stack draws its own header.
