@@ -9,14 +9,15 @@ export default function FarmsLayout() {
       }}
     >
       <Stack.Screen name="index" options={{ title: "My farms" }} />
-      <Stack.Screen name="[farmId]" />
       <Stack.Screen
         name="register-farm"
         options={{ title: "Register your farm" }}
       />
+      <Stack.Screen name="[farmId]/(tabs)" />
       <Stack.Screen
-        name="register-area"
-        options={{ title: "Register your area" }}
+        name="[farmId]/areas"
+        // The nested areas Stack draws its own header.
+        options={{ headerShown: false }}
       />
     </Stack>
   );
