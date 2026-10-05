@@ -3,6 +3,7 @@ import { Pressable } from "@/components/ui/pressable";
 import { Text } from "@/components/ui/text";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import { cssInterop } from "nativewind";
+import { PracticeLabel } from "./PracticeLabel";
 import { PracticeInfo } from "./utils";
 
 cssInterop(Ionicons, {
@@ -47,15 +48,7 @@ export const PracticeOption = ({
     </Pressable>
 
     <Box className="flex-1 gap-1">
-      <Box className="flex-row items-center gap-2">
-        <Box
-          className="h-3 w-3 rounded"
-          style={{ backgroundColor: practice.color }}
-        />
-        <Text bold size="lg" className="flex-1 text-foreground">
-          {practice.name}
-        </Text>
-      </Box>
+      <PracticeLabel practice={practice} size="lg" />
       <Text size="sm" className="text-muted-foreground">
         {practice.summary}
       </Text>
