@@ -8,7 +8,10 @@ export default function AreasLayout() {
         headerLeft: (props) => <StackHeaderLeft {...props} />,
       }}
     >
-      <Stack.Screen name="new" options={{ title: "Register your area" }} />
+      <Stack.Screen
+        name="register-area"
+        options={{ title: "Register your area" }}
+      />
       <Stack.Screen
         name="[areaId]"
         // The nested area Stack draws its own header.

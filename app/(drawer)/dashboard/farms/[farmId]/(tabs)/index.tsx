@@ -102,7 +102,8 @@ export default function MyFarm() {
         <View className="mt-3 mb-6">
           <Link
             href={{
-              pathname: "/(drawer)/dashboard/farms/[farmId]/areas/new",
+              pathname:
+                "/(drawer)/dashboard/farms/[farmId]/areas/register-area",
               params: { farmId },
             }}
             asChild

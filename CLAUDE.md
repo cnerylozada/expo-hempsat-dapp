@@ -56,16 +56,16 @@ Farms nest by level, and **each level has its own `_layout.tsx` that lists only 
 ```
 farms/                         Stack: index, register-farm, [farmId]/(tabs), [farmId]/areas
   [farmId]/(tabs)/             Tabs: index (farm), conditions
-  [farmId]/areas/              Stack: new, [areaId]
-    new.tsx                    register an area
+  [farmId]/areas/              Stack: register-area, [areaId]
+    register-area.tsx          register an area (named like register-farm)
     [areaId]/                  Stack: (tabs), practices
       (tabs)/                  Tabs: index (area), practices (list)
-      practices/               Stack: new (more steps to come)
+      practices/               Stack: register-practice (more steps to come)
 ```
 
-- A folder next to a `Tabs` layout becomes a tab, so a screen that must not be a tab goes in a sibling Stack (e.g. `areas/new.tsx`), not in the `(tabs)` group.
+- A folder next to a `Tabs` layout becomes a tab, so a screen that must not be a tab goes in a sibling Stack (e.g. `areas/register-area.tsx`), not in the `(tabs)` group.
 - A nested layout is registered in its parent with `headerShown: false` (e.g. `[farmId]/areas`, `practices`), otherwise the header is drawn twice.
-- Fixed names (`new`) win over dynamic segments (`[areaId]`).
+- Fixed names (`register-area`, `register-practice`) win over dynamic segments (`[areaId]`).
 - `router.dismissTo` needs the form to be on top of a Stack (the register-area form dismisses to `[farmId]/(tabs)`).
 - Typed routes (`experiments.typedRoutes`) regenerate only when Metro starts. A new route shows as a `tsc` error until `npx expo start` has run once.
 - A screen sets its header title at runtime through the navigator that owns it: `useNavigation("/(drawer)/dashboard/farms/[farmId]/areas/[areaId]").setOptions({ title })` (see the area detail screen).

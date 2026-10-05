@@ -8,7 +8,10 @@ export default function PracticesLayout() {
         headerLeft: (props) => <StackHeaderLeft {...props} />,
       }}
     >
-      <Stack.Screen name="new" options={{ title: "Start a new practice" }} />
+      <Stack.Screen
+        name="register-practice"
+        options={{ title: "Start a new practice" }}
+      />
     </Stack>
   );
 }
