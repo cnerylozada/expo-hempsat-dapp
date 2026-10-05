@@ -14,15 +14,9 @@ export type PracticeOptionProps = {
   practice: PracticeInfo;
   selected: boolean;
   onSelect: () => void;
-  /** Opens the screen's `PracticeInfoSheet` for this practice. */
   onInfoPress: () => void;
 };
 
-/**
- * One choice in the "which practice?" list: a card with a radio, the practice's
- * name and summary, and an info button. Only the radio selects; the rest of the
- * card does nothing when tapped.
- */
 export const PracticeOption = ({
   practice,
   selected,
@@ -48,7 +42,7 @@ export const PracticeOption = ({
     </Pressable>
 
     <Box className="flex-1 gap-1">
-      <PracticeLabel practice={practice} size="lg" />
+      <PracticeLabel name={practice.name} color={practice.color} size="lg" />
       <Text size="sm" className="text-muted-foreground">
         {practice.summary}
       </Text>

@@ -1,43 +1,51 @@
+import { TILLAGE_PRACTICES } from "@/components/shared/models";
+import { formatDate } from "@/components/farms/utils";
 import { AppButton } from "@/components/shared/AppButton";
 import { Box } from "@/components/ui/box";
 import { Pressable } from "@/components/ui/pressable";
 import { Text } from "@/components/ui/text";
+import { CROPS, IPracticeSummary } from "@/server/models";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import { cssInterop } from "nativewind";
 import { PracticeLabel } from "./PracticeLabel";
-import { PracticeInfo } from "./utils";
+import { PRACTICES } from "./utils";
 
 cssInterop(Ionicons, {
   className: { target: "style", nativeStyleToProp: { color: true } },
 });
 
 export type PracticeCardProps = {
-  practice: PracticeInfo;
-  status: "active" | "finished";
-  crop: string; // already formatted, e.g. "Maize"
-  period: string; // e.g. "Sep 15, 2026 – today"
-  tillage: string; // e.g. "Plowed"
+  practiceSummary: IPracticeSummary;
   onPress: () => void;
 };
 
-/**
- * One practice in an area's list. The active one stands out and has a
- * "See details" button; a finished one is a plain card you can tap.
- */
+// "2026-09-15" as a local date. new Date("2026-09-15") is midnight UTC, which
+// shows as the previous day west of Greenwich.
+const parseDay = (day: string) => {
+  const [year, month, date] = day.split("-").map(Number);
+  return new Date(year, month - 1, date);
+};
+
 export const PracticeCard = ({
-  practice,
-  status,
-  crop,
-  period,
-  tillage,
+  practiceSummary,
   onPress,
 }: PracticeCardProps) => {
-  const isActive = status === "active";
+  const { type, started_at, finished_at, tillage_practice } = practiceSummary;
+  const practice = PRACTICES.find((p) => p.id === type);
+  // A type the app doesn't know yet has nothing to draw.
+  if (!practice) return null;
+
+  const crop = CROPS[practiceSummary.crop];
+  const period = `${formatDate(parseDay(started_at))} – ${
+    finished_at ? formatDate(parseDay(finished_at)) : "today"
+  }`;
+  const tillage = TILLAGE_PRACTICES[tillage_practice].label;
+  const isActive = finished_at === null;
 
   const content = (
     <>
       <Box className="flex-row items-center justify-between">
-        <PracticeLabel practice={practice} />
+        <PracticeLabel name={practice.name} color={practice.color} />
 
         {isActive && (
           <Box className="flex-row items-center gap-1.5 rounded-full bg-primary/10 px-3 py-1">
@@ -79,7 +87,6 @@ export const PracticeCard = ({
       className="flex-row items-center gap-3 rounded-2xl border border-border bg-card p-4 active:opacity-70"
     >
       <Box className="flex-1 gap-3">{content}</Box>
-      {/* Centred on the right, like InfoCard's chevron. */}
       <Ionicons
         name="chevron-forward"
         size={18}

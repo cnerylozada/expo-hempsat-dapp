@@ -1,7 +1,7 @@
-export type PracticeId = "mulching" | "organic_amendments" | "cover_crops";
+import type { PracticeType } from "@/server/models";
 
 export type PracticeInfo = {
-  id: PracticeId;
+  id: PracticeType;
   name: string;
   /** One line shown on the option card. */
   summary: string;

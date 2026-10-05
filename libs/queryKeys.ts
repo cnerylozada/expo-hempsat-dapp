@@ -8,6 +8,9 @@ export const queryKeys = {
     byId: (farmId: string, areaId: string) =>
       ["areas", farmId, areaId] as const,
   },
+  practices: {
+    byAreaId: (areaId: string) => ["practices", areaId] as const,
+  },
   users: {
     myUser: ["users", "me"] as const,
   },

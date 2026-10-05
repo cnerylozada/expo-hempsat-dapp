@@ -3,9 +3,9 @@ import { signAreaAttestation } from "@/components/areas/register-area/attestatio
 import {
   cropOptions,
   MAX_AREA_PHOTOS,
-  registerAreaSchema,
   tillagePracticeOptions,
-} from "@/components/areas/register-area/schemas";
+} from "@/components/areas/register-area/models";
+import { registerAreaSchema } from "@/components/areas/register-area/schemas";
 import {
   SignAndSaveAreaModal,
   SignAndSaveStep,
@@ -18,9 +18,9 @@ import { AppButton } from "@/components/shared/AppButton";
 import { AppRadioGroup } from "@/components/shared/AppRadioGroup";
 import { AppSelect } from "@/components/shared/AppSelect";
 import { AppTextInput } from "@/components/shared/AppTextInput";
+import { useCameraPhotos } from "@/components/shared/hooks";
 import { PhotoListField } from "@/components/shared/PhotoListField";
 import { StatusBanner } from "@/components/shared/StatusBanner";
-import { useCameraPhotos } from "@/components/shared/useCameraPhotos";
 import { queryKeys } from "@/libs/queryKeys";
 import { useAuth } from "@/providers/AuthProvider";
 import { addNewAreaInFarm, getAreasByFarmId } from "@/server/areas";

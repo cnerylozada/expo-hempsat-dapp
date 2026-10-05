@@ -38,7 +38,7 @@ export const PracticeInfoSheet = ({
     {practice && (
       <BottomSheetContent className="gap-4 pb-6">
         <Box className="flex-row items-center justify-between">
-          <PracticeLabel practice={practice} />
+          <PracticeLabel name={practice.name} color={practice.color} />
           <Pressable onPress={onClose} hitSlop={8}>
             <Ionicons
               name="close"

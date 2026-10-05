@@ -1,11 +1,8 @@
-import {
-  CROPS,
-  TILLAGE_PRACTICES,
-} from "@/components/areas/register-area/schemas";
 import { useAuthedQuery } from "@/components/authedRequests";
 import { formatDate } from "@/components/farms/utils";
 import { LoadingScreen } from "@/components/LoadingScreen";
 import { FieldRow } from "@/components/shared/FieldRow";
+import { TILLAGE_PRACTICES } from "@/components/shared/models";
 import { PhotoGallery } from "@/components/shared/PhotoGallery";
 import { SectionTitle } from "@/components/shared/SectionTitle";
 import { StatusBanner } from "@/components/shared/StatusBanner";
@@ -13,6 +10,7 @@ import { Box } from "@/components/ui/box";
 import { queryKeys } from "@/libs/queryKeys";
 import { useAuth } from "@/providers/AuthProvider";
 import { getAreaById } from "@/server/areas";
+import { CROPS } from "@/server/models";
 import { useGlobalSearchParams, useNavigation } from "expo-router";
 import { useEffect } from "react";
 import { ScrollView } from "react-native";

@@ -37,6 +37,23 @@ export interface IForecast {
   humidity: number;
 }
 
+export type PracticeType = "mulching" | "organic_amendments" | "cover_crops";
+
+export type TillagePractice =
+  "conventional" | "reduced" | "no_till" | "native_fallow";
+
+export const CROPS = {
+  hemp: "Hemp",
+  maize: "Maize",
+  beans: "Beans",
+  potato: "Potato",
+  quinoa: "Quinoa",
+  coffee: "Coffee",
+  cacao: "Cacao",
+  fallow: "Fallow",
+} as const;
+export type Crop = keyof typeof CROPS;
+
 export interface IRawAreaSummary {
   id: string;
   name: string;
@@ -57,8 +74,8 @@ export interface IRawAreaDetail extends Pick<
 > {
   id: string;
   created_at: string;
-  tillage_practice: CreateAreaInput["tillagePractice"];
-  current_crop: CreateAreaInput["currentCrop"];
+  tillage_practice: TillagePractice;
+  current_crop: Crop;
   months_under_practice: number;
   attestation_signature: string;
   photos: string[];
@@ -70,8 +87,25 @@ export interface IAreaDetail
     Pick<IRawAreaDetail, "photos"> {
   id: string;
   createdAt: Date;
-  tillagePractice: CreateAreaInput["tillagePractice"];
-  currentCrop: CreateAreaInput["currentCrop"];
+  tillagePractice: TillagePractice;
+  currentCrop: Crop;
   monthsUnderPractice: number;
   attestationSignature: string;
+}
+
+export interface IRawPracticeSummary {
+  id: string;
+  type: PracticeType;
+  crop: Crop;
+  started_at: string;
+  finished_at: string | null; // null while the practice is still active
+  tillage_practice: TillagePractice;
+  created_at: string;
+}
+
+export interface IPracticeSummary extends Omit<
+  IRawPracticeSummary,
+  "created_at"
+> {
+  createdAt: Date;
 }

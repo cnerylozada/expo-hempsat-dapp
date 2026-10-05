@@ -1,44 +1,12 @@
 import { photoShape } from "@/components/shared/schemas";
+import { TILLAGE_PRACTICES } from "@/components/shared/models";
+import { MAX_AREA_PHOTOS } from "./models";
+import { CROPS, type Crop, type TillagePractice } from "@/server/models";
 import { z } from "zod";
 
-export const TILLAGE_PRACTICES = {
-  conventional: {
-    label: "Conventional tillage",
-    hint: "Regular soil disturbance",
-  },
-  reduced: {
-    label: "Reduced tillage",
-    hint: "Some disturbance, less frequent",
-  },
-  no_till: { label: "No-till", hint: "Already practicing minimal disturbance" },
-  native_fallow: { label: "Native / fallow", hint: "Never cultivated" },
-} as const;
-export type TillagePractice = keyof typeof TILLAGE_PRACTICES;
 export const tillagePracticeEnum = z.enum(
   Object.keys(TILLAGE_PRACTICES) as [TillagePractice, ...TillagePractice[]],
 );
-export const tillagePracticeOptions = (
-  Object.keys(TILLAGE_PRACTICES) as TillagePractice[]
-).map((practice) => ({ value: practice, ...TILLAGE_PRACTICES[practice] }));
-
-export const CROPS = {
-  hemp: "Hemp",
-  maize: "Maize",
-  beans: "Beans",
-  potato: "Potato",
-  quinoa: "Quinoa",
-  coffee: "Coffee",
-  cacao: "Cacao",
-  fallow: "Fallow",
-} as const;
-export type Crop = keyof typeof CROPS;
-export const commonCrops = Object.keys(CROPS) as [Crop, ...Crop[]];
-export const cropOptions = commonCrops.map((crop) => ({
-  value: crop,
-  label: CROPS[crop],
-}));
-
-export const MAX_AREA_PHOTOS = 3;
 
 const areaPhotoSchema = photoShape.refine(
   (_) =>
@@ -54,7 +22,7 @@ export const registerAreaSchema = z.object({
     .string({ message: "Description is required" })
     .min(30, "Description must be at least 30 characters"),
   tillagePractice: tillagePracticeEnum,
-  currentCrop: z.enum(commonCrops),
+  currentCrop: z.enum(Object.keys(CROPS) as [Crop, ...Crop[]]),
   photoList: z
     .array(areaPhotoSchema)
     .min(1, "At least 1 photo is required")
