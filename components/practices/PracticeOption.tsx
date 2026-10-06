@@ -1,3 +1,4 @@
+import { PRACTICE_COLORS } from "@/components/shared/models";
 import { Box } from "@/components/ui/box";
 import { Pressable } from "@/components/ui/pressable";
 import { Text } from "@/components/ui/text";
@@ -42,7 +43,11 @@ export const PracticeOption = ({
     </Pressable>
 
     <Box className="flex-1 gap-1">
-      <PracticeLabel name={practice.name} color={practice.color} size="lg" />
+      <PracticeLabel
+        name={practice.name}
+        color={PRACTICE_COLORS[practice.id]}
+        size="lg"
+      />
       <Text size="sm" className="text-muted-foreground">
         {practice.summary}
       </Text>

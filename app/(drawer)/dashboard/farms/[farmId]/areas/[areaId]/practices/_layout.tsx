@@ -9,6 +9,10 @@ export default function PracticesLayout() {
       }}
     >
       <Stack.Screen
+        name="register-summary"
+        options={{ title: "Register summary" }}
+      />
+      <Stack.Screen
         name="register-practice"
         options={{ title: "Start a new practice" }}
       />

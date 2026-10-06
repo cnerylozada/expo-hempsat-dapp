@@ -31,7 +31,7 @@ export default function AreaPractices() {
       <Link
         href={{
           pathname:
-            "/(drawer)/dashboard/farms/[farmId]/areas/[areaId]/practices/register-practice",
+            "/(drawer)/dashboard/farms/[farmId]/areas/[areaId]/practices/register-summary",
           params: { farmId, areaId },
         }}
         asChild

@@ -10,13 +10,12 @@ cssInterop(Ionicons, {
 export type FlowStep = {
   title: string;
   subtitle: string;
+  shortSubtitle: string;
 };
 
 export type FlowProgressProps = {
   steps: FlowStep[];
-  /** Zero-based index of the step the user is on. Pass `steps.length` when the flow is finished. */
   currentStep: number;
-  /** `list` explains the flow, step by step. `compact` is the one-row summary. */
   variant?: "list" | "compact";
   title?: string;
   description?: string;
@@ -49,10 +48,6 @@ const Dot = ({ state }: { state: State }) => (
   </Box>
 );
 
-/**
- * Shows where the user is in a multi-screen flow (start, check in, close...).
- * Display only: it doesn't navigate. Use `Stepper` for the steps of one form.
- */
 export const FlowProgress = ({
   steps,
   currentStep,
@@ -154,7 +149,7 @@ const Compact = ({
             {step.title}
           </Text>
           <Text size="xs" className="text-center text-muted-foreground">
-            {step.subtitle}
+            {step.shortSubtitle}
           </Text>
         </Box>
       ))}

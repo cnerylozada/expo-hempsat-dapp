@@ -1,3 +1,4 @@
+import type { FlowStep } from "@/components/shared/FlowProgress";
 import type { PracticeType } from "@/server/models";
 
 export type PracticeInfo = {
@@ -5,8 +6,6 @@ export type PracticeInfo = {
   name: string;
   /** One line shown on the option card. */
   summary: string;
-  /** The practice's own colour: the dot on the option, the badge in its sheet, and wherever else the practice is shown. */
-  color: string;
   /** Everything the "what is this?" sheet shows. */
   info: {
     title: string;
@@ -17,12 +16,36 @@ export type PracticeInfo = {
   };
 };
 
+// The life of a practice, for FlowProgress.
+export const PRACTICE_FLOW_STEPS: FlowStep[] = [
+  {
+    title: "Start",
+    subtitle: "Choose a practice and tell us how your field looks today.",
+    shortSubtitle: "Choose a practice",
+  },
+  {
+    title: "Check in",
+    subtitle: "Add photos and notes as the season goes on.",
+    shortSubtitle: "Photos and notes",
+  },
+  {
+    title: "Close",
+    subtitle: "Finish it at harvest. Then you can start a new one.",
+    shortSubtitle: "At harvest",
+  },
+];
+
+// What the farmer should know before starting a practice.
+export const PRACTICE_RULES = [
+  "Only one practice at a time on each area.",
+  "Once you sign it, the start of the practice can't be changed.",
+];
+
 export const PRACTICES: PracticeInfo[] = [
   {
     id: "mulching",
     name: "Mulching",
     summary: "Cover the soil with residue, straw or leaves.",
-    color: "#F2D27A",
     info: {
       title: "What is mulching?",
       about:
@@ -44,7 +67,6 @@ export const PRACTICES: PracticeInfo[] = [
     id: "organic_amendments",
     name: "Organic amendments",
     summary: "Add compost or manure to feed the soil.",
-    color: "#EBA97A",
     info: {
       title: "What are organic amendments?",
       about:
@@ -66,7 +88,6 @@ export const PRACTICES: PracticeInfo[] = [
     id: "cover_crops",
     name: "Cover crops",
     summary: "Grow plants that protect the soil between harvests.",
-    color: "#8FD9C4",
     info: {
       title: "What are cover crops?",
       about:

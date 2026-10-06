@@ -1,3 +1,4 @@
+import { PRACTICE_COLORS } from "@/components/shared/models";
 import { FieldRow } from "@/components/shared/FieldRow";
 import { InstructionsCard } from "@/components/shared/InstructionsCard";
 import { SectionTitle } from "@/components/shared/SectionTitle";
@@ -38,7 +39,10 @@ export const PracticeInfoSheet = ({
     {practice && (
       <BottomSheetContent className="gap-4 pb-6">
         <Box className="flex-row items-center justify-between">
-          <PracticeLabel name={practice.name} color={practice.color} />
+          <PracticeLabel
+            name={practice.name}
+            color={PRACTICE_COLORS[practice.id]}
+          />
           <Pressable onPress={onClose} hitSlop={8}>
             <Ionicons
               name="close"

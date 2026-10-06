@@ -1,4 +1,4 @@
-import { TILLAGE_PRACTICES } from "@/components/shared/models";
+import { PRACTICE_COLORS, TILLAGE_PRACTICES } from "@/components/shared/models";
 import { formatDate } from "@/components/farms/utils";
 import { AppButton } from "@/components/shared/AppButton";
 import { Box } from "@/components/ui/box";
@@ -45,7 +45,7 @@ export const PracticeCard = ({
   const content = (
     <>
       <Box className="flex-row items-center justify-between">
-        <PracticeLabel name={practice.name} color={practice.color} />
+        <PracticeLabel name={practice.name} color={PRACTICE_COLORS[type]} />
 
         {isActive && (
           <Box className="flex-row items-center gap-1.5 rounded-full bg-primary/10 px-3 py-1">
