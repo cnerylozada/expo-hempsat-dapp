@@ -85,6 +85,7 @@ export default function RegisterPracticeSummary() {
             text={
               selected ? `Continue with ${selected.name}` : "Choose a practice"
             }
+            icon="chevron-forward"
             disabled={!selected}
             onPress={onContinue}
           />

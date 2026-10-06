@@ -6,9 +6,8 @@ import { StatusBanner } from "@/components/shared/StatusBanner";
 import { queryKeys } from "@/libs/queryKeys";
 import { useAuth } from "@/providers/AuthProvider";
 import { getPracticesByAreaId } from "@/server/practices";
-import { Link, useGlobalSearchParams } from "expo-router";
+import { Link, router, useGlobalSearchParams } from "expo-router";
 import { FlatList, View } from "react-native";
-import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 export default function AreaPractices() {
   const { farmId, areaId } = useGlobalSearchParams<{
@@ -17,7 +16,6 @@ export default function AreaPractices() {
   }>();
 
   const { token } = useAuth();
-  const { bottom } = useSafeAreaInsets();
 
   const { data, isLoading, isError, error, refetch, isRefetching } =
     useAuthedQuery(queryKeys.practices.byAreaId(areaId), () =>
@@ -63,11 +61,19 @@ export default function AreaPractices() {
           <FlatList
             className="flex-1"
             contentContainerClassName="gap-6"
-            contentContainerStyle={{ paddingBottom: bottom }}
             data={data}
             keyExtractor={(item) => item.id}
             renderItem={({ item }) => (
-              <PracticeCard practiceSummary={item} onPress={() => {}} />
+              <PracticeCard
+                practiceSummary={item}
+                onPress={() =>
+                  router.push({
+                    pathname:
+                      "/(drawer)/dashboard/farms/[farmId]/areas/[areaId]/practices/[practiceId]",
+                    params: { farmId, areaId, practiceId: item.id },
+                  })
+                }
+              />
             )}
           />
         ))}

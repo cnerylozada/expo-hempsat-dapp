@@ -133,7 +133,6 @@ export default function CreateFarm() {
 
         <AppButton
           text="Save"
-          icon="save-outline"
           onPress={handleSubmit(onSubmit)}
           loading={mutation.isPending}
         />

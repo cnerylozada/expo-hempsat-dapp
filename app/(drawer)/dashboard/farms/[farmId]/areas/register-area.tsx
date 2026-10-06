@@ -269,7 +269,6 @@ export default function RegisterAreaForm() {
 
         <AppButton
           text="Review and save"
-          icon="checkmark-circle-outline"
           onPress={handleSubmit(() => {
             clearErrors();
             setIsConfirmOpen(true);

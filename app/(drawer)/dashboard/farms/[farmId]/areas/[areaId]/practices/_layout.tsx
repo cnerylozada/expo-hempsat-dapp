@@ -16,6 +16,7 @@ export default function PracticesLayout() {
         name="register-practice"
         options={{ title: "Start a new practice" }}
       />
+      <Stack.Screen name="[practiceId]" />
     </Stack>
   );
 }

@@ -109,7 +109,6 @@ export const BoundaryDrawingPanel = ({
           <Box className="flex-1">
             <AppButton
               text="Confirm"
-              icon="checkmark-outline"
               disabled={!canConfirm}
               onPress={onConfirm}
             />
@@ -127,7 +126,6 @@ export const BoundaryDrawingPanel = ({
 
         <AppButton
           text="Done"
-          icon="flag-outline"
           theme="secondary"
           disabled={!canFinish}
           onPress={onDone}

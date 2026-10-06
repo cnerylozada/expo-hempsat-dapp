@@ -60,7 +60,7 @@ farms/                         Stack: index, register-farm, [farmId]/(tabs), [fa
     register-area.tsx          register an area (named like register-farm)
     [areaId]/                  Stack: (tabs), practices
       (tabs)/                  Tabs: index (area), practices (list)
-      practices/               Stack: register-summary (pick a practice), register-practice
+      practices/               Stack: register-summary (pick a practice), register-practice, [practiceId] (detail)
 ```
 
 - A folder next to a `Tabs` layout becomes a tab, so a screen that must not be a tab goes in a sibling Stack (e.g. `areas/register-area.tsx`), not in the `(tabs)` group.
@@ -156,6 +156,13 @@ const { colorScheme } = useColorScheme();
 `ConnectButton`'s `theme` prop takes `colorScheme` directly rather than a `colorScheme ?? "dark"` fallback: the prop is optional and thirdweb already defaults to `"dark"`, so a hardcoded fallback only risks contradicting the system scheme.
 
 - `components/ThemedText.tsx` and `components/ThemedButton.tsx` — pre-gluestack primitives. `ThemedText` supports types: `default`, `title`, `defaultSemiBold`, `subtitle`, `subtext`. Being replaced by gluestack components; prefer gluestack for new UI. Concretely, that replacement is a small app-level component library built on the vendored gluestack primitives — `components/shared/AppButton.tsx` (themed/outline button, replaces `ThemedButton`), `components/shared/StatusBanner.tsx` (success/warning/error banner with an optional action), `components/shared/InstructionsCard.tsx` (numbered tips card) — all following the same recipe: `Box`/`Pressable`/`Text` + a `cssInterop`'d `Ionicons` in the same file, styled entirely with theme-token classNames (`bg-primary`, `text-muted-foreground`, …), never the old palette. Reach for one of these before writing a new one-off styled `View`.
+- **`AppButton` icons.** The icon always sits after the text (`AppButton` has no position prop, on purpose). The rules:
+  - Add an icon only when it says something faster than the words: a recognisable object or tool (add, camera, map, location, wallet, fingerprint, lock). Generic verbs get no icon: Save, Review and save, Confirm, Done, Cancel, Back. An icon on every button stops meaning anything.
+  - `chevron-forward` means "takes you to another screen or step" (See details, Continue with …).
+  - Always the `-outline` Ionicons variant; chevrons have no filled version, so they stay plain.
+  - One meaning, one icon: create/start `add-circle-outline`, boundary `map-outline`, identity `finger-print-outline`, sign `wallet-outline`, photo `camera-outline`, location `locate-outline`, retry/reset `refresh-outline`, navigate `chevron-forward`.
+  - Never an icon on Cancel or another dismiss action, so the main action of a pair stands out.
+  - Text is a sentence-case verb phrase ("Start verification", not "Start Verification").
 - The old custom palette (`tint`, `text`, `subtext`, `text-inverted`) was dropped when `tailwind.config.js` was replaced with gluestack's, and no call site uses it any more. Classes like `bg-tint` or `text-text` generate nothing, so use the theme tokens above instead.
 
 ### UI Components (gluestack-ui v4 alpha)

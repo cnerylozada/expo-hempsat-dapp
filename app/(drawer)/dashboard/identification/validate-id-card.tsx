@@ -100,7 +100,7 @@ export default function ValidateIDCardScreen() {
 
       {status === "idle" && (
         <AppButton
-          text="Start Verification"
+          text="Start verification"
           icon="finger-print-outline"
           onPress={startVerification}
         />
