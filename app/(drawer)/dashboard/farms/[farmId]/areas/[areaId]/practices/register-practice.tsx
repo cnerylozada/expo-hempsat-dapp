@@ -1,4 +1,4 @@
-import { PRACTICES } from "@/components/practices/utils";
+import { RegisterMulchingForm } from "@/components/practices/register-practice/mulching/RegisterMulchingForm";
 import { ScreenLayout } from "@/components/ScreenLayout";
 import type { PracticeType } from "@/server/models";
 import { useLocalSearchParams } from "expo-router";
@@ -11,8 +11,10 @@ export default function RegisterPractice() {
     areaId: string;
     type: PracticeType;
   }>();
-  // Route params are plain strings, so the practice may be missing.
-  const practice = PRACTICES.find((p) => p.id === type);
 
-  return <ScreenLayout>{null}</ScreenLayout>;
+  return (
+    <ScreenLayout>
+      {type === "mulching" && <RegisterMulchingForm />}
+    </ScreenLayout>
+  );
 }

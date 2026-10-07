@@ -39,6 +39,7 @@
     "@walletconnect/react-native-compat": "^2.23.9",
     "amazon-cognito-identity-js": "^6.3.16",
     "babel-preset-expo": "^55.0.21",
+    "date-fns": "^3.6.0",
     "expo": "~54.0.33",
     "expo-application": "~7.0.8",
     "expo-build-properties": "~1.0.10",
