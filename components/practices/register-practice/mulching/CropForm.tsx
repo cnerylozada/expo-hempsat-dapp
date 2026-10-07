@@ -43,8 +43,6 @@ export const CropForm = ({
         )}
       />
 
-      {/* "Is it planted yet?" is not a field of its own: plantedAt is null when
-        the answer is "Not yet" and a date otherwise. */}
       <Controller
         control={control}
         name="plantedAt"
@@ -52,6 +50,7 @@ export const CropForm = ({
           <View className="gap-6">
             <AppRadioGroup
               label="Is it planted yet?"
+              columns={2}
               options={[...PLANTED_OPTIONS]}
               value={value === null ? "no" : "yes"}
               onChange={(answer) =>

@@ -49,6 +49,10 @@ export type MaterialState = "fresh_green" | "dry";
 
 export type MaterialSource = "this_farm" | "brought_in";
 
+export type AmountUnit = "kg" | "tonnes" | "other";
+
+export type CoverageLevel = "all" | "about_half" | "small_part";
+
 export const CROPS = {
   hemp: "Hemp",
   maize: "Maize",

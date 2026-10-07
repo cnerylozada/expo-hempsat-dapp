@@ -3,7 +3,13 @@ import { FieldRow } from "@/components/shared/FieldRow";
 import { Box } from "@/components/ui/box";
 import { CROPS } from "@/server/models";
 import { View } from "react-native";
-import { MATERIAL_SOURCES, MATERIAL_STATES, MULCH_MATERIALS } from "./models";
+import {
+  AMOUNT_UNITS,
+  COVERAGE_LEVELS,
+  MATERIAL_SOURCES,
+  MATERIAL_STATES,
+  MULCH_MATERIALS,
+} from "./models";
 import type { RegisterPracticeInput } from "./schemas";
 
 export const ReviewAndSignStep = ({
@@ -36,6 +42,12 @@ export const ReviewAndSignStep = ({
             : MATERIAL_SOURCES[values.source]
         }
       />
+      <FieldRow
+        label="Amount"
+        value={`${values.amount} ${AMOUNT_UNITS[values.unit]}`}
+      />
+      <FieldRow label="Coverage" value={COVERAGE_LEVELS[values.coverage]} />
+      <FieldRow label="Photos" value={`${values.photoList.length}`} />
       <FieldRow label="Baseline" value={values.baseline} />
     </Box>
   </View>

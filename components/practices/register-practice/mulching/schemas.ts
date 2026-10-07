@@ -1,19 +1,28 @@
+import { areaPhotoSchema } from "@/components/areas/register-area/schemas";
 import {
   CROPS,
+  type AmountUnit,
+  type CoverageLevel,
   type Crop,
   type MaterialSource,
   type MaterialState,
   type MulchMaterial,
 } from "@/server/models";
 import { z } from "zod";
-import { MATERIAL_SOURCES, MATERIAL_STATES, MULCH_MATERIALS } from "./models";
+import {
+  AMOUNT_UNITS,
+  COVERAGE_LEVELS,
+  MATERIAL_SOURCES,
+  MATERIAL_STATES,
+  MAX_MULCH_PHOTOS,
+  MULCH_MATERIALS,
+} from "./models";
 
 export const registerPracticeSchema = z
   .object({
     crop: z.enum(Object.keys(CROPS) as [Crop, ...Crop[]], {
       message: "Crop is required",
     }),
-    // null means "not planted yet": the date is recorded later, in a check-in.
     plantedAt: z.date({ message: "Planting date is required" }).nullable(),
     startedAt: z.date({ message: "Date applied is required" }),
     material: z.enum(
@@ -30,6 +39,20 @@ export const registerPracticeSchema = z
       { message: "Where it came from is required" },
     ),
     sourceDescription: z.string(),
+    amount: z
+      .number({ message: "Amount is required" })
+      .positive("Amount must be greater than 0"),
+    unit: z.enum(Object.keys(AMOUNT_UNITS) as [AmountUnit, ...AmountUnit[]], {
+      message: "Unit is required",
+    }),
+    coverage: z.enum(
+      Object.keys(COVERAGE_LEVELS) as [CoverageLevel, ...CoverageLevel[]],
+      { message: "Coverage is required" },
+    ),
+    photoList: z
+      .array(areaPhotoSchema)
+      .min(1, "At least 1 photo is required")
+      .max(MAX_MULCH_PHOTOS, `At most ${MAX_MULCH_PHOTOS} photos allowed`),
     // The field below is a placeholder until its step is designed.
     baseline: z
       .string({ message: "Baseline is required" })

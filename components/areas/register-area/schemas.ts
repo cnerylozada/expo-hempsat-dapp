@@ -8,7 +8,7 @@ export const tillagePracticeEnum = z.enum(
   Object.keys(TILLAGE_PRACTICES) as [TillagePractice, ...TillagePractice[]],
 );
 
-const areaPhotoSchema = photoShape.refine(
+export const areaPhotoSchema = photoShape.refine(
   (_) =>
     Math.min(_.width, _.height) >= 600 && Math.max(_.width, _.height) >= 900,
   { message: "Too small (min 600×900px)" },

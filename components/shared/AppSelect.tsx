@@ -32,7 +32,8 @@ export type AppSelectOption<T extends string> = {
 };
 
 export type AppSelectProps<T extends string> = {
-  label: string;
+  /** Optional — leave it out when a shared heading above already labels the select. */
+  label?: string;
   description?: string;
   options: AppSelectOption<T>[];
   value: T | undefined;
@@ -52,9 +53,11 @@ export function AppSelect<T extends string>({
 }: AppSelectProps<T>) {
   return (
     <FormControl isInvalid={!!errorMessage}>
-      <FormControlLabel>
-        <FormControlLabelText>{label}</FormControlLabelText>
-      </FormControlLabel>
+      {label && (
+        <FormControlLabel>
+          <FormControlLabelText>{label}</FormControlLabelText>
+        </FormControlLabel>
+      )}
 
       {description && (
         <Text size="sm" className="text-muted-foreground">
@@ -69,7 +72,7 @@ export function AppSelect<T extends string>({
         // Select types this as a plain string, but it can only ever be one of
         // the `options` values rendered below.
         onValueChange={(nextValue) => onChange(nextValue as T)}
-        className="mt-3"
+        className={label ? "mt-3" : undefined}
       >
         <SelectTrigger variant="outline" size="sm">
           <SelectInput placeholder={placeholder} className="flex-1" />

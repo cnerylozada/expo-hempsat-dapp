@@ -7,7 +7,7 @@ import Ionicons from "@expo/vector-icons/Ionicons";
 import { useRouter } from "expo-router";
 import { cssInterop } from "nativewind";
 import type { FieldErrors } from "react-hook-form";
-import { Image, TouchableOpacity } from "react-native";
+import { Image, TouchableOpacity, View } from "react-native";
 
 cssInterop(Ionicons, {
   className: { target: "style", nativeStyleToProp: { color: true } },
@@ -93,7 +93,7 @@ export function PhotoListField({
               <Box className="relative">
                 <Image
                   source={{ uri: photo.uri }}
-                  className="h-44 w-full rounded-lg"
+                  className="h-44 w-full rounded-lg border border-border"
                 />
                 <TouchableOpacity
                   onPress={() => onRemovePhoto(index)}
@@ -106,18 +106,23 @@ export function PhotoListField({
           );
         })}
 
-        {photos.length < maxPhotos && (
-          <AppButton
-            text="Take a photo"
-            icon="camera-outline"
-            onPress={() => router.push("/camera")}
-          />
-        )}
+        <View className="gap-1">
+          {photos.length < maxPhotos && (
+            <AppButton
+              text="Take a photo"
+              icon="camera-outline"
+              onPress={() => router.push("/camera")}
+            />
+          )}
+          {/* react-hook-form puts the error of the whole list (min / max)
+           * under `root` for a field array. */}
+          {errors?.root?.message && (
+            <Text className="text-xs font-body text-destructive">
+              {errors.root.message}
+            </Text>
+          )}
+        </View>
       </Box>
-
-      {errors?.message && (
-        <Text className="text-sm text-destructive">{errors.message}</Text>
-      )}
     </Box>
   );
 }
