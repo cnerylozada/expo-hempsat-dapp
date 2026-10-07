@@ -65,7 +65,7 @@ export default function CreateFarm() {
       queryClient.invalidateQueries({ queryKey: queryKeys.farms.myFarms });
       reset();
       clearPhotoList();
-      router.replace("/(drawer)/dashboard/farms");
+      router.back();
     },
   });
 

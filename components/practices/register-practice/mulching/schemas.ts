@@ -1,10 +1,13 @@
+import { CROPS, type Crop } from "@/server/models";
 import { z } from "zod";
 
-// One text field per step for now: the real fields come later.
 export const registerPracticeSchema = z.object({
-  crop: z
-    .string({ message: "Crop is required" })
-    .min(3, "Crop must be at least 3 characters"),
+  crop: z.enum(Object.keys(CROPS) as [Crop, ...Crop[]], {
+    message: "Crop is required",
+  }),
+  // null means "not planted yet": the date is recorded later, in a check-in.
+  plantedAt: z.date({ message: "Planting date is required" }).nullable(),
+  // The fields below are placeholders until their steps are designed.
   mulch: z
     .string({ message: "Mulch is required" })
     .min(3, "Mulch must be at least 3 characters"),

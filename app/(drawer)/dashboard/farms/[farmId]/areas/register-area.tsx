@@ -89,13 +89,7 @@ export default function RegisterAreaForm() {
       });
       reset();
       setIsConfirmOpen(false);
-      // `[farmId]` is already on the stack (this screen was pushed from it) —
-      // dismissTo pops back to that existing entry instead of `replace`,
-      // which would push a second copy on top of it.
-      router.dismissTo({
-        pathname: "/(drawer)/dashboard/farms/[farmId]/(tabs)",
-        params: { farmId },
-      });
+      router.back();
     },
   });
 
@@ -208,7 +202,7 @@ export default function RegisterAreaForm() {
 
         <Controller
           control={control}
-          name="currentCrop"
+          name="crop"
           render={({ field: { value, onChange } }) => (
             <AppSelect
               label="Current / most recent crop"
@@ -217,7 +211,7 @@ export default function RegisterAreaForm() {
               options={cropOptions}
               value={value}
               onChange={onChange}
-              errorMessage={errors.currentCrop?.message}
+              errorMessage={errors.crop?.message}
             />
           )}
         />

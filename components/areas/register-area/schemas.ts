@@ -1,8 +1,8 @@
-import { photoShape } from "@/components/shared/schemas";
 import { TILLAGE_PRACTICES } from "@/components/shared/models";
-import { MAX_AREA_PHOTOS } from "./models";
+import { photoShape } from "@/components/shared/schemas";
 import { CROPS, type Crop, type TillagePractice } from "@/server/models";
 import { z } from "zod";
+import { MAX_AREA_PHOTOS } from "./models";
 
 export const tillagePracticeEnum = z.enum(
   Object.keys(TILLAGE_PRACTICES) as [TillagePractice, ...TillagePractice[]],
@@ -22,7 +22,9 @@ export const registerAreaSchema = z.object({
     .string({ message: "Description is required" })
     .min(30, "Description must be at least 30 characters"),
   tillagePractice: tillagePracticeEnum,
-  currentCrop: z.enum(Object.keys(CROPS) as [Crop, ...Crop[]]),
+  crop: z.enum(Object.keys(CROPS) as [Crop, ...Crop[]], {
+    message: "Crop is required",
+  }),
   photoList: z
     .array(areaPhotoSchema)
     .min(1, "At least 1 photo is required")

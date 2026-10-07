@@ -6,11 +6,11 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { ScrollView, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { registerPracticeSchema, type RegisterPracticeInput } from "../schemas";
 import { BaselineForm } from "./BaselineForm";
 import { CropForm } from "./CropForm";
 import { MaterialForm } from "./MaterialForm";
 import { ReviewAndSignStep } from "./ReviewAndSignStep";
+import { registerPracticeSchema, type RegisterPracticeInput } from "./schemas";
 
 const STEPS = [
   "Your crop",
@@ -20,7 +20,7 @@ const STEPS = [
 ];
 
 const STEP_FIELDS: (keyof RegisterPracticeInput)[][] = [
-  ["crop"],
+  ["crop", "plantedAt"],
   ["mulch"],
   ["baseline"],
   [],
@@ -34,7 +34,7 @@ export const RegisterMulchingForm = () => {
   const { control, getValues, trigger } = useForm<RegisterPracticeInput>({
     resolver: zodResolver(registerPracticeSchema),
     mode: "all",
-    defaultValues: { crop: "", mulch: "", baseline: "" },
+    defaultValues: { plantedAt: new Date(), mulch: "", baseline: "" },
   });
 
   const goToStep = async (target: number) => {

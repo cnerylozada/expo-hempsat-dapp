@@ -1,7 +1,7 @@
 import { AppTextInput } from "@/components/shared/AppTextInput";
 import { Control, Controller } from "react-hook-form";
 import { View } from "react-native";
-import type { RegisterPracticeInput } from "../schemas";
+import type { RegisterPracticeInput } from "./schemas";
 
 export const MaterialForm = ({
   control,

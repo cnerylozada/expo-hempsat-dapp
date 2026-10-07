@@ -70,25 +70,25 @@ export type CreateAreaInput = z.infer<typeof registerAreaSchema>;
 
 export interface IRawAreaDetail extends Pick<
   CreateAreaInput,
-  "name" | "description" | "boundaries"
+  "name" | "description" | "boundaries" | "crop"
 > {
   id: string;
   created_at: string;
   tillage_practice: TillagePractice;
-  current_crop: Crop;
   months_under_practice: number;
   attestation_signature: string;
   photos: string[];
 }
 
-export interface IAreaDetail
-  extends
-    Pick<CreateAreaInput, "name" | "description" | "boundaries">,
-    Pick<IRawAreaDetail, "photos"> {
-  id: string;
+export interface IAreaDetail extends Omit<
+  IRawAreaDetail,
+  | "created_at"
+  | "tillage_practice"
+  | "months_under_practice"
+  | "attestation_signature"
+> {
   createdAt: Date;
   tillagePractice: TillagePractice;
-  currentCrop: Crop;
   monthsUnderPractice: number;
   attestationSignature: string;
 }

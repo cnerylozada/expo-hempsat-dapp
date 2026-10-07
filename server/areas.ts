@@ -57,7 +57,7 @@ export const getAreaById = async (
     boundaries: rawAreaDetail.boundaries,
     photos: rawAreaDetail.photos,
     tillagePractice: rawAreaDetail.tillage_practice,
-    currentCrop: rawAreaDetail.current_crop,
+    crop: rawAreaDetail.crop,
     monthsUnderPractice: rawAreaDetail.months_under_practice,
     attestationSignature: rawAreaDetail.attestation_signature,
     createdAt: new Date(rawAreaDetail.created_at),
@@ -74,7 +74,7 @@ export const addNewAreaInFarm = async (
   formData.append("name", areaBody.name);
   formData.append("description", areaBody.description);
   formData.append("tillagePractice", areaBody.tillagePractice);
-  formData.append("currentCrop", areaBody.currentCrop);
+  formData.append("crop", areaBody.crop);
   formData.append(
     "monthsUnderPractice",
     String(areaBody.yearsUnderPractice * 12 + areaBody.monthsUnderPractice),

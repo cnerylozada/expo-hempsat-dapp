@@ -66,7 +66,7 @@ farms/                         Stack: index, register-farm, [farmId]/(tabs), [fa
 - A folder next to a `Tabs` layout becomes a tab, so a screen that must not be a tab goes in a sibling Stack (e.g. `areas/register-area.tsx`), not in the `(tabs)` group.
 - A nested layout is registered in its parent with `headerShown: false` (e.g. `[farmId]/areas`, `practices`), otherwise the header is drawn twice.
 - Fixed names (`register-area`, `register-practice`) win over dynamic segments (`[areaId]`).
-- `router.dismissTo` needs the form to be on top of a Stack (the register-area form dismisses to `[farmId]/(tabs)`).
+- A register form is always pushed from the screen below it, so on success it leaves with `router.back()` (register-farm, register-area). `router.replace` would push a second copy of the list.
 - Typed routes (`experiments.typedRoutes`) regenerate only when Metro starts. A new route shows as a `tsc` error until `npx expo start` has run once.
 - A screen sets its header title at runtime through the navigator that owns it: `useNavigation("/(drawer)/dashboard/farms/[farmId]/areas/[areaId]").setOptions({ title })` (see the area detail screen).
 

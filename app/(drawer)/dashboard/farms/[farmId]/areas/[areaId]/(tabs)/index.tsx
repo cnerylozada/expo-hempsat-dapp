@@ -78,7 +78,7 @@ export default function AreaDetail() {
             <Box className="gap-3 rounded-xl border border-border bg-card p-4">
               <FieldRow label="Name" value={area.name} emphasis />
               <FieldRow label="Description" value={area.description} />
-              <FieldRow label="Crop" value={CROPS[area.currentCrop]} />
+              <FieldRow label="Crop" value={CROPS[area.crop]} />
               <FieldRow
                 label="Tillage"
                 value={TILLAGE_PRACTICES[area.tillagePractice].label}
