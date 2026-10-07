@@ -27,6 +27,8 @@ export type AppRadioGroupProps<T extends string> = {
   value: T | undefined;
   onChange: (value: T) => void;
   errorMessage?: string;
+  /** 2 puts the options side by side, for short labels. */
+  columns?: 1 | 2;
 };
 
 export function AppRadioGroup<T extends string>({
@@ -36,6 +38,7 @@ export function AppRadioGroup<T extends string>({
   value,
   onChange,
   errorMessage,
+  columns = 1,
 }: AppRadioGroupProps<T>) {
   return (
     <FormControl isInvalid={!!errorMessage}>
@@ -49,7 +52,11 @@ export function AppRadioGroup<T extends string>({
         </Text>
       )}
 
-      <RadioGroup value={value} onChange={onChange} className="mt-3 gap-3">
+      <RadioGroup
+        value={value}
+        onChange={onChange}
+        className={`mt-3 gap-3 ${columns === 2 ? "flex-row flex-wrap" : ""}`}
+      >
         {options.map((option) => {
           const isSelected = value === option.value;
 
@@ -58,6 +65,8 @@ export function AppRadioGroup<T extends string>({
               key={option.value}
               value={option.value}
               className={`items-center rounded-xl border p-4 ${
+                columns === 2 ? "min-w-[45%] flex-1" : ""
+              } ${
                 isSelected
                   ? "border-primary bg-primary/10"
                   : "border-border bg-card"

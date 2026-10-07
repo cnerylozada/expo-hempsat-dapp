@@ -21,7 +21,14 @@ const STEPS = [
 
 const STEP_FIELDS: (keyof RegisterPracticeInput)[][] = [
   ["crop", "plantedAt"],
-  ["mulch"],
+  [
+    "startedAt",
+    "material",
+    "materialOther",
+    "materialState",
+    "source",
+    "sourceDescription",
+  ],
   ["baseline"],
   [],
 ];
@@ -31,14 +38,25 @@ export const RegisterMulchingForm = () => {
   const [step, setStep] = useState(0);
   const isLast = step === STEPS.length - 1;
 
-  const { control, getValues, trigger } = useForm<RegisterPracticeInput>({
-    resolver: zodResolver(registerPracticeSchema),
-    mode: "all",
-    defaultValues: { plantedAt: new Date(), mulch: "", baseline: "" },
-  });
+  const { control, getValues, trigger, handleSubmit } =
+    useForm<RegisterPracticeInput>({
+      resolver: zodResolver(registerPracticeSchema),
+      mode: "all",
+      defaultValues: {
+        plantedAt: new Date(),
+        startedAt: new Date(),
+        materialOther: "",
+        sourceDescription: "",
+        baseline: "",
+      },
+    });
 
   const goToStep = async (target: number) => {
     if (await trigger(STEP_FIELDS[step])) setStep(target);
+  };
+
+  const onSubmit = (data: RegisterPracticeInput) => {
+    console.log(data);
   };
 
   return (
@@ -60,7 +78,11 @@ export const RegisterMulchingForm = () => {
 
       <View className="gap-3" style={{ paddingBottom: bottom }}>
         {isLast ? (
-          <AppButton text="Sign and save" icon="wallet-outline" />
+          <AppButton
+            text="Sign and save"
+            icon="wallet-outline"
+            onPress={handleSubmit(onSubmit)}
+          />
         ) : (
           <AppButton text="Next" onPress={() => goToStep(step + 1)} />
         )}

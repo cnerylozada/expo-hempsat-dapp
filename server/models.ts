@@ -42,6 +42,13 @@ export type PracticeType = "mulching" | "organic_amendments" | "cover_crops";
 export type TillagePractice =
   "conventional" | "reduced" | "no_till" | "native_fallow";
 
+export type MulchMaterial =
+  "crop_residue" | "straw_or_hay" | "leaves_and_cuttings" | "other";
+
+export type MaterialState = "fresh_green" | "dry";
+
+export type MaterialSource = "this_farm" | "brought_in";
+
 export const CROPS = {
   hemp: "Hemp",
   maize: "Maize",

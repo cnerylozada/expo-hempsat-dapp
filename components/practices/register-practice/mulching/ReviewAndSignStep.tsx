@@ -3,6 +3,7 @@ import { FieldRow } from "@/components/shared/FieldRow";
 import { Box } from "@/components/ui/box";
 import { CROPS } from "@/server/models";
 import { View } from "react-native";
+import { MATERIAL_SOURCES, MATERIAL_STATES, MULCH_MATERIALS } from "./models";
 import type { RegisterPracticeInput } from "./schemas";
 
 export const ReviewAndSignStep = ({
@@ -17,7 +18,24 @@ export const ReviewAndSignStep = ({
         label="Planted"
         value={values.plantedAt ? formatDate(values.plantedAt) : "Not yet"}
       />
-      <FieldRow label="Mulch" value={values.mulch} />
+      <FieldRow label="Applied" value={formatDate(values.startedAt)} />
+      <FieldRow
+        label="Material"
+        value={
+          values.material === "other"
+            ? values.materialOther
+            : MULCH_MATERIALS[values.material]
+        }
+      />
+      <FieldRow label="State" value={MATERIAL_STATES[values.materialState]} />
+      <FieldRow
+        label="Source"
+        value={
+          values.source === "brought_in"
+            ? values.sourceDescription
+            : MATERIAL_SOURCES[values.source]
+        }
+      />
       <FieldRow label="Baseline" value={values.baseline} />
     </Box>
   </View>
